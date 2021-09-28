@@ -226,8 +226,8 @@ list_of_classes
 		;
 
 class
-		: CLASS ID LBRACE items_class RBRACE
-		| CLASS ID EXTENDS ID LBRACE items_class RBRACE
+		: PUBLIC CLASS ID LBRACE items_class RBRACE
+		| PUBLIC CLASS ID EXTENDS ID LBRACE items_class RBRACE
 		;
 
 items_class

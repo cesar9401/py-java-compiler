@@ -1,7 +1,13 @@
 <div class="container-fluid mt-4">
 	<div class="row">
 		<div class="col-2">
-			<div class="forders-container">
+			<div class="d-grid">
+				<button (click)="getSource()" class="btn btn-success">Compilar</button>
+			</div>
+			<div class="text-center">
+				<span class="badge bg-light text-dark fs-6">{{info}}</span>
+			</div>
+			<div class="folders-container">
 
 			</div>
 		</div>

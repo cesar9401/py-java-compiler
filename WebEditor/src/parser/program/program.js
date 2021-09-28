@@ -86,11 +86,115 @@ switch (yystate) {
 case 1:
  return true; 
 break;
+case 37:
+ this.$ = new yy.Statement(this._$.first_line, this._$.first_column, true, $$[$0-4], $$[$0-3], $$[$0-1]); 
+break;
+case 38:
+
+				this.$ = [];
+				for(const element of $$[$0-1]) {
+					if(element.length === 1) {
+						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $$[$0-2], element[0], null);
+						this.$.push(tmp);
+					} else if(element.length === 2) {
+						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $$[$0-2], element[0], element[1]);
+						this.$.push(tmp);
+					}
+				}
+			
+break;
+case 39:
+ $$[$0-2].push($$[$0]); this.$ = $$[$0-2]; 
+break;
+case 40:
+ this.$ = []; this.$.push($$[$0]); 
+break;
+case 41:
+ this.$ = [$$[$0-2], $$[$0]]; 
+break;
+case 42:
+ this.$ = [$$[$0]]; 
+break;
+case 47:
+ this.$ = yy.OperationType.INT; 
+break;
+case 48:
+ this.$ = yy.OperationType.CHAR; 
+break;
+case 49:
+ this.$ = yy.OperationType.FLOAT; 
+break;
 case 89:
  console.log(`scanf: ${$$[$0-5]}`); 
 break;
+case 90:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
+break;
+case 91: case 93: case 100: case 103: case 107: case 109: case 111: case 113:
+ this.$ = $$[$0]; 
+break;
+case 92:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.AND, $$[$0-2], $$[$0]); 
+break;
+case 94:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $$[$0-2], $$[$0]); 
+break;
+case 95:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $$[$0-2], $$[$0]); 
+break;
+case 96:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $$[$0-2], $$[$0]); 
+break;
+case 97:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $$[$0-2], $$[$0]); 
+break;
+case 98:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $$[$0-2], $$[$0]); 
+break;
+case 99:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $$[$0-2], $$[$0]); 
+break;
+case 101:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $$[$0-2], $$[$0]); 
+break;
+case 102:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $$[$0-2], $$[$0]); 
+break;
+case 104:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $$[$0-2], $$[$0]); 
+break;
+case 105:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $$[$0-2], $$[$0]); 
+break;
+case 106:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $$[$0-2], $$[$0]); 
+break;
+case 108:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.POW, $$[$0-2], $$[$0]); 
+break;
+case 110:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $$[$0], null); 
+break;
+case 112:
+ this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $$[$0], null); 
+break;
+case 114:
+ const tmp = new yy.Variable(yy.OperationType.INT, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); 
+break;
+case 115:
+ const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); 
+break;
+case 116:
+ const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); 
+break;
 case 117:
- console.log(`value: ${$$[$0]}`); 
+ const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); 
+break;
+case 118:
+ const tmp4 = new yy.Variable(yy.OperationType.ID, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); 
+break;
+case 119:
+ this.$ = $$[$0-1]; 
 break;
 }
 },
@@ -678,9 +782,9 @@ case 50:return "NOT";
 break;
 case 51:return "AMP";
 break;
-case 52:return "INTEGER";
+case 52:return "DECIMAL";
 break;
-case 53:return "DECIMAL";
+case 53:return "INTEGER";
 break;
 case 54:return "ID";
 break;
@@ -749,7 +853,7 @@ case 77:char += "\\";
 break;
 }
 },
-rules: [/^(?:(%%PROGRAMA\b))/,/^(?:(include\b))/,/^(?:(void\b))/,/^(?:(main\b))/,/^(?:(int\b))/,/^(?:(char\b))/,/^(?:(float\b))/,/^(?:(arreglo\b))/,/^(?:(const\b))/,/^(?:(if\b))/,/^(?:(else\b))/,/^(?:(switch\b))/,/^(?:(case\b))/,/^(?:(break\b))/,/^(?:(default\b))/,/^(?:(for\b))/,/^(?:(while\b))/,/^(?:(do\b))/,/^(?:(continue\b))/,/^(?:(PY\b))/,/^(?:(scanf\b))/,/^(?:(printf\b))/,/^(?:(clrscr\b))/,/^(?:(getch\b))/,/^(?:(JAVA\b))/,/^(?:(#))/,/^(?:(\+))/,/^(?:(-))/,/^(?:(\*))/,/^(?:(\^))/,/^(?:(%))/,/^(?:(\())/,/^(?:(\)))/,/^(?:(\{))/,/^(?:(\}))/,/^(?:(\[))/,/^(?:(\]))/,/^(?:(:))/,/^(?:(;))/,/^(?:(,))/,/^(?:(\.))/,/^(?:(==))/,/^(?:(=))/,/^(?:(!=))/,/^(?:(>=))/,/^(?:(<=))/,/^(?:(>))/,/^(?:(<))/,/^(?:(&&))/,/^(?:(\|\|))/,/^(?:(!))/,/^(?:(&))/,/^(?:([1-9][0-9]+|[0-9]))/,/^(?:(([1-9][0-9]+|[0-9])\.[0-9]+))/,/^(?:([a-zA-Z_]\w*))/,/^(?:((\r|\n|\r\n)|[ \t\f]))/,/^(?:((\/\/[^\r\n]*)|(\/\*(([^*]|\*+[^/*])*)\*+\/)))/,/^(?:(\/))/,/^(?:(["]))/,/^(?:([']))/,/^(?:$)/,/^(?:.)/,/^(?:(["]))/,/^(?:[^\n\r\"\\%]+)/,/^(?:\\t)/,/^(?:\\n)/,/^(?:\\")/,/^(?:\\)/,/^(?:%d\b)/,/^(?:%c\b)/,/^(?:%f\b)/,/^(?:%)/,/^(?:([']))/,/^(?:[^\n\r\'\\]+)/,/^(?:\\t)/,/^(?:\\n)/,/^(?:\\')/,/^(?:\\)/],
+rules: [/^(?:(%%PROGRAMA\b))/,/^(?:(include\b))/,/^(?:(void\b))/,/^(?:(main\b))/,/^(?:(int\b))/,/^(?:(char\b))/,/^(?:(float\b))/,/^(?:(arreglo\b))/,/^(?:(const\b))/,/^(?:(if\b))/,/^(?:(else\b))/,/^(?:(switch\b))/,/^(?:(case\b))/,/^(?:(break\b))/,/^(?:(default\b))/,/^(?:(for\b))/,/^(?:(while\b))/,/^(?:(do\b))/,/^(?:(continue\b))/,/^(?:(PY\b))/,/^(?:(scanf\b))/,/^(?:(printf\b))/,/^(?:(clrscr\b))/,/^(?:(getch\b))/,/^(?:(JAVA\b))/,/^(?:(#))/,/^(?:(\+))/,/^(?:(-))/,/^(?:(\*))/,/^(?:(\^))/,/^(?:(%))/,/^(?:(\())/,/^(?:(\)))/,/^(?:(\{))/,/^(?:(\}))/,/^(?:(\[))/,/^(?:(\]))/,/^(?:(:))/,/^(?:(;))/,/^(?:(,))/,/^(?:(\.))/,/^(?:(==))/,/^(?:(=))/,/^(?:(!=))/,/^(?:(>=))/,/^(?:(<=))/,/^(?:(>))/,/^(?:(<))/,/^(?:(&&))/,/^(?:(\|\|))/,/^(?:(!))/,/^(?:(&))/,/^(?:(([1-9][0-9]+|[0-9])\.[0-9]+))/,/^(?:([1-9][0-9]+|[0-9]))/,/^(?:([a-zA-Z_]\w*))/,/^(?:((\r|\n|\r\n)|[ \t\f]))/,/^(?:((\/\/[^\r\n]*)|(\/\*(([^*]|\*+[^/*])*)\*+\/)))/,/^(?:(\/))/,/^(?:(["]))/,/^(?:([']))/,/^(?:$)/,/^(?:.)/,/^(?:(["]))/,/^(?:[^\n\r\"\\%]+)/,/^(?:\\t)/,/^(?:\\n)/,/^(?:\\")/,/^(?:\\)/,/^(?:%d\b)/,/^(?:%c\b)/,/^(?:%f\b)/,/^(?:%)/,/^(?:([']))/,/^(?:[^\n\r\'\\]+)/,/^(?:\\t)/,/^(?:\\n)/,/^(?:\\')/,/^(?:\\)/],
 conditions: {"CHAR":{"rules":[72,73,74,75,76,77],"inclusive":true},"STRING":{"rules":[62,63,64,65,66,67,68,69,70,71],"inclusive":true},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61],"inclusive":true}}
 });
 return lexer;

@@ -153,8 +153,8 @@ not								"!"
 <INITIAL>{not}					return "NOT";
 <INITIAL>{amp}					return "AMP";
 
-<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Decimal}				return "DECIMAL";
+<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Id}					return "ID";
 
 <INITIAL>{WhiteSpace}			/* ignore */
@@ -236,9 +236,8 @@ body
 
 body_opt
 		: const
-		// | include
-		| statement // preguntar
-		| assigment // preguntar
+		| statement
+		| assigment
 		| class_statement
 		| main
 		;
@@ -299,22 +298,35 @@ main_b
 /* constantes */
 const
 		: CONST type ID EQUAL a SEMI
+			{ $$ = new yy.Statement(this._$.first_line, this._$.first_column, true, $2, $3, $5); }
 		;
 /* constantes */
 
 /* statement */
 statement
 		: type list_opt SEMI
+			%{
+				$$ = [];
+				for(const element of $2) {
+					if(element.length === 1) {
+						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $1, element[0], null);
+						$$.push(tmp);
+					} else if(element.length === 2) {
+						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $1, element[0], element[1]);
+						$$.push(tmp);
+					}
+				}
+			%}
 		;
 
 list_opt
-		: list_opt COMMA option
-		| option
+		: list_opt COMMA option { $1.push($3); $$ = $1; }
+		| option { $$ = []; $$.push($1); }
 		;
 
 option
-		: ID EQUAL a
-		| ID
+		: ID EQUAL a { $$ = [$1, $3]; }
+		| ID { $$ = [$1]; }
 		;
 /* statement */
 
@@ -335,9 +347,9 @@ assign
 
 /* tipos de variables */
 type
-		: INT
-		| CHAR
-		| FLOAT
+		: INT { $$ = yy.OperationType.INT; }
+		| CHAR { $$ = yy.OperationType.CHAR; }
+		| FLOAT { $$ = yy.OperationType.FLOAT; }
 		;
 /* tipos de variables */
 
@@ -470,61 +482,61 @@ scanf_
 
 /* operaciones logicas y aritmeticas */
 a
-		: a OR b
-		| b
+		: a OR b { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.OR, $1, $3); }
+		| b { $$ = $1; }
 		;
 
 b
-		: b AND c
-		| c
+		: b AND c { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.AND, $1, $3); }
+		| c { $$ = $1; }
 		;
 
 c
-		: c EQEQ d
-		| c NEQ d
-		| c GREATER d
-		| c GREATER_EQ d
-		| c SMALLER d
-		| c SMALLER_EQ d
-		| d
+		: c EQEQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
+		| c NEQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
+		| c GREATER d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
+		| c GREATER_EQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
+		| c SMALLER d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
+		| c SMALLER_EQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
+		| d { $$ = $1; }
 		;
 
 d
-		: d PLUS e
-		| d MINUS e
-		| e
+		: d PLUS e { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
+		| d MINUS e { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
+		| e { $$ = $1; }
 		;
 
 e
-		: e TIMES f
-		| e DIVIDE f
-		| e MOD f
-		| f
+		: e TIMES f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
+		| e DIVIDE f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
+		| e MOD f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
+		| f { $$ = $1; }
 		;
 
 f
-		: g POW f
-		| g
+		: g POW f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.POW, $1, $3); }
+		| g { $$ = $1; }
 		;
 
 g
-		: MINUS h
-		| h
+		: MINUS h { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
+		| h { $$ = $1; }
 		;
 
 h
-		: NOT h
-		| i
+		: NOT h { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $2, null); }
+		| i { $$ = $1; }
 		;
 
 i
-		: INTEGER
-		| DECIMAL
-		| CHAR
-		| STRING { console.log(`value: ${$1}`); }
+		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); }
+		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
+		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
+		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
-		| ID
-		| LPAREN a RPAREN
+		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
+		| LPAREN a RPAREN { $$ = $2; }
 		| function_call
 		;
 /* operaciones logicas y aritmeticas */
