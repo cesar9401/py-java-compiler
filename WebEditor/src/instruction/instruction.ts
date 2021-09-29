@@ -1,3 +1,5 @@
+import { SymbolTable } from "src/table/symbolTable";
+import { Quadruple } from "src/table/quadruple";
 export abstract class Instruction {
 	line: number
 	column: number
@@ -7,5 +9,7 @@ export abstract class Instruction {
 		this.column = column;
 	}
 
-	abstract run(): any;
+	abstract run(table: SymbolTable): any;
+
+	abstract generate(quads: Quadruple[]): any;
 }

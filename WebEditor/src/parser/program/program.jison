@@ -221,25 +221,26 @@ not								"!"
 
 initial
 		: program EOF
-			{ return true; }
+			{ return $1; }
 		;
 
 /* programa */
 program
 		: PROGRAM includes body
+			{ $$ = $3; }
 		;
 
 body
-		: body body_opt
-		|
+		: body body_opt { $$ = [...$1, ...$2]; }
+		| { $$ = []; }
 		;
 
 body_opt
-		: const
-		| statement
-		| assigment
+		: const { $$ = [$1]; }
+		| statement { $$ = [...$1]; }
+		| assigment { $$ = [...$1]; }
 		| class_statement
-		| main
+		| main { $$ = [$1]; }
 		;
 /* programa */
 
@@ -269,18 +270,19 @@ dir
 /* main */
 main
 		: VOID MAIN LPAREN RPAREN LBRACE main_body RBRACE
+			{ $$ = new yy.Main(this._$.first_line, this._$.first_column, $6); }
 		;
 
 main_body
-		: main_body main_b
-		|
+		: main_body main_b { $$ = [...$1, ...$2]; }
+		| { $$ = []; }
 		;
 
 main_b
-		: statement
-		| assigment
+		: statement { $$ = [...$1]; }
+		| assigment { $$ = [...$1]; }
 		| class_statement
-		| list_if
+		| list_if { $$ = [$1]; }
 		| while_
 		| do_while_
 		| continue_
@@ -289,7 +291,7 @@ main_b
 		| switch_
 		| function_call SEMI
 		| clear_
-		| printf_
+		| printf_ { $$ = [$1]; }
 		| scanf_
 		// | const
 		;
@@ -333,15 +335,19 @@ option
 /* assignment */
 assigment
 		: list_assign SEMI
+			{ $$ = $1; }
 		;
 
 list_assign
 		: list_assign COMMA assign
+			{ $1.push($3); $$ = $1; }
 		| assign
+			{ $$ = []; $$.push($1); }
 		;
 
 assign
 		: ID EQUAL a
+			{ $$ = new yy.Assignment(this._$.first_line, this._$.first_column, $1, $3); }
 		;
 /* assignment */
 
@@ -365,34 +371,37 @@ list_id
 		;
 
 param
-		: param COMMA a
-		| a
+		: param COMMA a { $1.push($3); $$ = $1; }
+		| a { $$ = []; $$.push($1); }
 		;
 /* class statement */
 
 /* if, else-if and else */
 list_if
-		: if_
-		| if_ else_
-		| if_ list_else_if
-		| if_ list_else_if else_
+		: if_ { $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1]); }
+		| if_ else_ {  $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, $2]);  }
+		| if_ list_else_if {  $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, ...$2]); }
+		| if_ list_else_if else_ { $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, ...$2, $3]); }
 		;
 
 if_
 		: IF LPAREN a RPAREN LBRACE main_body RBRACE
+			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "IF", $6, $3); }
 		;
 
 else_
 		: ELSE LBRACE main_body RBRACE
+			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "ELSE", $3, null); }
 		;
 
 list_else_if
-		: list_else_if else_if
-		| else_if
+		: list_else_if else_if { $1.push($2); $$ = $1; }
+		| else_if { $$ = []; $$.push($1); }
 		;
 
 else_if
 		: ELSE IF LPAREN a RPAREN LBRACE main_body RBRACE
+			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "ELSE_IF", $7, $4); }
 		;
 /* if, else-if and else */
 
@@ -461,8 +470,8 @@ function_call
 		;
 
 params
-		: param
-		|
+		: param	{ $$ = $1; }
+		| {$$ = []; }
 		;
 
 clear_
@@ -471,7 +480,9 @@ clear_
 
 printf_
 		: PRINTF LPAREN STRING RPAREN SEMI
+			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, null); }
 		| PRINTF LPAREN STRING COMMA param RPAREN SEMI
+			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, $5); }
 		;
 
 scanf_
@@ -533,7 +544,7 @@ i
 		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); }
 		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
 		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
-		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
+		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
 		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }

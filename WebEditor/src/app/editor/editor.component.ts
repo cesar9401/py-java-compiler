@@ -28,24 +28,29 @@ export class EditorComponent implements OnInit {
 
 %%PROGRAMA
 
+/*
 #include PY.*;
 #include JAVA.*;
 const int size = 10;
 int i = 100 + size;
 char x = 'a';
 int count;
+*/
 
 void main() {
 	int a = 1;
-	int b = 25 + a / 2;
+	int b = 25 + 12 / 2;
 	float z = 12.25 * 1.75;
 
 	if(a > 0) {
 		b = b + a;
+		printf("El mayor es a\\n");
 	} else {
 		a = 100 + b;
+		printf("El numero es %d\\n", a);
 	}
-}`;
+}\n`;
+
 	}
 
 	ngOnInit(): void {
