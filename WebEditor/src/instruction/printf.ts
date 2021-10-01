@@ -3,6 +3,7 @@ import { Operation } from "./operation";
 import { Variable } from "./variable";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
+import { SemanticHandler } from "src/control/semantic_handler";
 
 export class Printf extends Instruction {
 	format: string;
@@ -14,7 +15,7 @@ export class Printf extends Instruction {
 		this.operations = operations;
 	}
 
-	run(table: SymbolTable){}
+	run(table: SymbolTable, sm: SemanticHandler){}
 
 	generate(quads: Quadruple[]) {
 	}

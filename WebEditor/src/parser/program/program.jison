@@ -283,14 +283,14 @@ main_b
 		| assigment { $$ = [...$1]; }
 		| class_statement
 		| list_if { $$ = [$1]; }
-		| while_
-		| do_while_
-		| continue_
-		| break_
-		| for_
-		| switch_
+		| while_ { $$ = [$1]; }
+		| do_while_ { $$ = [$1]; }
+		| continue_ { $$ = [$1]; }
+		| break_ { $$ = [$1]; }
+		| for_ { $$ = [$1]; }
+		| switch_ { $$ = [$1]; }
 		| function_call SEMI
-		| clear_
+		| clear_ { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
 		| scanf_
 		// | const
@@ -408,57 +408,70 @@ else_if
 /* while and do-while */
 while_
 		: WHILE LPAREN a RPAREN LBRACE main_body RBRACE
+			{ $$ = new yy.While(this._$.first_line, this._$.first_column, $3, $6); }
 		;
 
 do_while_
 		: DO LBRACE main_body RBRACE WHILE LPAREN a RPAREN SEMI
+			{ $$ = new yy.DoWhile(this._$.first_line, this._$.first_column, $7, $3); }
 		;
 /* while and do-while */
 
 /* for */
 for_
-		: FOR LPAREN for_assign SEMI a SEMI assign RPAREN LBRACE main_body RBRACE
+		: FOR LPAREN INT ID EQUAL a SEMI a SEMI assign RPAREN LBRACE main_body RBRACE
+			%{
+				const tmp_s = new yy.Statement(this._$.first_line, this._$.first_column, false, yy.OperationType.INT, $4, $6);
+				$$ = new yy.For(this._$.first_line, this._$.first_column, $8, $10, $13, tmp_s, null);
+			%}
+		| FOR LPAREN assign SEMI a SEMI assign RPAREN LBRACE main_body RBRACE
+			{ $$ = new yy.For(this._$.first_line, this._$.first_column, $5, $7, $10, null, $3); }
 		;
 
-for_assign
-		: INT ID EQUAL a
-		| assign
-		;
+// for_assign
+// 		: INT ID EQUAL a { $$ = new yy.Statement(this._$.first_line, this._$.first_column, false, yy.OperationType.INT, $2, $4); }
+// 		| assign { $$ = $1; }
+// 		;
 /* for */
 
 /* switch-case */
 switch_
 		: SWITCH LPAREN a RPAREN LBRACE switch_opt RBRACE
+			{ $$ = new yy.Switch(this._$.first_line, this._$.first_column, $3, $6); }
 		;
 
 switch_opt
-		: list_case
-		| list_case default_
-		| default_
-		|
+		: list_case { $$ = $1; }
+		| list_case default_ { $$ = [...$1, $2]; }
+		| default_ { $$ = [$1]; }
+		| { $$ = []; }
 		;
 
 list_case
-		: list_case case_
-		| case_
+		: list_case case_ { $1.push($2); $$ = $1; }
+		| case_ { $$ = []; $$.push($1); }
 		;
 
 case_
 		: CASE a COLON main_body
+			{ $$ = new yy.Case(this._$.first_line, this._$.first_column, $4, $2); }
 		;
 
 default_
 		: DEFAULT COLON main_body
+			{ $$ = new yy.Case(this._$.first_line, this._$.first_column, $3, null); }
 		;
 /* switch-case */
 
 /* continue and break */
 continue_
 		: CONTINUE SEMI
+			{ $$ = new yy.Continue(this._$.first_line, this._$.first_column); }
 		;
 
 break_
 		: BREAK SEMI
+			{ $$ = new yy.Break(this._$.first_line, this._$.first_column); }
 		;
 /* continue and break */
 
@@ -476,6 +489,7 @@ params
 
 clear_
 		: CLEAR LPAREN RPAREN SEMI
+			{ $$ = new yy.Clear(this._$.first_line, this._$.first_column); }
 		;
 
 printf_
@@ -546,7 +560,7 @@ i
 		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
 		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
-		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
+		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }
 		| function_call
 		;

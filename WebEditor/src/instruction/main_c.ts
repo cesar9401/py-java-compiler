@@ -1,6 +1,7 @@
 import { Instruction } from "./instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
+import { SemanticHandler } from "src/control/semantic_handler";
 
 export class Main extends Instruction {
 	instructions:Instruction[];
@@ -10,15 +11,16 @@ export class Main extends Instruction {
 		this.instructions = instructions;
 	}
 
-	run(table: SymbolTable) {
+	run(table: SymbolTable, sm: SemanticHandler) {
 		const local = new SymbolTable();
 		local.addAll(table.getTable());
 
 		for(const ins of this.instructions) {
-			ins.run(table);
+			ins.run(table, sm);
 		}
 	}
 
 	generate(quads: Quadruple[]) {
+		this.instructions.forEach(ins => ins.generate(quads));
 	}
 }

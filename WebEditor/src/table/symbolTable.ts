@@ -12,7 +12,7 @@ export class SymbolTable {
 	}
 
 	getById(id: string): Variable | undefined {
-		return this.list.find(v=> v.id && v.id === id);
+		return this.list.find(v=> v.id == id);
 	}
 
 	contains(id: string) : boolean {
