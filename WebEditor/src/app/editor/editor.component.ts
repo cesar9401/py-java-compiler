@@ -41,37 +41,23 @@ void main() {
 	int a = 1;
 	int b = 25 + 12 / 2;
 	float z = 12.25 * 1.75;
+	char ch = 'A';
 
-	switch(z) {
-		case 1:
-			printf("El valor es 1");
-			break;
-		case 2:
-			a = a + 1;
-			printf("El valor de z es: %d\\n", z);
-			break;
+	printf("El valor de a es: %d - %ff - %ccpppp\\n", a, z, ch);
+
+	if(a >= 0) {
+		a = a + 1;
+		printf("El valor de a es: %d\\n", a);
 	}
+	// else if(b == 31) {
+	// 	b = b ^ 2;
+	// 	printf("%d\\n", b);
+	// } else {
+	// 	int x = a + b;
+	// 	x = x + 1;
+	// 	printf("%d\\n", x);
+	// }
 
-	clrscr();
-
-	while(z > 0) {
-		z = z - 1;
-		if(z == 5) {
-			continue;
-		}
-
-		if(z == 1) {
-			break;
-		}
-	}
-
-	if(a > 0) {
-		b = b + a;
-		printf("El mayor es a\\n");
-	} else {
-		a = 100 + b;
-		printf("El numero es %d\\n", a);
-	}
 }\n`;
 
 	}

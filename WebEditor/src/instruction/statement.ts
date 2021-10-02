@@ -32,16 +32,17 @@ export class Statement extends Instruction {
 		/* asignacion y declaracion */
 		if(this.operation) {
 			const value: Variable = this.operation.run(table, sm);
-			console.log(value);
 			if((value)) { // en este punto si existe value, significa que tiene un valor definido
-				if(value.type === this.type) {
-					const newVal = new Variable(this.type, this.id, ' '); // revisar statement
+
+				/* se asigna segun el tipo de variable declarada */
+				// if(value.type === this.type) {
+					const newVal: Variable = new Variable(this.type, this.id, ' '); // revisar statement
 					newVal.cnst = this.cnst;
 
 					if(!table.contains(this.id)) {
 						// agregando a la tabla de simbolos
-						//console.log(this.id);
 						table.add(newVal);
+						// console.log(newVal);
 						return;
 					} else {
 						// error la variable ya existe
@@ -49,11 +50,12 @@ export class Statement extends Instruction {
 						const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
 						sm.errors.push(error);
 					}
-				} else {
-					const desc = `Esta intentado asignar una valor de tipo '${value.type}' a una variable de tipo '${this.type}'`;
-					const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
-					sm.errors.push(error);
-				}
+				// } else {
+				// 	const desc = `Esta intentado asignar una valor de tipo '${value.type}' a una variable de tipo '${this.type}'`;
+				// 	const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+				// 	sm.errors.push(error);
+				// }
+
 			} else {
 				// error se intenta asignar un valor no definido
 				const desc = `Se esta intendo asignar un valor nulo a la variable '${this.id}' probablemente uno de los operadores no tiene un valor definido o no ha sido declarado.`;
@@ -73,6 +75,7 @@ export class Statement extends Instruction {
 			const value : Variable = new Variable(this.type, this.id, undefined);
 			value.cnst = this.cnst;
 			if(!table.contains(this.id)) {
+				// console.log(value);
 				table.add(value);
 			} else {
 				// error la variable ya existe
@@ -83,9 +86,15 @@ export class Statement extends Instruction {
 		}
 	}
 
-	generate(quads: Quadruple[]) {
+	generate(quads: Quadruple[]): Quadruple | undefined {
 		if(this.operation) {
-			this.operation.generate(quads);
+			const res: Quadruple = this.operation.generate(quads);
+			// const result = "t" + (quads.length + 1);
+			const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
+			quads.push(quad);
+			return quad;
 		}
+
+		return undefined;
 	}
 }

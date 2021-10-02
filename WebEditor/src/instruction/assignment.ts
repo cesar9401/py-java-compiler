@@ -35,20 +35,26 @@ export class Assignment extends Instruction {
 			return;
 		}
 
-		// se consideran solo casos c y java
 		if(val.type !== value.type) {
 			// error, las variablse no son del mismo tipo
-			const desc = `La variable '${this.id}' es de tipo '${val.type}' y se esta intentando asignar una variable de tipo '${value.type}'`;
-			const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
-			sm.errors.push(error);
-			return;
+
+			// se consideran solo casos java
+			// const desc = `La variable '${this.id}' es de tipo '${val.type}' y se esta intentando asignar una variable de tipo '${value.type}'`;
+			// const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+			// sm.errors.push(error);
+			// return;
 		}
 
 		// asignar variable
-		// val.value = '';
-		val.value = value.value;
+		// val.value = value.value;
+		val.value = ' ';
+		// console.log(val);
 	}
 
-	generate(quads: Quadruple[]) {
+	generate(quads: Quadruple[]): Quadruple {
+		const res: Quadruple = this.operation.generate(quads);
+		const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
+		quads.push(quad);
+		return quad;
 	}
 }

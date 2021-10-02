@@ -46,11 +46,12 @@ export class Program {
 
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
+			} else {
+				/* generete */
+				const quads:Quadruple[] = [];
+				value.forEach(ins => ins.generate(quads)); // obtener cuadruplas
+				quads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 			}
-			/* generete */
-			// const quads:Quadruple[] = [];
-			// value.forEach(ins => ins.generate(quads)); // obtener cuadruplas
-			// quads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 		} catch (error) {
 			console.error(error);
 		}

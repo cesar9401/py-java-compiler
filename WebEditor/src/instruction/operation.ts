@@ -22,11 +22,17 @@ export class Operation extends Instruction{
 		if(this.left && this.right) {
 			const left: Variable = this.left.run(table, sm);
 			const right: Variable = this.right.run(table, sm);
-			return sm.op.binaryOperation(this.type, left, right);
+			return sm.op.binaryOperation(this.type, left, right, this.line, this.column);
 		}
 
 		if(this.left) {
-			console.log(this.left);
+			const left: Variable = this.left.run(table, sm);
+			switch(this.type) {
+				case OperationType.NOT:
+					return new Variable(OperationType.INT, undefined, " ");
+				case OperationType.UMINUS:
+					return new Variable(left.type, undefined, " ");
+			}
 		}
 		return undefined;
 	}

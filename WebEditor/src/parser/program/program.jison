@@ -2,6 +2,7 @@
 	// write your code here
 	let string = "";
 	let char = "";
+	let format = [];
 %}
 
 /* lexical grammar */
@@ -186,17 +187,16 @@ not								"!"
 									return "STRING";
 								%}
 
+/* for scanf and printf */
+<STRING>"%d"[^\n\r\"\\%]*		string += yytext; format.push("%d");
+<STRING>"%c"[^\n\r\"\\%]*		string += yytext; format.push("%c");
+<STRING>"%f"[^\n\r\"\\%]*		string += yytext; format.push("%f");
+
 <STRING>[^\n\r\"\\%]+			string += yytext;
 <STRING>\\t						string += "\t";
 <STRING>\\n						string += "\n";
 <STRING>\\\"					string += "\"";
 <STRING>\\						string += "\\";
-
-/* for scanf and printf */
-<STRING>"%d"					string += "%d"; // console.log("print number");
-
-<STRING>"%c"					string += "%c"; // console.log("print char");
-<STRING>"%f"					string += "%f"; // console.log("print float");
 
 <STRING>"%"						string += "%";
 
@@ -494,14 +494,14 @@ clear_
 
 printf_
 		: PRINTF LPAREN STRING RPAREN SEMI
-			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, null); }
+			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, [...format], null); format = []; }
 		| PRINTF LPAREN STRING COMMA param RPAREN SEMI
-			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, $5); }
+			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, [...format], $5); format = []; }
 		;
 
 scanf_
 		: SCANF LPAREN STRING COMMA AMP ID RPAREN SEMI
-			{ console.log(`scanf: ${$3}`); }
+			{ console.log(`scanf: ${$3}`); format = []; }
 		;
 /* function call */
 

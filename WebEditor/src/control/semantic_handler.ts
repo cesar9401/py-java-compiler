@@ -6,7 +6,7 @@ export class SemanticHandler {
 	errors: Error[];
 
 	constructor() {
-		this.op = new OperationCheck();
+		this.op = new OperationCheck(this);
 		this.errors = [];
 	}
 }

@@ -1,6 +1,7 @@
 import { Instruction } from "./instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
+import { SemanticHandler } from "src/control/semantic_handler";
 
 export class Clear extends Instruction {
 
@@ -8,7 +9,7 @@ export class Clear extends Instruction {
 		super(line, column);
 	}
 
-	run(table: SymbolTable) {}
+	run(table: SymbolTable, sm: SemanticHandler) {}
 
 	generate(quads: Quadruple[]) {}
 }
