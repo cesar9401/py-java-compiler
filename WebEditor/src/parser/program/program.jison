@@ -555,12 +555,12 @@ h
 		;
 
 i
-		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); }
-		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
-		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
+		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); }
+		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
+		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
 		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
-		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
+		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }
 		| function_call
 		;

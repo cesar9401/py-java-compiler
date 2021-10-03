@@ -4,6 +4,7 @@ import { Quadruple } from "src/table/quadruple";
 import { Assignment } from "./assignment";
 import { Statement } from "./statement";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 export class For extends Instruction {
 	init?: Statement;
@@ -34,5 +35,5 @@ export class For extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler){}
 
-	generate(quads: Quadruple[]) {}
+	generate(qh: QuadHandler) {}
 }

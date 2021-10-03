@@ -2,6 +2,7 @@ import { Instruction } from "./instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 export class Break extends Instruction {
 
@@ -11,5 +12,5 @@ export class Break extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {}
 
-	generate(quads: Quadruple[]) {}
+	generate(qh: QuadHandler) {}
 }

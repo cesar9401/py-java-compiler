@@ -1,10 +1,10 @@
 import { Instruction } from "./instruction";
-import { Operation } from "./operation";
 import { Variable } from "./variable";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { Error, TypeE } from 'src/control/error';
+import { QuadHandler } from "src/control/quad_handler";
 
 export class Printf extends Instruction {
 	format: string;
@@ -48,7 +48,7 @@ export class Printf extends Instruction {
 		}
 	}
 
-	generate(quads: Quadruple[]) {
+	generate(qh: QuadHandler) {
 		if(this.operations) {
 			while(this.fmts.length > 0) {
 				const current = this.fmts.shift();
@@ -58,26 +58,27 @@ export class Printf extends Instruction {
 					this.format = this.format.slice(index + 2)
 
 					const op = this.operations.shift();
-					const q : Quadruple = op?.generate(quads);
+					const q : Quadruple = op?.generate(qh);
 
-					const result = "t" + (quads.length + 1);
-					const quad = new Quadruple("PRINTF", fm, q.result, result);
-					quads.push(quad);
+					//const result = qh.getTmp();
+					const quad = new Quadruple("PRINTF", fm, q.result, '');
+					qh.addQuad(quad);
 				}
 			}
 
 			if(this.format) {
-				const result = "t" + (quads.length + 1);
-				const quad = new Quadruple("PRINTF", this.format, "", result);
-				quads.push(quad);
+				// const result = qh.getTmp();
+				const quad = new Quadruple("PRINTF", this.format, "", "");
+				qh.addQuad(quad);
 			}
 
 			return;
 		}
 
-		const result = "t" + (quads.length + 1);
-		const quad = new Quadruple("PRINTF", this.format, "", result);
-		quads.push(quad);
+		// const result = qh.getTmp();
+		const quad = new Quadruple("PRINTF", this.format, "", "");
+		qh.addQuad(quad);
+
 		return quad;
 	}
 }

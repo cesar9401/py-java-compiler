@@ -266,16 +266,16 @@ case 111:
  this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $$[$0], null); 
 break;
 case 113:
- const tmp = new yy.Variable(yy.OperationType.INT, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); 
+ const tmp = new yy.Variable(yy.OperationType.INT, null, $$[$0]); this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); 
 break;
 case 114:
- const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); 
+ const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $$[$0]); this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); 
 break;
 case 115:
- const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $$[$0]); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); 
+ const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $$[$0]); this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); 
 break;
 case 116:
- const tmp4 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); 
+ const tmp4 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); 
 break;
 }
 },

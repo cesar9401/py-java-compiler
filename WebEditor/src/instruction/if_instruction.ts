@@ -5,7 +5,8 @@ import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { Variable } from "./variable";
 import { Error, TypeE } from "src/control/error";
-import { Operation } from "src/instruction/operation";
+import { QuadHandler } from "src/control/quad_handler";
+import { OperationType } from "./operation";
 
 export class IfInstruction extends Instruction {
 	instructions:If[];
@@ -19,7 +20,7 @@ export class IfInstruction extends Instruction {
 		for(const if_ of this.instructions) {
 			const condition = if_.condition;
 			if(condition) {
-				const val: Variable = condition.run(table, sm);
+				const val: Variable | undefined = condition.run(table, sm);
 				if(!val || !val.value) {
 					const desc = `En la instruccion '${if_.type.toLowerCase()}', la condicion no se puede procesar debido a que uno de los operandos no tiena valor definido o no ha sido declarado.`;
 					const error = new Error(condition.line, condition.column, (val && val.id ? val.id : ""), TypeE.SEMANTICO, desc);
@@ -36,22 +37,62 @@ export class IfInstruction extends Instruction {
 		}
 	}
 
-	generate(quads: Quadruple[]) {
+	generate(qh: QuadHandler) {
+		const final = qh.getLabel();
+		let i = 0;
 		for(const if_ of this.instructions) {
 			const cond = if_.condition;
-			if(cond) {
-				const quadC: Quadruple = cond.generate(quads);
+			const lt = qh.getLabel();
+			const lf = qh.getLabel();
 
-				const quad = new Quadruple("IF_FALSE", quadC.result, "", "L1");
-				quads.push(quad);
+			if(cond) {
+				const quad: Quadruple | undefined = cond.generate(qh);
+				switch(cond.type) {
+					case OperationType.AND:
+
+						qh.toTrue(lt);
+						qh.toFalse(lf);
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						break;
+
+					case OperationType.OR:
+						qh.toTrue(lt);
+						qh.toFalse(lf);
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						break;
+
+					case OperationType.NOT:
+						qh.toTrue(lf);
+						qh.toFalse(lt);
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						break;
+
+					case OperationType.SMALLER:
+					case OperationType.GREATER:
+					case OperationType.SMALLER_EQ:
+					case OperationType.GREATER_EQ:
+					case OperationType.EQEQ:
+					case OperationType.NEQ:
+						qh.toTrue(lt);
+						qh.toFalse(lf);
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						break;
+				}
 			}
 
 			for(const ins of if_.instructions) {
-				ins.generate(quads);
+				ins.generate(qh);
 			}
-
-			const quad = new Quadruple("LABEL", "", "", "L1");
-			quads.push(quad);
+			i++;
+			// if(this.instructions.length !== i) {
+				qh.addQuad(new Quadruple("GOTO", "", "", final));
+				qh.addQuad(new Quadruple("LABEL", "", "", lf));
+			// }
 		}
+		qh.addQuad(new Quadruple("LABEL", "", "", final));
 	}
 }

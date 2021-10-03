@@ -3,7 +3,6 @@ import { Quadruple } from 'src/table/quadruple';
 import { Statement } from '../../instruction/statement';
 import { Instruction } from '../../instruction/instruction';
 import { Operation, OperationType } from '../../instruction/operation';
-import { Value } from '../../instruction/value';
 import { Variable } from '../../instruction/variable';
 import { Assignment } from '../../instruction/assignment';
 import { Printf } from '../../instruction/printf';
@@ -19,6 +18,7 @@ import { Break } from 'src/instruction/break';
 import { Main } from '../../instruction/main_c';
 import { Clear } from '../../instruction/clear';
 import { SemanticHandler } from 'src/control/semantic_handler';
+import { QuadHandler } from 'src/control/quad_handler';
 
 declare var program: any;
 
@@ -48,9 +48,9 @@ export class Program {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
 				/* generete */
-				const quads:Quadruple[] = [];
-				value.forEach(ins => ins.generate(quads)); // obtener cuadruplas
-				quads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
+				const qh = new QuadHandler();
+				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
+				qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 			}
 		} catch (error) {
 			console.error(error);
@@ -60,7 +60,6 @@ export class Program {
 	setFunctions() {
 		this.yy.Instruction = Instruction;
 		this.yy.Operation = Operation; // Operacion
-		this.yy.Value = Value;
 		this.yy.Variable = Variable;
 		this.yy.OperationType = OperationType;
 		this.yy.Statement = Statement; // declaracion de variables

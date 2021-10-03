@@ -1,6 +1,7 @@
 import { SymbolTable } from "src/table/symbolTable";
-import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
+
 export abstract class Instruction {
 	line: number
 	column: number
@@ -12,5 +13,5 @@ export abstract class Instruction {
 
 	abstract run(table: SymbolTable, sm: SemanticHandler): any;
 
-	abstract generate(quads: Quadruple[]): any;
+	abstract generate(qh: QuadHandler): any;
 }

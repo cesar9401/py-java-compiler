@@ -3,6 +3,7 @@ import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
 import { Case } from "./case";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 export class Switch extends Instruction {
 	operation: Instruction;
@@ -16,5 +17,5 @@ export class Switch extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {}
 
-	generate(quads: Quadruple[]){}
+	generate(qh: QuadHandler){}
 }

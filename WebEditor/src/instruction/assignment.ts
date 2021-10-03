@@ -4,6 +4,7 @@ import { Variable } from "./variable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { Error, TypeE } from '../control/error';
+import { QuadHandler } from "src/control/quad_handler";
 
 export class Assignment extends Instruction {
 	id: string;
@@ -51,10 +52,11 @@ export class Assignment extends Instruction {
 		// console.log(val);
 	}
 
-	generate(quads: Quadruple[]): Quadruple {
-		const res: Quadruple = this.operation.generate(quads);
+	generate(qh: QuadHandler): Quadruple {
+		const res: Quadruple = this.operation.generate(qh);
 		const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
-		quads.push(quad);
+		qh.addQuad(quad);
+
 		return quad;
 	}
 }

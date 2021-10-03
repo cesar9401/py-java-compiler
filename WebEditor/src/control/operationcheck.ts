@@ -10,7 +10,7 @@ export class OperationCheck {
 		this.sm = sm;
 	}
 
-	binaryOperation(type: OperationType, left: Variable, right: Variable, line:number, column: number) : Variable | undefined {
+	binaryOperation(type: OperationType, left: Variable | undefined, right: Variable | undefined, line:number, column: number) : Variable | undefined {
 		if(!left || !right) {
 			return undefined;
 		}

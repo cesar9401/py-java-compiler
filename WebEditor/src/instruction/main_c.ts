@@ -2,6 +2,7 @@ import { Instruction } from "./instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 export class Main extends Instruction {
 	instructions:Instruction[];
@@ -20,7 +21,7 @@ export class Main extends Instruction {
 		}
 	}
 
-	generate(quads: Quadruple[]) {
-		this.instructions.forEach(ins => ins.generate(quads));
+	generate(qh: QuadHandler) {
+		this.instructions.forEach(ins => ins.generate(qh));
 	}
 }

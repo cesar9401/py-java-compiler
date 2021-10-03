@@ -3,48 +3,185 @@ import { SymbolTable } from "src/table/symbolTable";
 import { Variable } from "./variable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
+import { Error, TypeE } from "src/control/error";
 
 export class Operation extends Instruction{
 	type: OperationType;
-	left: Instruction;
-	right?: Instruction;
-	quad: Quadruple[];
+	left?: Operation;
+	right?: Operation;
+	variable?: Variable;
 
-	constructor(line: number, column: number, type: OperationType, left: Instruction, right?: Instruction) {
-		super(line, column);
-		this.type = type;
-		this.left = left;
-		this.right = right;
-		this.quad = [];
+	public constructor(line: number, column: number, type: OperationType, variable: Variable);
+	public constructor(line: number, column: number, type: OperationType, left: Operation, right?: Operation);
+
+	public constructor(...args: Array<any>) {
+		if(args.length === 4) {
+			super(args[0], args[1]);
+			this.type = args[2];
+			this.variable = args[3];
+
+			return;
+		} else {
+			super(args[0], args[1]);
+			this.type = args[2];
+			this.left = args[3];
+			this.right = args[4];
+
+			return;
+		}
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler): Variable | undefined {
+		// operaciones binarias
 		if(this.left && this.right) {
-			const left: Variable = this.left.run(table, sm);
-			const right: Variable = this.right.run(table, sm);
+			const left: Variable | undefined = this.left.run(table, sm);
+			const right: Variable | undefined = this.right.run(table, sm);
 			return sm.op.binaryOperation(this.type, left, right, this.line, this.column);
 		}
 
+		// operaciones unarias
 		if(this.left) {
-			const left: Variable = this.left.run(table, sm);
+			const left: Variable | undefined = this.left.run(table, sm);
 			switch(this.type) {
 				case OperationType.NOT:
 					return new Variable(OperationType.INT, undefined, " ");
 				case OperationType.UMINUS:
-					return new Variable(left.type, undefined, " ");
+					if(left) {
+						return new Variable(left.type, undefined, " ");
+					}
 			}
 		}
+
+		// valores
+		if(this.variable) {
+			switch(this.type) {
+				case OperationType.INT:
+				case OperationType.FLOAT:
+					return this.variable;
+				case OperationType.CHAR:
+					if(this.variable.value?.length !== 1) {
+						// error, debe de ser de longitud 1
+						if(this.variable.value) { // this.variable.value siempre existe.
+							const desc = `La variable de tipo char debe de tener una longitud de 1, la longitud ingresada: ${this.variable.value?.length}, no esta permitida.`;
+							const error = new Error(this.line, this.column, this.variable.value, TypeE.SINTACTICO, desc);
+							sm.errors.push(error);
+						}
+						return undefined;
+					}
+					return this.variable;
+
+				case OperationType.ID:
+					if(this.variable.id) {
+						const val: Variable | undefined = table.getById(this.variable.id);
+						if(val) {
+							// console.log(val.value === '');
+							if(!val.value) { // if val.value === '', it returns true
+								// console.log(val.value);
+								const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
+								const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
+								sm.errors.push(error);
+								return undefined;
+							}
+							return val;
+						} else {
+							const description = `La variable con identificador: '${this.variable.id}', no ha sido declarada.`;
+							const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, description);
+							sm.errors.push(error);
+							return undefined;
+						}
+					}
+			}
+		}
+
 		return undefined;
 	}
 
-	generate(quads: Quadruple[]): Quadruple | undefined {
+	generate(qh: QuadHandler): Quadruple | undefined {
 		if(this.left && this.right) {
-			const left: Quadruple = this.left.generate(quads);
-			const right: Quadruple = this.right.generate(quads);
-			if(left && right) {
-				const result = "t" + (quads.length + 1);
-				const quad : Quadruple = new Quadruple(this.type, left.result, right.result, result);
-				quads.push(quad);
+			switch(this.type) {
+				case OperationType.GREATER:
+				case OperationType.SMALLER:
+				case OperationType.GREATER_EQ:
+				case OperationType.SMALLER_EQ:
+				case OperationType.EQEQ:
+				case OperationType.NEQ:
+					const left: Quadruple | undefined = this.left.generate(qh);
+					const right: Quadruple | undefined = this.right.generate(qh);
+					if(left && right) {
+						const quad = new Quadruple(`IF_${this.type}`, left.result, right.result, "");
+						const goto = new Quadruple('GOTO', "", "", "");
+
+						qh.addTrue(quad);
+						qh.addFalse(goto);
+
+						qh.addQuad(quad);
+						qh.addQuad(goto);
+						return quad;
+					}
+					return;
+				case OperationType.AND:
+					const andL = this.left.generate(qh);
+					const lt1 = qh.getLabel();
+					qh.toTrue(lt1);
+					// agregar label true
+					qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+					const andR = this.right.generate(qh);
+					return;
+				case OperationType.OR:
+					const orL = this.left.generate(qh);
+					const lf1 = qh.getLabel();
+					qh.toFalse(lf1);
+					// agregar label false
+					qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+					const orR = this.right.generate(qh);
+					return;
+			}
+
+				const left: Quadruple | undefined = this.left.generate(qh);
+				const right: Quadruple | undefined = this.right.generate(qh);
+				const result = qh.getTmp();
+				if(left && right) {
+					const quad : Quadruple = new Quadruple(this.type, left.result, right.result, result);
+					qh.addQuad(quad);
+					return quad;
+				}
+			return;
+		}
+
+		if(this.left) {
+			switch(this.type) {
+				case OperationType.UMINUS:
+					const left: Quadruple | undefined = this.left.generate(qh);
+					const result = qh.getTmp();
+					if(left) {
+						const quad = new Quadruple(this.type, left?.result, "", result);
+						qh.addQuad(quad);
+						return quad;
+					}
+					return;
+				case OperationType.NOT:
+					const left1 = this.left.generate(qh);
+					//console.log(`switching xd`);
+					//qh.switch();
+					return;
+			}
+
+			return;
+		}
+
+		if(this.variable) {
+			if(this.variable.value) {
+				const result = qh.getTmp();
+				const quad = new Quadruple(this.type, this.variable.value, "", result);
+				qh.addQuad(quad);
+
+				return quad;
+			} else if(this.variable.id) {
+				const result = qh.getTmp();
+				const quad = new Quadruple(this.type, this.variable.id, "", result);
+				qh.addQuad(quad);
+
 				return quad;
 			}
 		}

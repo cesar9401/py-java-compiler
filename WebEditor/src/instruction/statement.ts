@@ -5,12 +5,14 @@ import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { Error, TypeE } from "src/control/error";
+import { QuadHandler } from "src/control/quad_handler";
+import { Operation } from "./operation";
 
 export class Statement extends Instruction {
 	cnst: boolean;
 	type: OperationType;
 	id: string;
-	operation?: Instruction
+	operation?: Operation
 
 	constructor(
 		line: number,
@@ -18,7 +20,7 @@ export class Statement extends Instruction {
 		cnst: boolean,
 		type: OperationType,
 		id: string,
-		operation?: Instruction
+		operation?: Operation
 	) {
 		super(line, column);
 		this.cnst = cnst;
@@ -31,7 +33,7 @@ export class Statement extends Instruction {
 
 		/* asignacion y declaracion */
 		if(this.operation) {
-			const value: Variable = this.operation.run(table, sm);
+			const value: Variable | undefined = this.operation.run(table, sm);
 			if((value)) { // en este punto si existe value, significa que tiene un valor definido
 
 				/* se asigna segun el tipo de variable declarada */
@@ -86,13 +88,52 @@ export class Statement extends Instruction {
 		}
 	}
 
-	generate(quads: Quadruple[]): Quadruple | undefined {
+	generate(qh: QuadHandler): Quadruple | undefined {
 		if(this.operation) {
-			const res: Quadruple = this.operation.generate(quads);
-			// const result = "t" + (quads.length + 1);
-			const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
-			quads.push(quad);
-			return quad;
+			switch(this.operation.type) {
+				case OperationType.GREATER:
+				case OperationType.SMALLER:
+					const l1 = qh.getLabel();
+					// const res = qh.getCodeLabel(this.operation, l1);
+					// if(res) {
+						// const lf = qh.getLabel();
+						// // realizar asignacion 1 aqui
+						// const quad: Quadruple = new Quadruple('ASSIGN', "1", "", this.id);
+						// qh.addQuad(quad);
+						// qh.addQuad(new Quadruple("GOTO", lf, "", ""));
+						// // realizar asignacion 0 aqui
+						// qh.addQuad(new Quadruple("LABEL", l1, "", ""));
+						// const quad1: Quadruple = new Quadruple('ASSIGN', "0", "", this.id);
+						// qh.addQuad(quad1);
+						// qh.addQuad(new Quadruple("LABEL", lf, "", ""));
+					// }
+					// return;
+				// case OperationType.AND:
+				// 	const res1: Quadruple | undefined = this.operation.generate(qh);
+				// 	if(res1) {
+				// 		const l1 = res1.result;
+				// 		const lf = qh.getLabel();
+
+				// 		// realizar asignacion 1 aqui
+				// 		const quad: Quadruple = new Quadruple('ASSIGN', "1", "", this.id);
+				// 		qh.addQuad(quad);
+				// 		qh.addQuad(new Quadruple("GOTO", lf, "", ""));
+
+				// 		// realizar asignacion 0 aqui
+				// 		qh.addQuad(new Quadruple("LABEL", l1, "", ""));
+				// 		const quad1: Quadruple = new Quadruple('ASSIGN', "0", "", this.id);
+				// 		qh.addQuad(quad1);
+				// 		qh.addQuad(new Quadruple("LABEL", lf, "", ""));
+				// 	}
+				// 	return;
+			}
+
+			const res: Quadruple | undefined = this.operation.generate(qh);
+			if(res) {
+				const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
+				qh.addQuad(quad);
+				return quad;
+			}
 		}
 
 		return undefined;
