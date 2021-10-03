@@ -46,7 +46,7 @@ void main() {
 
 	// printf("El valor de a es: %d - %ff - %ccpppp\\n", a, z, ch);
 
-	if(a >= 0 && b >= 0) {
+	if(!(a > b)) {
 		a = a + 1;
 		//printf("El valor de a es: %d\\n", a);
 	} else if(b == 31 || a == 1) {
@@ -58,9 +58,9 @@ void main() {
 	// 	printf("%d\\n", x);
 	}
 
-	if (a > b) {
-		a = a + b;
-    }
+	// if (!(a > b && a >= 1) && !!(z == 10)) {
+	// 	a = a + b;
+    // }
 }\n`;
 
 	}

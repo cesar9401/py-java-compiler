@@ -39,17 +39,22 @@ export class IfInstruction extends Instruction {
 
 	generate(qh: QuadHandler) {
 		const final = qh.getLabel();
-		let i = 0;
 		for(const if_ of this.instructions) {
 			const cond = if_.condition;
-			const lt = qh.getLabel();
-			const lf = qh.getLabel();
+			let lt = "";
+			let lf = "";
 
 			if(cond) {
 				const quad: Quadruple | undefined = cond.generate(qh);
+				lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+				console.log(lt);
+				lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+				console.log(lf);
+
+				qh.labelTrue = undefined;
+				qh.labelFalse = undefined;
 				switch(cond.type) {
 					case OperationType.AND:
-
 						qh.toTrue(lt);
 						qh.toFalse(lf);
 
@@ -67,7 +72,7 @@ export class IfInstruction extends Instruction {
 						qh.toTrue(lf);
 						qh.toFalse(lt);
 
-						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						qh.addQuad(new Quadruple("LABEL", "", "", lf));
 						break;
 
 					case OperationType.SMALLER:
@@ -87,11 +92,12 @@ export class IfInstruction extends Instruction {
 			for(const ins of if_.instructions) {
 				ins.generate(qh);
 			}
-			i++;
-			// if(this.instructions.length !== i) {
-				qh.addQuad(new Quadruple("GOTO", "", "", final));
+			qh.addQuad(new Quadruple("GOTO", "", "", final));
+			if(cond && cond.type === OperationType.NOT) {
+				qh.addQuad(new Quadruple("LABEL", "", "", lt));
+			} else if(lf) {
 				qh.addQuad(new Quadruple("LABEL", "", "", lf));
-			// }
+			}
 		}
 		qh.addQuad(new Quadruple("LABEL", "", "", final));
 	}

@@ -7,7 +7,8 @@ export class QuadHandler {
 	private isTrue: Quadruple[];
 	private isFalse: Quadruple[];
 	private map: Map<Quadruple, number>;
-
+	labelTrue: string | undefined;
+	labelFalse: string | undefined;
 
 	constructor() {
 		this.quads = [];
@@ -60,9 +61,14 @@ export class QuadHandler {
 					this.map.set(tr, n + 1);
 				}
 			}
+			this.isFalse.push(tr);
 		}
 
 		this.isTrue = [...aux];
+
+		console.log(this.isTrue[0]);
+		console.log(this.isFalse[0]);
+		console.log(this.map);
 	}
 
 	public getTmp(): string {

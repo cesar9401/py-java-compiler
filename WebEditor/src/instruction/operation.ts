@@ -122,18 +122,48 @@ export class Operation extends Instruction{
 					return;
 				case OperationType.AND:
 					const andL = this.left.generate(qh);
-					const lt1 = qh.getLabel();
-					qh.toTrue(lt1);
-					// agregar label true
-					qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+
+					if(qh.labelTrue) {
+						qh.toTrue(qh.labelTrue);
+						qh.addQuad(new Quadruple("LABEL", "", "", qh.labelTrue));
+						qh.labelTrue = undefined;
+					} else {
+						const lt1 = qh.getLabel();
+						qh.toTrue(lt1);
+						// agregar label true
+						qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+					}
+
+					if(qh.labelFalse) {
+						qh.toFalse(qh.labelFalse);
+					} else {
+						qh.labelFalse = qh.getLabel();
+						// qh.toFalse(qh.labelFalse);
+					}
+
 					const andR = this.right.generate(qh);
 					return;
 				case OperationType.OR:
 					const orL = this.left.generate(qh);
-					const lf1 = qh.getLabel();
-					qh.toFalse(lf1);
-					// agregar label false
-					qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+
+					if(qh.labelFalse) {
+						qh.toFalse(qh.labelFalse);
+						qh.addQuad(new Quadruple("LABEL", "", "", qh.labelFalse));
+						qh.labelFalse = undefined;
+					} else {
+						const lf1 = qh.getLabel();
+						qh.toFalse(lf1);
+						// agregar label false
+						qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+					}
+
+					if(qh.labelTrue) {
+						qh.toTrue(qh.labelTrue);
+					} else {
+						qh.labelTrue = qh.getLabel();
+						// qh.toTrue(qh.labelTrue);
+					}
+
 					const orR = this.right.generate(qh);
 					return;
 			}
@@ -162,8 +192,12 @@ export class Operation extends Instruction{
 					return;
 				case OperationType.NOT:
 					const left1 = this.left.generate(qh);
-					//console.log(`switching xd`);
-					//qh.switch();
+					console.log(`switching xd`);
+					qh.switch();
+					// let aux = qh.labelFalse;
+					// qh.labelFalse = qh.labelTrue;
+					// qh.labelTrue = aux;
+
 					return;
 			}
 
