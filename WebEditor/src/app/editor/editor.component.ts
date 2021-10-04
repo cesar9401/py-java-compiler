@@ -42,25 +42,8 @@ void main() {
 	int b = 25 + 12 / 2;
 	float z = 12.25 * 1.75;
 	char ch = 'A';
-	// int x = a > b;
 
-	// printf("El valor de a es: %d - %ff - %ccpppp\\n", a, z, ch);
-
-	if(!(a > b)) {
-		a = a + 1;
-		//printf("El valor de a es: %d\\n", a);
-	} else if(b == 31 || a == 1) {
-		b = b ^ 2;
-	// 	printf("%d\\n", b);
-	} else {
-		int x = a + b;
-	// 	x = x + 1;
-	// 	printf("%d\\n", x);
-	}
-
-	// if (!(a > b && a >= 1) && !!(z == 10)) {
-	// 	a = a + b;
-    // }
+	int x = a > b;
 }\n`;
 
 	}

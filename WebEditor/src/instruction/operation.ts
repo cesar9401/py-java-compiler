@@ -122,6 +122,7 @@ export class Operation extends Instruction{
 					return;
 				case OperationType.AND:
 					const andL = this.left.generate(qh);
+					this.addQuad(this.left, andL, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
 
 					if(qh.labelTrue) {
 						qh.toTrue(qh.labelTrue);
@@ -138,13 +139,16 @@ export class Operation extends Instruction{
 						qh.toFalse(qh.labelFalse);
 					} else {
 						qh.labelFalse = qh.getLabel();
-						// qh.toFalse(qh.labelFalse);
+						qh.toFalse(qh.labelFalse);
 					}
 
 					const andR = this.right.generate(qh);
+					this.addQuad(this.right, andR, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
+
 					return;
 				case OperationType.OR:
 					const orL = this.left.generate(qh);
+					this.addQuad(this.left, orL, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
 
 					if(qh.labelFalse) {
 						qh.toFalse(qh.labelFalse);
@@ -161,10 +165,11 @@ export class Operation extends Instruction{
 						qh.toTrue(qh.labelTrue);
 					} else {
 						qh.labelTrue = qh.getLabel();
-						// qh.toTrue(qh.labelTrue);
+						qh.toTrue(qh.labelTrue);
 					}
 
 					const orR = this.right.generate(qh);
+					this.addQuad(this.right, orR, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
 					return;
 			}
 
@@ -190,15 +195,38 @@ export class Operation extends Instruction{
 						return quad;
 					}
 					return;
+
 				case OperationType.NOT:
 					const left1 = this.left.generate(qh);
-					console.log(`switching xd`);
-					qh.switch();
-					// let aux = qh.labelFalse;
-					// qh.labelFalse = qh.labelTrue;
-					// qh.labelTrue = aux;
 
+					switch(this.left.type) {
+						case OperationType.INT:
+						case OperationType.FLOAT:
+						case OperationType.CHAR:
+						case OperationType.ID:
+						case OperationType.SUM:
+						case OperationType.SUB:
+						case OperationType.MUL:
+						case OperationType.DIV:
+						case OperationType.MOD:
+						case OperationType.POW:
+						case OperationType.UMINUS:
+							// write your code here
+							if(left1) {
+								const quad = new Quadruple(`IF_GREATER`, left1.result, "0", "");
+								const goto = new Quadruple('GOTO', "", "", "");
+
+								qh.addTrue(quad);
+								qh.addFalse(goto);
+
+								qh.addQuad(quad);
+								qh.addQuad(goto);
+							}
+							break;
+					}
+					qh.switch();
 					return;
+
 			}
 
 			return;
@@ -221,6 +249,33 @@ export class Operation extends Instruction{
 		}
 
 		return undefined;
+	}
+
+	private addQuad(op: Operation, quadruple: Quadruple | undefined, qh: QuadHandler): void {
+		switch(op.type) {
+			case OperationType.INT:
+				case OperationType.FLOAT:
+				case OperationType.CHAR:
+				case OperationType.ID:
+				case OperationType.SUM:
+				case OperationType.SUB:
+				case OperationType.MUL:
+				case OperationType.DIV:
+				case OperationType.MOD:
+				case OperationType.POW:
+				case OperationType.UMINUS:
+					if(quadruple) {
+						const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
+						const goto = new Quadruple('GOTO', "", "", "");
+
+						qh.addTrue(quad);
+						qh.addFalse(goto);
+
+						qh.addQuad(quad);
+						qh.addQuad(goto);
+					}
+				break;
+		}
 	}
 }
 

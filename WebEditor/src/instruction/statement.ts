@@ -89,46 +89,60 @@ export class Statement extends Instruction {
 	}
 
 	generate(qh: QuadHandler): Quadruple | undefined {
+
 		if(this.operation) {
+			const res: Quadruple | undefined = this.operation.generate(qh);
 			switch(this.operation.type) {
 				case OperationType.GREATER:
 				case OperationType.SMALLER:
-					const l1 = qh.getLabel();
-					// const res = qh.getCodeLabel(this.operation, l1);
-					// if(res) {
-						// const lf = qh.getLabel();
-						// // realizar asignacion 1 aqui
-						// const quad: Quadruple = new Quadruple('ASSIGN', "1", "", this.id);
-						// qh.addQuad(quad);
-						// qh.addQuad(new Quadruple("GOTO", lf, "", ""));
-						// // realizar asignacion 0 aqui
-						// qh.addQuad(new Quadruple("LABEL", l1, "", ""));
-						// const quad1: Quadruple = new Quadruple('ASSIGN', "0", "", this.id);
-						// qh.addQuad(quad1);
-						// qh.addQuad(new Quadruple("LABEL", lf, "", ""));
-					// }
-					// return;
-				// case OperationType.AND:
-				// 	const res1: Quadruple | undefined = this.operation.generate(qh);
-				// 	if(res1) {
-				// 		const l1 = res1.result;
-				// 		const lf = qh.getLabel();
+				case OperationType.GREATER_EQ:
+				case OperationType.SMALLER_EQ:
+				case OperationType.EQEQ:
+				case OperationType.NEQ:
 
-				// 		// realizar asignacion 1 aqui
-				// 		const quad: Quadruple = new Quadruple('ASSIGN', "1", "", this.id);
-				// 		qh.addQuad(quad);
-				// 		qh.addQuad(new Quadruple("GOTO", lf, "", ""));
+				case OperationType.AND:
+				case OperationType.OR:
+					const lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+					const lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+					const final = qh.getLabel();
 
-				// 		// realizar asignacion 0 aqui
-				// 		qh.addQuad(new Quadruple("LABEL", l1, "", ""));
-				// 		const quad1: Quadruple = new Quadruple('ASSIGN', "0", "", this.id);
-				// 		qh.addQuad(quad1);
-				// 		qh.addQuad(new Quadruple("LABEL", lf, "", ""));
-				// 	}
-				// 	return;
+					/* rivisar esto :v */
+					qh.labelTrue = undefined;
+					qh.labelFalse = undefined;
+
+					qh.toTrue(lt);
+					qh.toFalse(lf);
+					qh.addQuad(new Quadruple("LABEL", "", "", lt));
+					qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
+					qh.addQuad(new Quadruple("GOTO", "", "", final));
+					qh.addQuad(new Quadruple("LABEL", "", "", lf));
+					qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
+					qh.addQuad(new Quadruple("LABEL", "", "", final));
+
+					return;
+
+				case OperationType.NOT:
+					const lt1 = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+					const lf1 = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+					const final1 = qh.getLabel();
+
+					/* revisar esto */
+					qh.labelTrue = undefined;
+					qh.labelFalse = undefined;
+
+					qh.toTrue(lf1);
+					qh.toFalse(lt1);
+
+					qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+					qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
+					qh.addQuad(new Quadruple("GOTO", "", "", final1));
+					qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+					qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
+					qh.addQuad(new Quadruple("LABEL", "", "", final1));
+					return;
 			}
 
-			const res: Quadruple | undefined = this.operation.generate(qh);
+			// const res: Quadruple | undefined = this.operation.generate(qh);
 			if(res) {
 				const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
 				qh.addQuad(quad);

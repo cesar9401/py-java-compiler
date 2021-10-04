@@ -47,9 +47,9 @@ export class IfInstruction extends Instruction {
 			if(cond) {
 				const quad: Quadruple | undefined = cond.generate(qh);
 				lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
-				console.log(lt);
+				// console.log(lt);
 				lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
-				console.log(lf);
+				// console.log(lf);
 
 				qh.labelTrue = undefined;
 				qh.labelFalse = undefined;
@@ -85,6 +85,38 @@ export class IfInstruction extends Instruction {
 						qh.toFalse(lf);
 
 						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						break;
+
+					case OperationType.INT:
+					case OperationType.FLOAT:
+					case OperationType.CHAR:
+					case OperationType.ID:
+					case OperationType.SUM:
+					case OperationType.SUB:
+					case OperationType.MUL:
+					case OperationType.DIV:
+					case OperationType.MOD:
+					case OperationType.POW:
+					case OperationType.UMINUS:
+						if(quad) {
+							// crear condicion
+							const qd = new Quadruple(`IF_GREATER`, quad.result, "0", "");
+							const goto = new Quadruple('GOTO', "", "", "");
+
+							// agregar falsos y verdaderos
+							qh.addTrue(qd);
+							qh.addFalse(goto);
+
+							// agregar cuadruplos
+							qh.addQuad(qd);
+							qh.addQuad(goto);
+
+							// agregar etiquetas para verdadero y falso
+							qh.toTrue(lt);
+							qh.toFalse(lf);
+
+							qh.addQuad(new Quadruple("LABEL", "", "", lt));
+						}
 						break;
 				}
 			}

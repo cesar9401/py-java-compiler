@@ -66,9 +66,9 @@ export class QuadHandler {
 
 		this.isTrue = [...aux];
 
-		console.log(this.isTrue[0]);
-		console.log(this.isFalse[0]);
-		console.log(this.map);
+		// console.log(this.isTrue);
+		// console.log(this.isFalse);
+		// console.log(this.map);
 	}
 
 	public getTmp(): string {
