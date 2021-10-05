@@ -38,12 +38,24 @@ int count;
 */
 
 void main() {
-	int a = 1;
+	int a = 10;
 	int b = 25 + 12 / 2;
 	float z = 12.25 * 1.75;
 	char ch = 'A';
 
-	int x = a > b;
+	switch(a) {
+		case 1:
+			b = b + 1;
+			break;
+		case 2:
+			b = b + 2;
+			break;
+		default:
+			b = b + 3;
+			break;
+	}
+
+	// printf("Fin ejecucion");
 }\n`;
 
 	}

@@ -38,36 +38,38 @@ export class QuadHandler {
 	}
 
 	public switch(): void {
-		const aux = [];
-		for(const fl of this.isFalse) {
-			if(!this.map.has(fl)) {
-				this.map.set(fl, 1);
-			} else {
-				const n = this.map.get(fl);
-				if(n) {
-					this.map.set(fl, n + 1);
-				}
-			}
-			aux.push(fl);
-		}
-
+		const aux = [...this.isFalse];
 		this.isFalse = [];
-		for(const tr of this.isTrue) {
-			if(!this.map.has(tr)) {
-				this.map.set(tr, 1);
-			} else {
-				const n = this.map.get(tr);
-				if(n) {
-					this.map.set(tr, n + 1);
-				}
-			}
-			this.isFalse.push(tr);
-		}
 
+		this.isFalse = [...this.isTrue];
 		this.isTrue = [...aux];
 
-		// console.log(this.isTrue);
-		// console.log(this.isFalse);
+		// for(const fl of this.isFalse) {
+		// 	if(!this.map.has(fl)) {
+		// 		this.map.set(fl, 1);
+		// 	} else {
+		// 		const n = this.map.get(fl);
+		// 		if(n) {
+		// 			this.map.set(fl, n + 1);
+		// 		}
+		// 	}
+		// 	aux.push(fl);
+		// }
+
+		// this.isFalse = [];
+		// for(const tr of this.isTrue) {
+		// 	if(!this.map.has(tr)) {
+		// 		this.map.set(tr, 1);
+		// 	} else {
+		// 		const n = this.map.get(tr);
+		// 		if(n) {
+		// 			this.map.set(tr, n + 1);
+		// 		}
+		// 	}
+		// 	this.isFalse.push(tr);
+		// }
+
+		// this.isTrue = [...aux];
 		// console.log(this.map);
 	}
 

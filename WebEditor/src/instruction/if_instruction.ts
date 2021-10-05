@@ -6,7 +6,7 @@ import { SemanticHandler } from "src/control/semantic_handler";
 import { Variable } from "./variable";
 import { Error, TypeE } from "src/control/error";
 import { QuadHandler } from "src/control/quad_handler";
-import { OperationType } from "./operation";
+import { Operation, OperationType } from "./operation";
 
 export class IfInstruction extends Instruction {
 	instructions:If[];
@@ -47,21 +47,19 @@ export class IfInstruction extends Instruction {
 			if(cond) {
 				const quad: Quadruple | undefined = cond.generate(qh);
 				lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
-				// console.log(lt);
 				lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
-				// console.log(lf);
 
 				qh.labelTrue = undefined;
 				qh.labelFalse = undefined;
 				switch(cond.type) {
 					case OperationType.AND:
-						qh.toTrue(lt);
-						qh.toFalse(lf);
-
-						qh.addQuad(new Quadruple("LABEL", "", "", lt));
-						break;
-
 					case OperationType.OR:
+					case OperationType.SMALLER:
+					case OperationType.GREATER:
+					case OperationType.SMALLER_EQ:
+					case OperationType.GREATER_EQ:
+					case OperationType.EQEQ:
+					case OperationType.NEQ:
 						qh.toTrue(lt);
 						qh.toFalse(lf);
 
@@ -73,18 +71,6 @@ export class IfInstruction extends Instruction {
 						qh.toFalse(lt);
 
 						qh.addQuad(new Quadruple("LABEL", "", "", lf));
-						break;
-
-					case OperationType.SMALLER:
-					case OperationType.GREATER:
-					case OperationType.SMALLER_EQ:
-					case OperationType.GREATER_EQ:
-					case OperationType.EQEQ:
-					case OperationType.NEQ:
-						qh.toTrue(lt);
-						qh.toFalse(lf);
-
-						qh.addQuad(new Quadruple("LABEL", "", "", lt));
 						break;
 
 					case OperationType.INT:
@@ -124,13 +110,19 @@ export class IfInstruction extends Instruction {
 			for(const ins of if_.instructions) {
 				ins.generate(qh);
 			}
+
+			// ir a etiqueta final
 			qh.addQuad(new Quadruple("GOTO", "", "", final));
+
+			// etiqueta false
 			if(cond && cond.type === OperationType.NOT) {
 				qh.addQuad(new Quadruple("LABEL", "", "", lt));
 			} else if(lf) {
 				qh.addQuad(new Quadruple("LABEL", "", "", lf));
 			}
 		}
+
+		// etiqueta final
 		qh.addQuad(new Quadruple("LABEL", "", "", final));
 	}
 }

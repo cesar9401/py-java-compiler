@@ -5,12 +5,13 @@ import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { Error, TypeE } from '../control/error';
 import { QuadHandler } from "src/control/quad_handler";
+import { Operation, OperationType } from "./operation";
 
 export class Assignment extends Instruction {
 	id: string;
-	operation: Instruction;
+	operation: Operation;
 
-	constructor(line:number, column:number, id:string, operation:Instruction) {
+	constructor(line:number, column:number, id:string, operation:Operation) {
 		super(line, column);
 		this.id = id;
 		this.operation = operation;
@@ -27,7 +28,7 @@ export class Assignment extends Instruction {
 			return;
 		}
 
-		const value :Variable = this.operation.run(table, sm);
+		const value :Variable | undefined = this.operation.run(table, sm);
 		if((value && !value.value) || !value) {
 			// error, la variable no existe o no tiene un valor definido
 			const desc = `Se esta intendo asignar un valor nulo a la variable '${this.id}' probablemente uno de los operadores no tiene un valor definido o no ha sido declarado.`;
@@ -52,11 +53,61 @@ export class Assignment extends Instruction {
 		// console.log(val);
 	}
 
-	generate(qh: QuadHandler): Quadruple {
-		const res: Quadruple = this.operation.generate(qh);
-		const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
-		qh.addQuad(quad);
+	generate(qh: QuadHandler): Quadruple | undefined {
+		const res: Quadruple | undefined = this.operation.generate(qh);
+		switch(this.operation.type) {
+			case OperationType.GREATER:
+			case OperationType.SMALLER:
+			case OperationType.GREATER_EQ:
+			case OperationType.SMALLER_EQ:
+			case OperationType.EQEQ:
+			case OperationType.NEQ:
+			case OperationType.AND:
+			case OperationType.OR:
+				const lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+				const lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+				const final = qh.getLabel();
 
-		return quad;
+				/* rivisar esto :v */
+				qh.labelTrue = undefined;
+				qh.labelFalse = undefined;
+
+				qh.toTrue(lt);
+				qh.toFalse(lf);
+				qh.addQuad(new Quadruple("LABEL", "", "", lt));
+				qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
+				qh.addQuad(new Quadruple("GOTO", "", "", final));
+				qh.addQuad(new Quadruple("LABEL", "", "", lf));
+				qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
+				qh.addQuad(new Quadruple("LABEL", "", "", final));
+				return;
+
+			case OperationType.NOT:
+				const lt1 = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+				const lf1 = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+				const final1 = qh.getLabel();
+
+				/* revisar esto */
+				qh.labelTrue = undefined;
+				qh.labelFalse = undefined;
+
+				qh.toTrue(lf1);
+				qh.toFalse(lt1);
+
+				qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+				qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
+				qh.addQuad(new Quadruple("GOTO", "", "", final1));
+				qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+				qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
+				qh.addQuad(new Quadruple("LABEL", "", "", final1));
+				return;
+		}
+
+		if(res) {
+			const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
+			qh.addQuad(quad);
+			return quad;
+		}
+		return;
 	}
 }
