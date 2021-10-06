@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Parser } from '../../parser/parser';
 
+import { CompilerService } from 'src/service/compiler.service';
+
+
 declare var CodeMirror:any;
 declare var TreeNode: any;
 declare var TreeView: any;
@@ -19,7 +22,7 @@ export class EditorComponent implements OnInit {
 	info: string;
 	value: string;
 
-	constructor() {
+	constructor(private compilerService: CompilerService) {
 		this.info = `Linea: 1, Columna: 0`;
 		this.value = `
 %%PY
@@ -40,22 +43,20 @@ int count;
 void main() {
 	int a = 10;
 	int b = 25 + 12 / 2;
-	float z = 12.25 * 1.75;
-	char ch = 'A';
 
-	switch(a) {
-		case 1:
-			b = b + 1;
-			break;
-		case 2:
-			b = b + 2;
-			break;
-		default:
-			b = b + 3;
-			break;
+	if(a == 10) {
+		int x = a + 1;
+		printf("El valor es: %d\\n", x);
+	} else {
+		int x = a + 2;
+		printf("El valor es %d\\n", x);
 	}
 
-	// printf("Fin ejecucion");
+	for(int i = 0; i < 10; i = i + 1) {
+		int z = i + 1;
+		printf("%d -> ", z);
+	}
+
 }\n`;
 
 	}
@@ -83,6 +84,19 @@ void main() {
 		this.root.addChild(n1);
 		this.root.addChild(n2);
 		this.view = new TreeView(this.root, document.querySelector('.folders-container'));
+
+
+		/* github service */
+		// this.compilerService.getRepos().then(values => {
+		// 	for(let i = 0; i < values.length; i++) {
+		// 		console.log(values[i].full_name);
+		// 	}
+		// });
+		/* github service */
+
+		/* local service */
+		// this.compilerService.getLocal().then(console.log);
+		/* local service */
 	}
 
 	getSource(): void {

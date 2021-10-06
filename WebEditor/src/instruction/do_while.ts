@@ -25,7 +25,7 @@ export class DoWhile extends Instruction {
 			sm.errors.push(error);
 		}
 
-		const local = new SymbolTable();
+		const local = new SymbolTable(table.getFather);
 		local.addAll(table.getTable());
 		for(const instruction of this.instructions) {
 			instruction.run(local, sm);
@@ -50,6 +50,12 @@ export class DoWhile extends Instruction {
 
 		qh.labelTrue = undefined;
 		qh.labelFalse = undefined;
+
+		// agregar etiqueta para breaks
+		qh.addLabelToBreaks(this.operation.type === OperationType.NOT ? lt : lf);
+
+		// agregar etiqueta para continues
+		qh.addLabelToContinues(this.operation.type === OperationType.NOT ? lf : lt);
 
 		switch(this.operation.type) {
 			case OperationType.AND:

@@ -47,7 +47,7 @@ export class Switch extends Instruction {
 				}
 			}
 
-			const local = new SymbolTable();
+			const local = new SymbolTable(table.getFather);
 			local.addAll(table.getTable());
 			for(const instruction of cs.instructions) {
 				instruction.run(local, sm);
@@ -55,5 +55,54 @@ export class Switch extends Instruction {
 		}
 	}
 
-	generate(qh: QuadHandler){}
+	generate(qh: QuadHandler){
+		// evaluar la operacion:
+		const op: Quadruple | undefined = this.operation.generate(qh);
+		if(op) {
+			// etiqueta final
+			const final = qh.getLabel();
+
+			const result = op.result;
+			// generar label para prueba:
+			const test = qh.getLabel();
+			qh.addQuad(new Quadruple("GOTO", "", "", test));
+
+
+			const labels: string[] = [];
+			for(const cs of this.cases) {
+				const lb = qh.getLabel();
+				labels.push(lb);
+				qh.addQuad(new Quadruple("LABEL", "", "", lb));
+				for(const ins of cs.instructions) {
+					ins.generate(qh);
+				}
+
+				// label para instruccion break aca
+				qh.addLabelToBreaks(final);
+			}
+
+			// goto etiqueta final
+			qh.addQuad(new Quadruple("GOTO", "", "", final));
+
+			// label para tests
+			qh.addQuad(new Quadruple("LABEL", "", "", test));
+			for(const cs of this.cases) {
+				const goto = labels.length > 0 ? labels.shift() : final;
+				if(cs.operation) {
+					const qo : Quadruple | undefined = cs.operation.generate(qh);
+					if(qo) {
+						const ts = new Quadruple("IF_EQEQ", result, qo.result, goto ? goto : final);
+						qh.addQuad(ts);
+					}
+				} else {
+					// goto default
+					const def = new Quadruple("GOTO", "", "", goto ? goto : final);
+					qh.addQuad(def);
+				}
+			}
+
+			// etiqueta final
+			qh.addQuad(new Quadruple("LABEL", "", "", final));
+		}
+	}
 }

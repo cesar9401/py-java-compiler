@@ -37,7 +37,7 @@ export class For extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-		const local = new SymbolTable();
+		const local = new SymbolTable(table.getFather);
 		local.addAll(table.getTable());
 
 		// revisar declaracion/asignacion ciclo for
@@ -64,7 +64,7 @@ export class For extends Instruction {
 		this.assign.run(local, sm);
 
 		// revisar instrucciones del ciclo for
-		const local1 = new SymbolTable();
+		const local1 = new SymbolTable(local.getFather);
 		local1.addAll(local.getTable()); // revisar esto
 		for(const instruction of this.instructions) {
 			instruction.run(local1, sm);
@@ -90,6 +90,9 @@ export class For extends Instruction {
 
 		qh.labelTrue = undefined;
 		qh.labelFalse = undefined;
+
+		// generar etiqueta de incremento/accion posterior aqui
+		const after = qh.getLabel();
 
 		switch(this.condition.type) {
 			case OperationType.AND:
@@ -150,12 +153,20 @@ export class For extends Instruction {
 		}
 
 		// generar accion de asignacion aqui
-		const quadAssign = this.assign.generate(qh);
+		qh.addQuad(new Quadruple("LABEL", "", "", after)); // etiqueta de incremento
+		const quadAssign = this.assign.generate(qh); // incremento
 
 		// accion de salto hacia etiqueta inicial
 		qh.addQuad(new Quadruple("GOTO", "", "", li));
 
 		// label false
-		qh.addQuad(new Quadruple("LABEL", "", "", this.condition.type === OperationType.NOT ? lt : lf));
+		const labelF = this.condition.type === OperationType.NOT ? lt : lf;
+		qh.addQuad(new Quadruple("LABEL", "", "", labelF));
+
+		// etiqueta para instrucciones break
+		qh.addLabelToBreaks(labelF);
+
+		// etiqueta para instrucciones continue
+		qh.addLabelToContinues(after); // ir al incremento
 	}
 }

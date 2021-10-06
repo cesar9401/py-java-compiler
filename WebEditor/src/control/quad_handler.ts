@@ -6,7 +6,9 @@ export class QuadHandler {
 	private tmps: number[];
 	private isTrue: Quadruple[];
 	private isFalse: Quadruple[];
-	private map: Map<Quadruple, number>;
+	private breaks: Quadruple[];
+	private continues: Quadruple[];
+
 	labelTrue: string | undefined;
 	labelFalse: string | undefined;
 
@@ -18,25 +20,31 @@ export class QuadHandler {
 		this.isTrue = [];
 		this.isFalse = [];
 
-		this.map = new Map();
+		this.breaks = [];
+		this.continues = [];
 	}
 
+	// obtener todos los quadruples
 	public get getQuads(): Quadruple[] {
 		return this.quads;
 	}
 
+	// agregar
 	public addQuad(quad: Quadruple): void {
 		this.quads.push(quad);
 	}
 
+	// agregar quadruples que seran verdaderos (if que van hacia codigo verdadero)
 	public addTrue(quad: Quadruple): void {
 		this.isTrue.push(quad);
 	}
 
+	// agregar quadruples que seran falsos (if que van hacia codigo falso)
 	public addFalse(quad: Quadruple): void {
 		this.isFalse.push(quad);
 	}
 
+	// cambiar verdaderos por falsos
 	public switch(): void {
 		const aux = [...this.isFalse];
 		this.isFalse = [];
@@ -73,18 +81,21 @@ export class QuadHandler {
 		// console.log(this.map);
 	}
 
+	// nuevo temporal
 	public getTmp(): string {
 		const size = this.tmps.length + 1;
 		this.tmps.push(size);
 		return `t${size}`;
 	}
 
+	// nueva etiqueta
 	public getLabel(): string {
 		const label = this.labels.length + 1;
 		this.labels.push(label);
 		return `L${label}`;
 	}
 
+	// agregar etiqueta hacia codigo verdadero
 	public toTrue(label: string) {
 		while(this.isTrue.length > 0) {
 			const tmp = this.isTrue.pop();
@@ -94,9 +105,42 @@ export class QuadHandler {
 		}
 	}
 
+	// agregar etiqueta hacia codigo falso
 	public toFalse(label: string) {
 		while(this.isFalse.length > 0) {
 			const tmp = this.isFalse.pop();
+			if(tmp) {
+				tmp.result = label;
+			}
+		}
+	}
+
+	// agregar breaks
+	public addBreak(quad: Quadruple) {
+		this.quads.push(quad);
+		this.breaks.push(quad);
+	}
+
+	// agregar continues
+	public addContinue(quad: Quadruple) {
+		this.quads.push(quad);
+		this.continues.push(quad);
+	}
+
+	// agregar etiqueta destino a breaks
+	public addLabelToBreaks(label: string) {
+		while(this.breaks.length > 0) {
+			const tmp = this.breaks.pop();
+			if(tmp) {
+				tmp.result = label;
+			}
+		}
+	}
+
+	// agregar etiqueta destino a continue
+	public addLabelToContinues(label: string) {
+		while(this.continues.length > 0) {
+			const tmp = this.continues.shift();
 			if(tmp) {
 				tmp.result = label;
 			}

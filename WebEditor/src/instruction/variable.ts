@@ -5,11 +5,18 @@ export class Variable {
 	type: OperationType;
 	id?: string
 	value?: string;
+	size: number | undefined;
+	pos: number | undefined;
+	isArray: boolean;
+	scope: string;
 
 	constructor(type: OperationType, id?: string, value?: string) {
 		this.type = type;
 		this.id = id;
 		this.value = value;
 		this.cnst = false;
+
+		this.isArray = false;
+		this.scope = "";
 	}
 }

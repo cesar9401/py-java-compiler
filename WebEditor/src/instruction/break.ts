@@ -12,5 +12,7 @@ export class Break extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		qh.addBreak(new Quadruple("GOTO", "", "", ""));
+	}
 }

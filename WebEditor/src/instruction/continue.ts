@@ -12,5 +12,7 @@ export class Continue extends Instruction {
 
 	run(table:SymbolTable, sm: SemanticHandler) {}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		qh.addContinue(new Quadruple("GOTO", "", "", ""));
+	}
 }

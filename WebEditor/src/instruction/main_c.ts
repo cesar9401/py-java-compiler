@@ -13,7 +13,7 @@ export class Main extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-		const local = new SymbolTable();
+		const local = new SymbolTable(table.getFather);
 		local.addAll(table.getTable());
 
 		for(const ins of this.instructions) {

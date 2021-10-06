@@ -29,7 +29,7 @@ export class IfInstruction extends Instruction {
 			}
 
 			const tmp: Instruction[] = if_.instructions;
-			const local = new SymbolTable();
+			const local = new SymbolTable(table.getFather);
 			local.addAll(table.getTable());
 			for(const instruction of tmp) {
 				instruction.run(local, sm);

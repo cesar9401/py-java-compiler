@@ -38,11 +38,15 @@ export class Program {
 			console.log(value);
 
 			/* run */
-			const table = new SymbolTable();
 			const sm = new SemanticHandler();
+			const table = new SymbolTable(sm.getFather);
 			for(const ins of value) {
 				ins.run(table, sm);
 			}
+
+			console.log(`table`);
+			sm.getFather.forEach(v => console.log(v));
+			console.log(`table`);
 
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));

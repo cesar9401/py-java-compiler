@@ -25,7 +25,7 @@ export class While extends Instruction {
 			sm.errors.push(error);
 		}
 
-		const local = new SymbolTable();
+		const local = new SymbolTable(table.getFather);
 		local.addAll(table.getTable());
 		for(const instruction of this.instructions) {
 			instruction.run(local, sm);
@@ -105,7 +105,16 @@ export class While extends Instruction {
 		// goto etiqueta inicial
 		qh.addQuad(new Quadruple("GOTO", "", "", l1));
 
+		// etiqueta falsa
+		const labelF = this.operation.type === OperationType.NOT ? lt : lf;
+
 		// label false
-		qh.addQuad(new Quadruple("LABEL", "", "", this.operation.type === OperationType.NOT ? lt : lf));
+		qh.addQuad(new Quadruple("LABEL", "", "", labelF));
+
+		// agregar etiquetas para instrucciones break
+		qh.addLabelToBreaks(labelF);
+
+		// agregar etiqueta para instrucciones continue
+		qh.addLabelToContinues(l1);
 	}
 }
