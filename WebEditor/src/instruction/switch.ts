@@ -19,7 +19,6 @@ export class Switch extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-
 		// revisar valor a evaluar
 		const val: Variable | undefined = this.operation.run(table, sm);
 		if(!val || !val.value) {
@@ -47,11 +46,15 @@ export class Switch extends Instruction {
 				}
 			}
 
-			const local = new SymbolTable(table.getFather);
-			local.addAll(table.getTable());
+			sm.push(`case`);
+			const local = new SymbolTable(sm.peek(), table);
+			sm.pushTable(local);
+
 			for(const instruction of cs.instructions) {
 				instruction.run(local, sm);
 			}
+
+			sm.pop();
 		}
 	}
 
@@ -73,9 +76,16 @@ export class Switch extends Instruction {
 				const lb = qh.getLabel();
 				labels.push(lb);
 				qh.addQuad(new Quadruple("LABEL", "", "", lb));
+
+				// agregar tabla aca
+				qh.push();
+
 				for(const ins of cs.instructions) {
 					ins.generate(qh);
 				}
+
+				// eliminar tabla aca
+				qh.pop();
 
 				// label para instruccion break aca
 				qh.addLabelToBreaks(final);

@@ -234,17 +234,33 @@ export class Operation extends Instruction{
 
 		if(this.variable) {
 			if(this.variable.value) {
+				switch(this.type) {
+					case OperationType.INT:
+					const quad = new Quadruple(this.type, "", "", this.variable.value);
+					return quad;
+				}
+
 				const result = qh.getTmp();
 				const quad = new Quadruple(this.type, this.variable.value, "", result);
 				qh.addQuad(quad);
 
 				return quad;
 			} else if(this.variable.id) {
-				const result = qh.getTmp();
-				const quad = new Quadruple(this.type, this.variable.id, "", result);
-				qh.addQuad(quad);
+				const variable = qh.peek().getById(this.variable.id);
+				if(variable && variable.pos !== undefined) {
+					const t = qh.getTmp();
+					const ptr = new Quadruple("PLUS", "ptr", variable.pos.toString(), t);
+					const assign = new Quadruple("ASSIGN", `stack[${t}]`, "", qh.getTmp());
 
-				return quad;
+					qh.addQuad(ptr);
+					qh.addQuad(assign);
+
+					return assign;
+				}
+				// const result = qh.getTmp();
+				// const quad = new Quadruple(this.type, this.variable.id, "", result);
+				// qh.addQuad(quad);
+				// return quad;
 			}
 		}
 

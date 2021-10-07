@@ -25,14 +25,20 @@ export class While extends Instruction {
 			sm.errors.push(error);
 		}
 
-		const local = new SymbolTable(table.getFather);
-		local.addAll(table.getTable());
+		sm.push('while'); // agregar scope while
+		const local = new SymbolTable(sm.peek(), table);
+		sm.pushTable(local);
+
 		for(const instruction of this.instructions) {
 			instruction.run(local, sm);
 		}
+
+		sm.pop(); // eliminar scope while
 	}
 
 	generate(qh: QuadHandler) {
+		qh.push();
+
 		// etiqueta inicial
 		const l1 = qh.getLabel();
 		qh.addQuad(new Quadruple("LABEL", "", "", l1));
@@ -116,5 +122,7 @@ export class While extends Instruction {
 
 		// agregar etiqueta para instrucciones continue
 		qh.addLabelToContinues(l1);
+
+		qh.pop();
 	}
 }

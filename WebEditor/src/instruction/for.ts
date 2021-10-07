@@ -37,8 +37,9 @@ export class For extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-		const local = new SymbolTable(table.getFather);
-		local.addAll(table.getTable());
+		sm.push('for'); // agregar scope for
+		const local = new SymbolTable(sm.peek(), table);
+		sm.pushTable(local);
 
 		// revisar declaracion/asignacion ciclo for
 		if(this.init) {
@@ -64,14 +65,16 @@ export class For extends Instruction {
 		this.assign.run(local, sm);
 
 		// revisar instrucciones del ciclo for
-		const local1 = new SymbolTable(local.getFather);
-		local1.addAll(local.getTable()); // revisar esto
 		for(const instruction of this.instructions) {
-			instruction.run(local1, sm);
+			instruction.run(local, sm);
 		}
+
+		sm.pop(); // eliminar scope for
 	}
 
 	generate(qh: QuadHandler) {
+		qh.push();
+
 		// generar declaracion/asignacion ciclo for
 		if(this.init) {
 			this.init.generate(qh);
@@ -168,5 +171,7 @@ export class For extends Instruction {
 
 		// etiqueta para instrucciones continue
 		qh.addLabelToContinues(after); // ir al incremento
+
+		qh.pop();
 	}
 }

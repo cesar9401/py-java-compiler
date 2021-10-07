@@ -25,14 +25,19 @@ export class DoWhile extends Instruction {
 			sm.errors.push(error);
 		}
 
-		const local = new SymbolTable(table.getFather);
-		local.addAll(table.getTable());
+		sm.push('do-while'); //agregar scope
+		const local = new SymbolTable(sm.peek(), table);
+		sm.pushTable(local);
+
 		for(const instruction of this.instructions) {
 			instruction.run(local, sm);
 		}
+
+		sm.pop(); // eliminar scope
 	}
 
 	generate(qh: QuadHandler) {
+		qh.push();
 
 		// etiqueta inicial
 		const l1 = new Quadruple("LABEL", "", "", "");
@@ -121,5 +126,7 @@ export class DoWhile extends Instruction {
 				}
 				break;
 		}
+
+		qh.pop();
 	}
 }

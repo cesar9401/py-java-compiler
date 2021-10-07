@@ -1,53 +1,38 @@
 import { Variable } from "../instruction/variable";
 
-export class SymbolTable {
-	private list: Variable[];
-	private father: Variable[];
+export class SymbolTable extends Array<Variable>{
+	scope: string;
 
-	constructor(father?: Variable[]) {
-		this.list = [];
-		if(father) {
-			this.father = father;
-		} else {
-			this.father = [];
+	constructor(scope: string, table?: SymbolTable) {
+		super();
+		this.scope = scope;
+		if(table) {
+			table.forEach(v => this.push(v));
 		}
 	}
 
 	add(variable: Variable): void{
-		this.list.push(variable);
-
-		// agregar a padre
+		variable.scope = this.scope;
 		variable.size = 1;
-		if(this.father.length > 0) {
-			const n = this.father.length - 1;
-			const last = this.father[n];
-			if(last && last.pos !== undefined && last.size !== undefined) {
-				variable.pos = last.pos + last.size;
+
+		if(this.length > 0) {
+			const n = this.length - 1;
+			const prev = this[n];
+			if(prev && prev.pos !== undefined && prev.size !== undefined) {
+				variable.pos = prev.pos + prev.size;
 			}
 		} else {
 			variable.pos = 0;
 		}
-		this.father.push(variable);
+
+		this.push(variable);
 	}
 
 	getById(id: string): Variable | undefined {
-		return this.list.find(v=> v.id == id);
+		return this.find(v=> v.id == id);
 	}
 
 	contains(id: string) : boolean {
-		return this.list.some(v => v.id && v.id === id);
-	}
-
-	addAll(list: Variable[]): void {
-		this.list = [...this.list, ...list];
-	}
-
-	getTable(): Variable[] {
-		return this.list;
-	}
-
-	// retornar tabla de simbolos principal
-	public get getFather(): Variable[] {
-		return this.father;
+		return this.some(v => v.id && v.id === id);
 	}
 }

@@ -34,15 +34,14 @@ export class EditorComponent implements OnInit {
 /*
 #include PY.*;
 #include JAVA.*;
-const int size = 10;
-int i = 100 + size;
-char x = 'a';
-int count;
 */
+
+const int size = 10;
+int w = size + 100;
 
 void main() {
 	int a = 10;
-	int b = 25 + 12 / 2;
+	int b = 25 + a;
 
 	if(a == 10) {
 		int x = a + 1;
@@ -52,10 +51,14 @@ void main() {
 		printf("El valor es %d\\n", x);
 	}
 
-	for(int i = 0; i < 10; i = i + 1) {
-		int z = i + 1;
-		printf("%d -> ", z);
-	}
+	// for(int i = 0; i < 10; i = i + 1) {
+	// 	int z = i + 1;
+	// 	if(z == 10) {
+	// 		int y = z + 1;
+	// 		printf("fin %d", y);
+	// 	}
+	// 	printf("%d -> ", z);
+	// }
 
 }\n`;
 

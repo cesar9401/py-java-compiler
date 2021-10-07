@@ -11,6 +11,8 @@ export abstract class Instruction {
 		this.column = column;
 	}
 
+	// abstract getName(): string;
+
 	abstract run(table: SymbolTable, sm: SemanticHandler): any;
 
 	abstract generate(qh: QuadHandler): any;

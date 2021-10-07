@@ -89,7 +89,7 @@ export class Statement extends Instruction {
 	}
 
 	generate(qh: QuadHandler): Quadruple | undefined {
-
+		// console.log(qh.peek());
 		if(this.operation) {
 			const res: Quadruple | undefined = this.operation.generate(qh);
 			switch(this.operation.type) {
@@ -112,12 +112,23 @@ export class Statement extends Instruction {
 
 					qh.toTrue(lt);
 					qh.toFalse(lf);
-					qh.addQuad(new Quadruple("LABEL", "", "", lt));
-					qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
-					qh.addQuad(new Quadruple("GOTO", "", "", final));
-					qh.addQuad(new Quadruple("LABEL", "", "", lf));
-					qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
-					qh.addQuad(new Quadruple("LABEL", "", "", final));
+
+					// obtener puntero
+					const variable = qh.peek().getById(this.id);
+					if(variable && variable.pos !== undefined) {
+						qh.addQuad(new Quadruple("LABEL", "", "", lt));
+
+						const t = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t));
+						qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack[${t}]`)); // asignar 1
+						qh.addQuad(new Quadruple("GOTO", "", "", final));
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lf));
+						const t1 = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1));
+						qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack[${t1}]`)); // asignar 0
+						qh.addQuad(new Quadruple("LABEL", "", "", final));
+					}
 
 					return;
 
@@ -133,20 +144,43 @@ export class Statement extends Instruction {
 					qh.toTrue(lf1);
 					qh.toFalse(lt1);
 
-					qh.addQuad(new Quadruple("LABEL", "", "", lt1));
-					qh.addQuad(new Quadruple("ASSIGN", "0", "", this.id));
-					qh.addQuad(new Quadruple("GOTO", "", "", final1));
-					qh.addQuad(new Quadruple("LABEL", "", "", lf1));
-					qh.addQuad(new Quadruple("ASSIGN", "1", "", this.id));
-					qh.addQuad(new Quadruple("LABEL", "", "", final1));
+					const val = qh.peek().getById(this.id);
+					if(val && val.pos !== undefined) {
+						qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+
+						const t = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t));
+						qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack[${t}]`)); // asignar 0
+						qh.addQuad(new Quadruple("GOTO", "", "", final1));
+
+						qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+						const t1= qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t1));
+						qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack[${t1}]`)); // asignar 1
+						qh.addQuad(new Quadruple("LABEL", "", "", final1));
+					}
+
 					return;
 			}
 
-			// const res: Quadruple | undefined = this.operation.generate(qh);
 			if(res) {
-				const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
-				qh.addQuad(quad);
-				return quad;
+				// hacer la operacion
+				// obtener el puntero
+				const variable = qh.peek().getById(this.id);
+				if(variable && variable.pos !== undefined) {
+					const t = qh.getTmp();
+					const ptr = new Quadruple("PLUS", "ptr", variable.pos.toString(), t);
+					const stack = new Quadruple("ASSIGN", res.result, "", `stack[${t}]`);
+
+					qh.addQuad(ptr);
+					qh.addQuad(stack);
+
+					return stack;
+				}
+				//const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
+				// console.log(qh.peek().getById(this.id));
+				//qh.addQuad(quad);
+				// return quad;
 			}
 		}
 

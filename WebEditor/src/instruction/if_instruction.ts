@@ -28,18 +28,24 @@ export class IfInstruction extends Instruction {
 				}
 			}
 
+			// tabla de simbolos local
+			sm.push(`${if_.type.toLowerCase()}`); // agregar scope if
+			const local = new SymbolTable(sm.peek(), table);
+			sm.pushTable(local);
+
 			const tmp: Instruction[] = if_.instructions;
-			const local = new SymbolTable(table.getFather);
-			local.addAll(table.getTable());
 			for(const instruction of tmp) {
 				instruction.run(local, sm);
 			}
+
+			sm.pop(); // eliminar scope
 		}
 	}
 
 	generate(qh: QuadHandler) {
 		const final = qh.getLabel();
 		for(const if_ of this.instructions) {
+			qh.push();// agregar tabla
 			const cond = if_.condition;
 			let lt = "";
 			let lf = "";
@@ -120,6 +126,7 @@ export class IfInstruction extends Instruction {
 			} else if(lf) {
 				qh.addQuad(new Quadruple("LABEL", "", "", lf));
 			}
+			qh.pop(); // devolver tabla
 		}
 
 		// etiqueta final

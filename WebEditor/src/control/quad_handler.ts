@@ -1,4 +1,5 @@
 import { Quadruple } from "src/table/quadruple";
+import { SymbolTable } from "src/table/symbolTable";
 
 export class QuadHandler {
 	private quads: Quadruple[];
@@ -9,19 +10,22 @@ export class QuadHandler {
 	private breaks: Quadruple[];
 	private continues: Quadruple[];
 
+	private tables: SymbolTable[];
+	private stack: SymbolTable[];
+
 	labelTrue: string | undefined;
 	labelFalse: string | undefined;
 
-	constructor() {
+	constructor(tables: SymbolTable[]) {
+		this.tables = tables;
 		this.quads = [];
 		this.labels = [];
 		this.tmps = [];
-
 		this.isTrue = [];
 		this.isFalse = [];
-
 		this.breaks = [];
 		this.continues = [];
+		this.stack = [];
 	}
 
 	// obtener todos los quadruples
@@ -51,34 +55,6 @@ export class QuadHandler {
 
 		this.isFalse = [...this.isTrue];
 		this.isTrue = [...aux];
-
-		// for(const fl of this.isFalse) {
-		// 	if(!this.map.has(fl)) {
-		// 		this.map.set(fl, 1);
-		// 	} else {
-		// 		const n = this.map.get(fl);
-		// 		if(n) {
-		// 			this.map.set(fl, n + 1);
-		// 		}
-		// 	}
-		// 	aux.push(fl);
-		// }
-
-		// this.isFalse = [];
-		// for(const tr of this.isTrue) {
-		// 	if(!this.map.has(tr)) {
-		// 		this.map.set(tr, 1);
-		// 	} else {
-		// 		const n = this.map.get(tr);
-		// 		if(n) {
-		// 			this.map.set(tr, n + 1);
-		// 		}
-		// 	}
-		// 	this.isFalse.push(tr);
-		// }
-
-		// this.isTrue = [...aux];
-		// console.log(this.map);
 	}
 
 	// nuevo temporal
@@ -145,5 +121,25 @@ export class QuadHandler {
 				tmp.result = label;
 			}
 		}
+	}
+
+	public get getTables(): SymbolTable[] {
+		return this.tables;
+	}
+
+	public push() {
+		const t = this.tables.shift();
+		if(t) {
+			this.stack.push(t);
+		}
+	}
+
+	public pop() {
+		this.stack.pop();
+	}
+
+	public peek(): SymbolTable {
+		const t = this.stack[this.stack.length - 1];
+		return t;
 	}
 }

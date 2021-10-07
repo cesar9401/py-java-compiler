@@ -39,21 +39,22 @@ export class Program {
 
 			/* run */
 			const sm = new SemanticHandler();
-			const table = new SymbolTable(sm.getFather);
+			const table = new SymbolTable(sm.peek());
+			sm.pushTable(table);
+
 			for(const ins of value) {
 				ins.run(table, sm);
 			}
 
-			console.log(`table`);
-			sm.getFather.forEach(v => console.log(v));
-			console.log(`table`);
-
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				/* generete */
-				const qh = new QuadHandler();
+				sm.getTables.forEach(table => console.log(table)); // tablas en consola
+				/* generate */
+				const qh = new QuadHandler(sm.getTables);
+				qh.push();
 				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
+				qh.pop();
 				qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 			}
 		} catch (error) {
