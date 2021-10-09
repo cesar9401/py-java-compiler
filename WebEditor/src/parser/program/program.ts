@@ -51,7 +51,7 @@ export class Program {
 			} else {
 				sm.getTables.forEach(table => console.log(table)); // tablas en consola
 				/* generate */
-				const qh = new QuadHandler(sm.getTables);
+				const qh = new QuadHandler(sm);
 				qh.push();
 				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
 				qh.pop();

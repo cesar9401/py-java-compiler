@@ -81,14 +81,20 @@ export class Assignment extends Instruction {
 					qh.addQuad(new Quadruple("LABEL", "", "", lt));
 
 					const t = qh.getTmp();
-					qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t));
-					qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack[${t}]`)); // asignar 1
-					qh.addQuad(new Quadruple("GOTO", "", "", final));
+					const sn = qh.getTmp();
+					qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[${sn}]`)); // asignar 1
 
+					qh.addQuad(new Quadruple("GOTO", "", "", final));
 					qh.addQuad(new Quadruple("LABEL", "", "", lf));
+
 					const t1 = qh.getTmp();
-					qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1));
-					qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack[${t1}]`)); // asignar 0
+					const sn1 = qh.getTmp();
+					qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, "", sn1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[${sn1}]`)); // asignar 0
+
 					qh.addQuad(new Quadruple("LABEL", "", "", final));
 				}
 
@@ -110,15 +116,21 @@ export class Assignment extends Instruction {
 				if(val && val.pos !== undefined) {
 					qh.addQuad(new Quadruple("LABEL", "", "", lt1));
 
-					const t = qh.getTmp();
-					qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t));
-					qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack[${t}]`)); // asignar 0
-					qh.addQuad(new Quadruple("GOTO", "", "", final1));
+					const t1 = qh.getTmp();
+					const sn1 = qh.getTmp();
+					qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, "", sn1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[${sn1}]`)); // asignar 0
 
+					qh.addQuad(new Quadruple("GOTO", "", "", final1));
 					qh.addQuad(new Quadruple("LABEL", "", "", lf1));
-					const t1= qh.getTmp();
-					qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t1));
-					qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack[${t1}]`)); // asignar 1
+
+					const t = qh.getTmp();
+					const sn = qh.getTmp();
+					qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[${sn}]`)); // asignar 1
+
 					qh.addQuad(new Quadruple("LABEL", "", "", final1));
 				}
 
@@ -130,18 +142,30 @@ export class Assignment extends Instruction {
 			// obtener el puntero
 			const variable = qh.peek().getById(this.id);
 			if(variable && variable.pos !== undefined) {
-				const t = qh.getTmp();
-				const ptr = new Quadruple("PLUS", "ptr", variable.pos.toString(), t);
-				const stack = new Quadruple("ASSIGN", res.result, "", `stack[${t}]`);
-
-				qh.addQuad(ptr);
-				qh.addQuad(stack);
-
-				return stack;
+				switch(variable.type) {
+					case OperationType.INT:
+						const t = qh.getTmp();
+						const sn = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", res.result, "", `stack_n[${sn}]`));
+						return;
+					case OperationType.FLOAT:
+						const t1 = qh.getTmp();
+						const sf = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, "", sf, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", res.result, "", `stack_f[${sf}]`));
+						return;
+					case OperationType.CHAR:
+						const t2= qh.getTmp();
+						const sc = qh.getTmp();
+						qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t2, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", `stack[${t2}]`, "", sc, OperationType.INT));
+						qh.addQuad(new Quadruple("ASSIGN", res.result, "", `stack_c[${sc}]`));
+						return;
+				}
 			}
-			// const quad: Quadruple = new Quadruple('ASSIGN', res.result, "", this.id);
-			// qh.addQuad(quad);
-			// return quad;
 		}
 		return;
 	}

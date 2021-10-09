@@ -177,9 +177,12 @@ export class Operation extends Instruction{
 				const right: Quadruple | undefined = this.right.generate(qh);
 				const result = qh.getTmp();
 				if(left && right) {
-					const quad : Quadruple = new Quadruple(this.type, left.result, right.result, result);
-					qh.addQuad(quad);
-					return quad;
+					const type = this.getType(qh, this.type, left, right);
+					if(type) {
+						const quad : Quadruple = new Quadruple(this.type, left.result, right.result, result, type);
+						qh.addQuad(quad);
+						return quad;
+					}
 				}
 			return;
 		}
@@ -189,8 +192,8 @@ export class Operation extends Instruction{
 				case OperationType.UMINUS:
 					const left: Quadruple | undefined = this.left.generate(qh);
 					const result = qh.getTmp();
-					if(left) {
-						const quad = new Quadruple(this.type, left?.result, "", result);
+					if(left && left.type) {
+						const quad = new Quadruple(this.type, left?.result, "", result, left.type);
 						qh.addQuad(quad);
 						return quad;
 					}
@@ -226,7 +229,6 @@ export class Operation extends Instruction{
 					}
 					qh.switch();
 					return;
-
 			}
 
 			return;
@@ -235,38 +237,52 @@ export class Operation extends Instruction{
 		if(this.variable) {
 			if(this.variable.value) {
 				switch(this.type) {
+					case OperationType.CHAR:
+						return new Quadruple(this.type, "", "", `'${this.variable.value}'`, this.type);
 					case OperationType.INT:
-					const quad = new Quadruple(this.type, "", "", this.variable.value);
-					return quad;
+					case OperationType.FLOAT:
+					return new Quadruple(this.type, "", "", this.variable.value, this.type);
 				}
 
+				// revisar esto
 				const result = qh.getTmp();
-				const quad = new Quadruple(this.type, this.variable.value, "", result);
+				const quad = new Quadruple(this.type, this.variable.value, "", result, this.type);
 				qh.addQuad(quad);
-
 				return quad;
+
 			} else if(this.variable.id) {
 				const variable = qh.peek().getById(this.variable.id);
 				if(variable && variable.pos !== undefined) {
 					const t = qh.getTmp();
-					const ptr = new Quadruple("PLUS", "ptr", variable.pos.toString(), t);
-					const assign = new Quadruple("ASSIGN", `stack[${t}]`, "", qh.getTmp());
+					const ts = qh.getTmp();
+					const ptr = new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT);
+					const assign = new Quadruple("ASSIGN", `stack[${t}]`, "", ts, OperationType.INT);
+					const dest = this.getFromStack(qh, ts, variable);
 
 					qh.addQuad(ptr);
 					qh.addQuad(assign);
+					qh.addQuad(dest);
 
-					return assign;
+					return dest;
 				}
-				// const result = qh.getTmp();
-				// const quad = new Quadruple(this.type, this.variable.id, "", result);
-				// qh.addQuad(quad);
-				// return quad;
 			}
 		}
 
 		return undefined;
 	}
 
+	private getFromStack(qh: QuadHandler, ts: string, variable: Variable): Quadruple {
+		switch(variable.type) {
+			case OperationType.INT:
+				return new Quadruple("ASSIGN", `stack_n[${ts}]`, "", qh.getTmp(), OperationType.INT); // entero
+			case OperationType.FLOAT:
+				return new Quadruple("ASSIGN", `stack_f[${ts}]`, "", qh.getTmp(), OperationType.FLOAT); // float
+			default:
+				return new Quadruple("ASSIGN", `stack_c[${ts}]`, "", qh.getTmp(), OperationType.CHAR); // char
+		}
+	}
+
+	// agregar cuadruples para hijos derecho e izquierdo AND / OR
 	private addQuad(op: Operation, quadruple: Quadruple | undefined, qh: QuadHandler): void {
 		switch(op.type) {
 			case OperationType.INT:
@@ -292,6 +308,18 @@ export class Operation extends Instruction{
 					}
 				break;
 		}
+	}
+
+	private getType(qh: QuadHandler, type: OperationType, left: Quadruple, right: Quadruple): OperationType | undefined {
+		if(left.type && right.type) {
+			const varLeft = new Variable(left.type, "", "");
+			const varRight = new Variable(right.type, "", "");
+			const result: Variable | undefined = qh.getSM.op.binaryOperation(type, varLeft, varRight,0, 0);
+			if(result) {
+				return result.type;
+			}
+		}
+		return;
 	}
 }
 

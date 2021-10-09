@@ -1,5 +1,6 @@
 import { Quadruple } from "src/table/quadruple";
 import { SymbolTable } from "src/table/symbolTable";
+import { SemanticHandler } from "./semantic_handler";
 
 export class QuadHandler {
 	private quads: Quadruple[];
@@ -16,8 +17,11 @@ export class QuadHandler {
 	labelTrue: string | undefined;
 	labelFalse: string | undefined;
 
-	constructor(tables: SymbolTable[]) {
-		this.tables = tables;
+	private sm: SemanticHandler;
+
+	constructor(sm: SemanticHandler) {
+		this.sm = sm;
+		this.tables = sm.getTables;
 		this.quads = [];
 		this.labels = [];
 		this.tmps = [];
@@ -141,5 +145,9 @@ export class QuadHandler {
 	public peek(): SymbolTable {
 		const t = this.stack[this.stack.length - 1];
 		return t;
+	}
+
+	public get getSM(): SemanticHandler {
+		return this.sm;
 	}
 }

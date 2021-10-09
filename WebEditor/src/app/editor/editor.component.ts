@@ -36,30 +36,10 @@ export class EditorComponent implements OnInit {
 #include JAVA.*;
 */
 
-const int size = 10;
-int w = size + 100;
+int a = 10;
 
 void main() {
-	int a = 10;
-	int b = 25 + a;
-
-	if(a == 10) {
-		int x = a + 1;
-		printf("El valor es: %d\\n", x);
-	} else {
-		int x = a + 2;
-		printf("El valor es %d\\n", x);
-	}
-
-	// for(int i = 0; i < 10; i = i + 1) {
-	// 	int z = i + 1;
-	// 	if(z == 10) {
-	// 		int y = z + 1;
-	// 		printf("fin %d", y);
-	// 	}
-	// 	printf("%d -> ", z);
-	// }
-
+	int i = 2 * 1 + (2 + 3) ^ (5 - 3);
 }\n`;
 
 	}
