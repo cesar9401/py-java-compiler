@@ -60,13 +60,20 @@ export class Operation extends Instruction{
 				case OperationType.FLOAT:
 					return this.variable;
 				case OperationType.CHAR:
+					const val1 = '\\n'
+					const val2 = '\\t'
+					const val3 = '\\\''
+					const val4 = '\\\\'
+
+						if(this.variable.value === val1 || this.variable.value === val2 || this.variable.value === val3 || this.variable.value === val4) {
+							return this.variable;
+						}
+
 					if(this.variable.value?.length !== 1) {
 						// error, debe de ser de longitud 1
-						if(this.variable.value) { // this.variable.value siempre existe.
-							const desc = `La variable de tipo char debe de tener una longitud de 1, la longitud ingresada: ${this.variable.value?.length}, no esta permitida.`;
-							const error = new Error(this.line, this.column, this.variable.value, TypeE.SINTACTICO, desc);
-							sm.errors.push(error);
-						}
+						const desc = `La variable de tipo char debe de tener una longitud de 1, la longitud ingresada: ${this.variable.value?.length}, no esta permitida.`;
+						const error = new Error(this.line, this.column, "", TypeE.SINTACTICO, desc);
+						sm.errors.push(error);
 						return undefined;
 					}
 					return this.variable;
@@ -78,10 +85,10 @@ export class Operation extends Instruction{
 							// console.log(val.value === '');
 							if(!val.value) { // if val.value === '', it returns true
 								// console.log(val.value);
-								const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
-								const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
-								sm.errors.push(error);
-								return undefined;
+								// const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
+								// const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
+								// sm.errors.push(error);
+								// return undefined;
 							}
 							return val;
 						} else {

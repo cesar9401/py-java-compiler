@@ -3,7 +3,6 @@ import { Parser } from '../../parser/parser';
 
 import { CompilerService } from 'src/service/compiler.service';
 
-
 declare var CodeMirror:any;
 declare var TreeNode: any;
 declare var TreeView: any;
@@ -36,10 +35,20 @@ export class EditorComponent implements OnInit {
 #include JAVA.*;
 */
 
-int a = 10;
-
 void main() {
-	int i = 2 * 1 + (2 + 3) ^ (5 - 3);
+	int a = 10;
+	int b = a + 5;
+
+	if(a == 10) {
+		int x = a * 2;
+		printf("El valor es: %d\\n", x);
+	} else {
+		int x = b * 2;
+		printf("El valor es: %d\\n", x);
+	}
+
+	printf("Fin ejecucion :D\\n");
+
 }\n`;
 
 	}
@@ -68,25 +77,18 @@ void main() {
 		this.root.addChild(n2);
 		this.view = new TreeView(this.root, document.querySelector('.folders-container'));
 
-
-		/* github service */
-		// this.compilerService.getRepos().then(values => {
-		// 	for(let i = 0; i < values.length; i++) {
-		// 		console.log(values[i].full_name);
-		// 	}
-		// });
-		/* github service */
-
-		/* local service */
-		// this.compilerService.getLocal().then(console.log);
-		/* local service */
+		/* compiler service */
+		// this.compilerService.getCompiler()
+		// 	.then(console.log)
+		// 	.catch(console.log);
+		/* compiler service */
 	}
 
 	getSource(): void {
 		let input:string = this.code.getValue();
 
 		// se crea el parser
-		const parser = new Parser();
+		const parser = new Parser(this.compilerService);
 		parser.setInput(input);
 	}
 }

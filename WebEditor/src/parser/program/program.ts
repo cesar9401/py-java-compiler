@@ -17,8 +17,10 @@ import { Continue } from 'src/instruction/continue';
 import { Break } from 'src/instruction/break';
 import { Main } from '../../instruction/main_c';
 import { Clear } from '../../instruction/clear';
+import { Scanf } from 'src/instruction/scanf';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
+import { CompilerService } from 'src/service/compiler.service';
 
 declare var program: any;
 
@@ -26,7 +28,7 @@ export class Program {
 	private source: string;
 	private yy: any;
 
-	constructor(source: string) {
+	constructor(private compilerService: CompilerService, source: string) {
 		this.source = source;
 		this.yy = program.yy;
 		this.setFunctions();
@@ -49,13 +51,18 @@ export class Program {
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				sm.getTables.forEach(table => console.log(table)); // tablas en consola
+				// sm.getTables.forEach(table => console.log(table)); // tablas en consola
 				/* generate */
 				const qh = new QuadHandler(sm);
 				qh.push();
 				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
 				qh.pop();
-				qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
+
+				// qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
+
+				this.compilerService.postCompiler(qh.getQuads)
+					.then(console.log)
+					.catch(console.log);
 			}
 		} catch (error) {
 			console.error(error);
@@ -80,6 +87,7 @@ export class Program {
 		this.yy.Continue = Continue; // instruccion continuar
 		this.yy.Break = Break // instruccion break;
 		this.yy.Clear = Clear // instruccion clear;
+		this.yy.Scanf = Scanf; // instruccion leer
 		this.yy.Main = Main; // Metodo principal
 	}
 }

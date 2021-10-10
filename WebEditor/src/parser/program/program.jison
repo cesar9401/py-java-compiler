@@ -193,10 +193,10 @@ not								"!"
 <STRING>"%f"[^\n\r\"\\%]*		string += yytext; format.push("%f");
 
 <STRING>[^\n\r\"\\%]+			string += yytext;
-<STRING>\\t						string += "\t";
-<STRING>\\n						string += "\n";
-<STRING>\\\"					string += "\"";
-<STRING>\\						string += "\\";
+<STRING>\\t						string += "\\t";
+<STRING>\\n						string += "\\n";
+<STRING>\\\"					string += "\\\"";
+<STRING>\\						string += "\\\\";
 
 <STRING>"%"						string += "%";
 
@@ -208,10 +208,10 @@ not								"!"
 								%}
 
 <CHAR>[^\n\r\'\\]+				char += yytext;
-<CHAR>\\t						char += "\t";
-<CHAR>\\n						char += "\n";
-<CHAR>\\\'						char += "\'";
-<CHAR>\\						char += "\\";
+<CHAR>\\t						char += "\\t";
+<CHAR>\\n						char += "\\n";
+<CHAR>\\\'						char += "\\\'";
+<CHAR>\\						char += "\\\\";
 
 /lex
 
@@ -292,7 +292,7 @@ main_b
 		| function_call SEMI
 		| clear_ { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
-		| scanf_
+		| scanf_ { $$ = [$1]; }
 		// | const
 		;
 /* main */
@@ -501,7 +501,7 @@ printf_
 
 scanf_
 		: SCANF LPAREN STRING COMMA AMP ID RPAREN SEMI
-			{ console.log(`scanf: ${$3}`); format = []; }
+			{ $$ = new yy.Scanf(this._$.first_line, this._$.first_column, $3, $6, format); format = []; }
 		;
 /* function call */
 

@@ -5,6 +5,7 @@ import { SemanticHandler } from "src/control/semantic_handler";
 import { Variable } from "./variable";
 import { Error, TypeE } from "src/control/error";
 import { OperationType } from "./operation";
+import { Quadruple } from "src/table/quadruple";
 
 export class Scanf extends Instruction {
 	format: string;
@@ -48,7 +49,31 @@ export class Scanf extends Instruction {
 			const error = new Error(this.line, this.column, '', TypeE.SEMANTICO, desc);
 			sm.errors.push(error);
 		}
+		val.value = ' ';
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		const variable = qh.peek().getById(this.id);
+		if(variable && variable.pos !== undefined) {
+			const val = qh.getTmp();
+			qh.addQuad(new Quadruple("SCANF", this.fmt[0], '', val, variable.type));
+
+			const t = qh.getTmp();
+			const sn = qh.getTmp();
+			qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT));
+			qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+
+			switch(variable.type) {
+				case OperationType.INT:
+					qh.addQuad(new Quadruple("ASSIGN", val, "", `stack_n[${sn}]`));
+					break;
+				case OperationType.CHAR:
+					qh.addQuad(new Quadruple("ASSIGN", val, "", `stack_c[${sn}]`));
+					break;
+				case OperationType.FLOAT:
+					qh.addQuad(new Quadruple("ASSIGN", val, "", `stack_f[${sn}]`));
+					break;
+			}
+		}
+	}
 }

@@ -1,4 +1,5 @@
 import { Program } from '../parser/program/program';
+import {CompilerService} from 'src/service/compiler.service';
 
 declare var python:any;
 declare var java:any;
@@ -9,7 +10,7 @@ export class Parser {
 	private regx: RegExp;
 	private code: string[];
 
-	constructor() {
+	constructor(private compilerService: CompilerService) {
 		this.regx = /(([^\n\r]|\n)*)(%%PY([^\n\r]|\n)*)(%%JAVA([^\n\r]|\n)*)(%%PROGRAMA([^\n\r]|\n)*)/;
 		this.code = [];
 	}
@@ -38,7 +39,7 @@ export class Parser {
 	}
 
 	parseProgram() {
-		let program = new Program(this.code[3]);
+		let program = new Program(this.compilerService, this.code[3]);
 		program.parse();
 	}
 }

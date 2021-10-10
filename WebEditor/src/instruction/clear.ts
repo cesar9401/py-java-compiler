@@ -12,5 +12,7 @@ export class Clear extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		qh.addQuad(new Quadruple("CLEAR", "", "", ""));
+	}
 }

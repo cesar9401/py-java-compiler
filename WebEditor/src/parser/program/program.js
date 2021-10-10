@@ -95,7 +95,7 @@ break;
 case 4: case 22: case 73:
  this.$ = []; 
 break;
-case 5: case 9: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 34: case 35: case 42: case 72:
+case 5: case 9: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 34: case 35: case 36: case 42: case 72:
  this.$ = [$$[$0]]; 
 break;
 case 6: case 7: case 23: case 24:
@@ -215,7 +215,7 @@ case 87:
  this.$ = new yy.Printf(this._$.first_line, this._$.first_column, $$[$0-4], [...format], $$[$0-2]); format = []; 
 break;
 case 88:
- console.log(`scanf: ${$$[$0-5]}`); format = []; 
+ this.$ = new yy.Scanf(this._$.first_line, this._$.first_column, $$[$0-5], $$[$0-2], format); format = []; 
 break;
 case 89:
  this.$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
@@ -907,13 +907,13 @@ case 65:string += yy_.yytext; format.push("%f");
 break;
 case 66:string += yy_.yytext;
 break;
-case 67:string += "\t";
+case 67:string += "\\t";
 break;
-case 68:string += "\n";
+case 68:string += "\\n";
 break;
-case 69:string += "\"";
+case 69:string += "\\\"";
 break;
-case 70:string += "\\";
+case 70:string += "\\\\";
 break;
 case 71:string += "%";
 break;
@@ -925,13 +925,13 @@ case 72:
 break;
 case 73:char += yy_.yytext;
 break;
-case 74:char += "\t";
+case 74:char += "\\t";
 break;
-case 75:char += "\n";
+case 75:char += "\\n";
 break;
-case 76:char += "\'";
+case 76:char += "\\\'";
 break;
-case 77:char += "\\";
+case 77:char += "\\\\";
 break;
 }
 },
