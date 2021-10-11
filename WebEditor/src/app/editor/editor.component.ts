@@ -7,6 +7,8 @@ declare var CodeMirror:any;
 declare var TreeNode: any;
 declare var TreeView: any;
 
+declare var python: any;
+
 @Component({
 	selector: 'app-editor',
 	templateUrl: './editor.component.html',
@@ -17,7 +19,6 @@ export class EditorComponent implements OnInit {
 	code: any;
 	root: any;
 	view: any;
-	//parser: Parser;
 	info: string;
 	value: string;
 
@@ -25,6 +26,25 @@ export class EditorComponent implements OnInit {
 		this.info = `Linea: 1, Columna: 0`;
 		this.value = `
 %%PY
+	def demo1():
+		number = 25
+		println("El numero es: ", number)
+		if number % 2 == 0:
+			number = number * -1
+
+		if number < 0:
+			number = number * -1
+
+	def demo2():
+		aux, number = 1, 2
+		if aux < 0:
+			number = number ^ 2
+		elif aux == 0:
+			number = number / 2
+
+		while aux < 0 :
+			println("El valor es ", aux)
+			aux = aux + 1
 
 %%JAVA
 

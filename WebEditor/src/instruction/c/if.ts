@@ -1,4 +1,4 @@
-import { Instruction } from "./instruction";
+import { Instruction } from "src/instruction/instruction";
 import { Operation } from "./operation";
 
 export class If {

@@ -1,5 +1,5 @@
-import { Variable } from "src/instruction/variable";
-import { OperationType } from "src/instruction/operation";
+import { Variable } from "src/instruction/c/variable";
+import { OperationType } from "src/instruction/c/operation";
 import { SemanticHandler } from "./semantic_handler";
 import { Error, TypeE } from "./error";
 

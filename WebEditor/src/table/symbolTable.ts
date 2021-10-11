@@ -1,4 +1,4 @@
-import { Variable } from "../instruction/variable";
+import { Variable } from "src/instruction/c/variable";
 
 export class SymbolTable extends Array<Variable>{
 	scope: string;

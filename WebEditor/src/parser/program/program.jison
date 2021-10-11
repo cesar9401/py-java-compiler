@@ -291,6 +291,7 @@ main_b
 		| switch_ { $$ = [$1]; }
 		| function_call SEMI
 		| clear_ { $$ = [$1]; }
+		| getch_ { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
 		| scanf_ { $$ = [$1]; }
 		// | const
@@ -479,12 +480,17 @@ break_
 function_call
 		: PY DOT ID LPAREN params RPAREN
 		| JAVA DOT ID DOT ID LPAREN params RPAREN
-		| GETCH LPAREN RPAREN
+		// | GETCH LPAREN RPAREN
 		;
 
 params
 		: param	{ $$ = $1; }
 		| {$$ = []; }
+		;
+
+getch_
+		: GETCH LPAREN RPAREN SEMI
+			{ $$ = new yy.Getch(this._$.first_line, this._$.first_column, $1); }
 		;
 
 clear_

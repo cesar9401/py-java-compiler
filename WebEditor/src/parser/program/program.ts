@@ -1,23 +1,23 @@
-import { SymbolTable } from '../../table/symbolTable';
-import { Quadruple } from 'src/table/quadruple';
-import { Statement } from '../../instruction/statement';
-import { Instruction } from '../../instruction/instruction';
-import { Operation, OperationType } from '../../instruction/operation';
-import { Variable } from '../../instruction/variable';
-import { Assignment } from '../../instruction/assignment';
-import { Printf } from '../../instruction/printf';
-import { If } from '../../instruction/if';
-import { IfInstruction } from '../../instruction/if_instruction';
-import { While } from '../../instruction/while';
-import { DoWhile } from '../../instruction/do_while';
-import { For } from '../../instruction/for';
-import { Case } from '../../instruction/case';
-import { Switch } from '../../instruction/switch';
-import { Continue } from 'src/instruction/continue';
-import { Break } from 'src/instruction/break';
-import { Main } from '../../instruction/main_c';
-import { Clear } from '../../instruction/clear';
-import { Scanf } from 'src/instruction/scanf';
+import { SymbolTable } from 'src/table/symbolTable';
+import { Statement } from 'src/instruction/c/statement';
+import { Instruction } from 'src/instruction/instruction';
+import { Operation, OperationType } from 'src/instruction/c/operation';
+import { Variable } from 'src/instruction/c/variable';
+import { Assignment } from 'src/instruction/c/assignment';
+import { Printf } from 'src/instruction/c/printf';
+import { If } from 'src/instruction/c/if';
+import { IfInstruction } from 'src/instruction/c/if_instruction';
+import { While } from 'src/instruction/c/while';
+import { DoWhile } from 'src/instruction/c/do_while';
+import { For } from 'src/instruction/c/for';
+import { Case } from 'src/instruction/c/case';
+import { Switch } from 'src/instruction/c/switch';
+import { Continue } from 'src/instruction/c/continue';
+import { Break } from 'src/instruction/c/break';
+import { Main } from 'src/instruction/c/main_c';
+import { Clear } from 'src/instruction/c/clear';
+import { Getch } from 'src/instruction/c/getch';
+import { Scanf } from 'src/instruction/c/scanf';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
 import { CompilerService } from 'src/service/compiler.service';
@@ -60,9 +60,9 @@ export class Program {
 
 				// qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 
-				this.compilerService.postCompiler(qh.getQuads)
-					.then(console.log)
-					.catch(console.log);
+				// this.compilerService.postCompiler(qh.getQuads)
+				// 	.then(console.log)
+				// 	.catch(console.log);
 			}
 		} catch (error) {
 			console.error(error);
@@ -87,6 +87,7 @@ export class Program {
 		this.yy.Continue = Continue; // instruccion continuar
 		this.yy.Break = Break // instruccion break;
 		this.yy.Clear = Clear // instruccion clear;
+		this.yy.Getch = Getch // instruccion getch
 		this.yy.Scanf = Scanf; // instruccion leer
 		this.yy.Main = Main; // Metodo principal
 	}

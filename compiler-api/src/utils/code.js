@@ -3,15 +3,19 @@ function get3dCode(quads) {
 /*
 *
 * compilar con:
-* gcc input.c -o input.out -lm
+* gcc output.c -o output.out -lm
 * by: cesar31
 * https://github.com/cesar9401
+*
 *
 */
 
 #include<stdio.h>
 #include<math.h>
 #include <stdlib.h>
+#include <termios.h>
+
+static struct termios old, new;
 
 int stack[30000];
 int stack_n[1000];
@@ -22,6 +26,10 @@ int ptr = 0;
 int ptr_n = 0;
 int ptr_c = 0;
 int ptr_f = 0;
+
+void initTermios();
+void resetTermios();
+void getch();
 
 int main() {
 
@@ -92,12 +100,45 @@ int main() {
             case "CLEAR":
                 result += `\tsystem("clear");\n`;
                 break;
+            case "FUNCTION":
+                result += `\t${q.result}();\n`;
+                break;
         }
     }
 
 	result += `
     return 0;
 \n}\n`;
+
+    result += `
+/* Initialize new terminal i/o settings */
+void initTermios() {
+    tcgetattr(0, &old); //grab old terminal i/o settings
+    new = old; //make new settings same as old settings
+    new.c_lflag &= ~ICANON; //disable buffered i/o
+    new.c_lflag &= 0 ? ECHO : ~ECHO; //set echo mode
+    tcsetattr(0, TCSANOW, &new); //apply terminal io settings
+}
+
+/* Restore old terminal i/o settings */
+void resetTermios() {
+    tcsetattr(0, TCSANOW, &old);
+}
+
+void getch() {
+    int t1 = ptr + 0; // reservar lugar para ch
+    stack[t1] = ptr_c;
+    ptr_c = ptr_c + 1;
+
+    initTermios();
+    char t2 = getchar();
+
+    // almacenar t2 en la pila
+    int t4 = stack[t1];
+    stack_c[t4] = t2;
+    resetTermios();
+}
+`
 
 	return result;
 }

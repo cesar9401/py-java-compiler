@@ -1,4 +1,4 @@
-import { Instruction } from "./instruction";
+import { Instruction } from "src/instruction/instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { QuadHandler } from "src/control/quad_handler";
 import { SemanticHandler } from "src/control/semantic_handler";

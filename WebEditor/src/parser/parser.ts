@@ -1,7 +1,8 @@
-import { Program } from '../parser/program/program';
+import { Program } from './program/program';
+import { Python } from './py/python';
 import {CompilerService} from 'src/service/compiler.service';
 
-declare var python:any;
+// declare var python:any;
 declare var java:any;
 // declare var program:any;
 
@@ -31,15 +32,24 @@ export class Parser {
 				this.code.push(value[3] + "\n\n");// py 1
 				this.code.push(value[5]);// java 2
 				this.code.push(value[7]);// program 3
-				this.parseProgram();
+
+				// this.parseProgram();
+				this.parserPython();
 			}
 		} else {
 			console.log(`No se reconoce codigo fuente`);
 		}
 	}
 
+	/* parser codigo con sintaxis c */
 	parseProgram() {
 		let program = new Program(this.compilerService, this.code[3]);
 		program.parse();
+	}
+
+	/* parsear codigo con sisntaxis python */
+	parserPython() {
+		const python = new Python(this.compilerService, this.code[1]);
+		python.parse();
 	}
 }

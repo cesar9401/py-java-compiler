@@ -1,4 +1,4 @@
-import { Instruction } from "./instruction";
+import { Instruction } from "../instruction";
 import { Variable } from "./variable";
 import { SymbolTable } from "src/table/symbolTable";
 import { Quadruple } from "src/table/quadruple";

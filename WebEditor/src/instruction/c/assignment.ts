@@ -1,9 +1,9 @@
-import { Instruction } from "./instruction";
+import { Instruction } from "src/instruction/instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Variable } from "./variable";
 import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
-import { Error, TypeE } from '../control/error';
+import { Error, TypeE } from '../../control/error';
 import { QuadHandler } from "src/control/quad_handler";
 import { Operation, OperationType } from "./operation";
 

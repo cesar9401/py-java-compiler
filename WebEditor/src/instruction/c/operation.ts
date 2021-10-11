@@ -1,4 +1,4 @@
-import { Instruction } from "./instruction";
+import { Instruction } from "src/instruction/instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { Variable } from "./variable";
 import { Quadruple } from "src/table/quadruple";
@@ -20,15 +20,11 @@ export class Operation extends Instruction{
 			super(args[0], args[1]);
 			this.type = args[2];
 			this.variable = args[3];
-
-			return;
 		} else {
 			super(args[0], args[1]);
 			this.type = args[2];
 			this.left = args[3];
 			this.right = args[4];
-
-			return;
 		}
 	}
 
@@ -337,6 +333,7 @@ export enum OperationType {
 	CHAR = "CHAR",
 	STRING = "STRING",
 	ID = "ID",
+	BOOL = "BOOLEAN",
 
 	SUM = "PLUS",
 	SUB = "MINUS",

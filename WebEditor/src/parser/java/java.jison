@@ -153,8 +153,8 @@ not								"!"
 <INITIAL>{or}					return "OR";
 <INITIAL>{not}					return "NOT";
 
-<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Decimal}				return "DECIMAL";
+<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Id}					return "ID";
 
 <INITIAL>{WhiteSpace}			/* ignore */

@@ -1,4 +1,4 @@
-import { OperationType } from "src/instruction/operation";
+import { OperationType } from "src/instruction/c/operation";
 
 export class Quadruple {
 	op: string;

@@ -52,6 +52,7 @@ elif							"elif"
 else							"else"
 while							"while"
 range							"range"
+input							"input"
 
 /* operators */
 plus							"+"
@@ -77,7 +78,7 @@ smaller_eq						"<="
 %s LINE
 %s STRING
 %s CHAR
-// %x INITIAL
+%x INITIAL
 
 %%
 
@@ -100,6 +101,7 @@ smaller_eq						"<="
 <INITIAL>{else}					return "ELSE";
 <INITIAL>{while}				return "WHILE";
 <INITIAL>{range}				return "RANGE";
+<INITIAL>{input}				return "INPUT";
 
 <INITIAL>{plus}					return "PLUS";
 <INITIAL>{minus}				return "MINUS";
@@ -118,8 +120,8 @@ smaller_eq						"<="
 <INITIAL>{smaller_eq}			return "SMALLER_EQ";
 <INITIAL>{smaller}				return "SMALLER";
 
-<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Decimal}				return "DECIMAL";
+<INITIAL>{Integer}				return "INTEGER";
 <INITIAL>{Id}					return "ID";
 
 <INITIAL>{Whitespace}			/* ignore */
@@ -155,6 +157,7 @@ smaller_eq						"<="
 
 <INITIAL>.						%{
 									console.log(`Error lexico: ${yytext}`);
+									// console.log(this);
 									return "INVALID";
 								%}
 
@@ -226,23 +229,23 @@ smaller_eq						"<="
 								%}
 
 <STRING>[^\n\r\"\\]+			string += yytext;
-<STRING>\\t						string += "\t";
-<STRING>\\n						string += "\n";
-<STRING>\\\"					string += "\"";
-<STRING>\\						string += "\\";
+<STRING>\\t						string += "\\t";
+<STRING>\\n						string += "\\n";
+<STRING>\\\"					string += "\\\"";
+<STRING>\\						string += "\\\\";
 
 /* char state */
 <CHAR>{s_quote}					%{
 									yytext = char;
 									this.popState();
-									return "CHAR";
+									return "STRING";
 								%}
 
 <CHAR>[^\n\r\'\\]+				char += yytext;
-<CHAR>\\t						char += "\t";
-<CHAR>\\n						char += "\n";
-<CHAR>\\\'						char += "\'";
-<CHAR>\\						char += "\\";
+<CHAR>\\t						char += "\\t";
+<CHAR>\\n						char += "\\n";
+<CHAR>\\\'						char += "\\\'";
+<CHAR>\\						char += "\\\\";
 
 /lex
 
@@ -252,34 +255,34 @@ smaller_eq						"<="
 
 initial
 		: python EOF
-			{ return true; }
+			{ return $1; }
 		;
 
 python
-		: PY eol INDENT list_function DEDENT
-		| PY eol
+		: PY eol INDENT list_function DEDENT{ $$ = $4; }
+		// | PY eol { $$ = []; }
 		;
 
 list_function
-		: list_function function
-		| function
+		: list_function function { $1.push($2); $$ = $1; }
+		| function { $$ = [$1]; }
 		;
 
 body
-		: body func_body
-		| func_body
+		: body func_body { $$ = [...$1, ...$2]; }
+		| func_body { $$ = [...$1]; }
 		;
 
 func_body
 		: statement eol
-		| assigment eol
-		| list_if
-		| while__
-		| for__
-		| return_ eol
-		| break_ eol
-		| continue_ eol
-		| print_ eol
+		| assigment eol { $$ = [$1]; }
+		| list_if { $$ = [$1]; }
+		| while__ { $$ = [$1]; }
+		| for__ { $$ = [$1]; }
+		| return_ eol { $$ = [$1]; }
+		| break_ eol { $$ = [$1]; }
+		| continue_ eol { $$ = [$1]; }
+		| print_ eol { $$ = [$1]; }
 		;
 
 /* declaracion de variables */
@@ -288,172 +291,187 @@ statement
 		;
 
 list_id
-		: list_id COMMA ID
-		| ID
+		: list_id COMMA ID { $1.push($3); $$ = $1; }
+		| ID { $$ = []; $$.push($1); }
 		;
 /* declaracion de variables */
 
 /* declaracion y asignacion */
 assigment
 		: list_id EQUAL list_op
+			{ $$ = new yy.AssignmentPY(this._$.first_line, this._$.first_column, $1, $3); }
 		;
 
 list_op
-		: list_op COMMA a
-		| a
+		: list_op COMMA a { $1.push($3); $$ = $1; }
+		| a { $$ = []; $$.push($1); }
 		;
 /* declaracion y asignacion */
 
 /* if, elif, else */
 list_if
-		: if_
-		| if_ else_
-		| if_ list_elif
-		| if_ list_elif else_
+		: if_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1]); }
+		| if_ else_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, $2]); }
+		| if_ list_elif { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, ...$2]); }
+		| if_ list_elif else_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, ...$2, $3]); }
 		;
 
 if_
 		: IF a COLON eol function_body
+			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "IF", $5, $2); }
 		;
 
 else_
 		: ELSE COLON eol function_body
+			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELSE", $4, null); }
 		;
 
 list_elif
-		: list_elif elif_
-		| elif_
+		: list_elif elif_ { $1.push($2); $$ = $1; }
+		| elif_ { $$ = [$1]; }
 		;
 
 elif_
 		: ELIF a COLON eol function_body
+			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELIF", $5, $2); }
 		;
 /* if, elif, else */
 
 /* while */
 while__
-		: while_
+		: while_ { $$ = $1; }
 		| while_ else_
 		;
 
 while_
 		: WHILE a COLON eol function_body
+			{ $$ = new yy.WhilePY(this._$.first_line, this._$.first_column, $2, $5); }
 		;
 /* while */
 
 /* for */
 for__
-		: for_
+		: for_ { $$ = $1; }
 		| for_ else_
 		;
 
 for_
-		: FOR a IN range COLON eol function_body
+		: FOR ID IN range COLON eol function_body
+			{ $$ = new yy.ForPY(this._$.first_line, this._$.first_column, $2, $4, $7); }
 		;
 
 range
-		: RANGE LPAREN a RPAREN
-		| RANGE LPAREN a COMMA a RPAREN
-		| RANGE LPAREN a COMMA a COMMA a RPAREN
+		: RANGE LPAREN a RPAREN { $$ = [$3]; }
+		| RANGE LPAREN a COMMA a RPAREN { $$ = [$3, $5]; }
+		| RANGE LPAREN a COMMA a COMMA a RPAREN { $$ = [$3, $5, $7]; }
 		;
 /* for */
 
 /* cuerpo de una funcion */
 function_body
-		: INDENT body DEDENT
-		|
+		: INDENT body DEDENT { $$ = $2; }
+		| { $$ = []; }
 		;
 /* cuerpo de una funcion */
 
 /* funcion */
 function
 		: DEF ID LPAREN params RPAREN COLON eol function_body
+			{ $$ = new yy.FunctionPY(this._$.first_line, this._$.first_column, $2, $4, $8); }
 		;
 
 params
-		: list_id
-		|
+		: list_id { $$ = $1; }
+		| { $$ = []; }
 		;
 /* funcion */
 
 /* break, continue, return */
 break_
-		: BREAK
+		: BREAK { $$ = new yy.Break(this._$.first_line, this._$.first_column); }
 		;
 
 continue_
-		: CONTINUE
+		: CONTINUE { $$ = new yy.Continue(this._$.first_line, this._$.first_column); }
 		;
 
 return_
-		: RETURN a
+		: RETURN a { $$ = new yy.ReturnPY(this._$.first_line, this._$.first_column, $2); }
 		;
 /* break, continue, return */
+
+/* input */
+input_
+		: INPUT LPAREN RPAREN
+		;
+/* input */
 
 /* print and println */
 print_
 		: PRINT LPAREN list_op RPAREN
+			{ $$ = new yy.PrintPY(this._$.first_line, this._$.first_column, false, $3); }
 		| PRINTLN LPAREN list_op RPAREN
+			{ $$ = new yy.PrintPY(this._$.first_line, this._$.first_column, true, $3); }
 		;
 /* print and println */
 
 /* operaciones logicas y aritmeticas */
 a
-		: a OR b
-		| b
+		: a OR b { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.OR, $1, $3); }
+		| b { $$ = $1; }
 		;
 
 b
-		: b AND c
-		| c
+		: b AND c { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.AND, $1, $3); }
+		| c { $$ = $1; }
 		;
 
 c
-		: c EQEQ d
-		| c NEQ d
-		| c GREATER d
-		| c GREATER_EQ d
-		| c SMALLER d
-		| c SMALLER_EQ d
-		| d
+		: c EQEQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
+		| c NEQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
+		| c GREATER d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
+		| c GREATER_EQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
+		| c SMALLER d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
+		| c SMALLER_EQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
+		| d { $$ = $1; }
 		;
 
 d
-		: d PLUS e
-		| d MINUS e
-		| e
+		: d PLUS e { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
+		| d MINUS e { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
+		| e { $$ = $1; }
 		;
 
 e
-		: e TIMES f
-		| e DIVIDE f
-		| e MOD f
-		| f
+		: e TIMES f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
+		| e DIVIDE f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
+		| e MOD f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
+		| f { $$ = $1; }
 		;
 
 f
-		: g POW f
-		| g
+		: g POW f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.POW, $1, $3); }
+		| g { $$ = $1; }
 		;
 
 g
-		: MINUS h
-		| h
+		: MINUS h { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
+		| h { $$ = $1; }
 		;
 
 h
-		: NOT h
-		| i
+		: NOT h { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $2, null); }
+		| i { $$ = $1; }
 		;
 
 i
-		: INTEGER
-		| DECIMAL
-		| STRING
-		| CHAR
-		| BOOL
-		| ID
-		| LPAREN a RPAREN
+		: INTEGER { const tmp1 = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp1); }
+		| DECIMAL { const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp2); }
+		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3)  }
+		// | CHAR
+		| BOOL { const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.BOOL, tmp4); }
+		| ID { const tmp5 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp5); }
+		| LPAREN a RPAREN { $$ = $2; }
 		;
 /* operaciones logicas y aritmeticas */
 
@@ -461,10 +479,5 @@ i
 eol
 		: eol EOL
 		| EOL
-		;
-
-eol_
-		: eol_ EOL
-		|
 		;
 /* fin de linea */
