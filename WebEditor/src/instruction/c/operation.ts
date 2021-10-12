@@ -80,11 +80,10 @@ export class Operation extends Instruction{
 						if(val) {
 							// console.log(val.value === '');
 							if(!val.value) { // if val.value === '', it returns true
-								// console.log(val.value);
-								// const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
-								// const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
-								// sm.errors.push(error);
-								// return undefined;
+								const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
+								const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
+								sm.errors.push(error);
+								return undefined;
 							}
 							return val;
 						} else {
@@ -244,14 +243,16 @@ export class Operation extends Instruction{
 						return new Quadruple(this.type, "", "", `'${this.variable.value}'`, this.type);
 					case OperationType.INT:
 					case OperationType.FLOAT:
-					return new Quadruple(this.type, "", "", this.variable.value, this.type);
+						return new Quadruple(this.type, "", "", this.variable.value, this.type);
 				}
 
 				// revisar esto
+				/*
 				const result = qh.getTmp();
 				const quad = new Quadruple(this.type, this.variable.value, "", result, this.type);
 				qh.addQuad(quad);
 				return quad;
+				*/
 
 			} else if(this.variable.id) {
 				const variable = qh.peek().getById(this.variable.id);
@@ -334,6 +335,7 @@ export enum OperationType {
 	STRING = "STRING",
 	ID = "ID",
 	BOOL = "BOOLEAN",
+	VOID = "VOID",
 
 	SUM = "PLUS",
 	SUB = "MINUS",

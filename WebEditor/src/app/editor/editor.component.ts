@@ -27,24 +27,28 @@ export class EditorComponent implements OnInit {
 		this.value = `
 %%PY
 	def demo1():
-		number = 25
-		println("El numero es: ", number)
-		if number % 2 == 0:
-			number = number * -1
+		n1 = 10
+		n2 = 12
+		result = n2 / n1
+		// println("El numero es: ", number)
+		// if number % 2 == 0:
+		// 	number = number * -1
 
-		if number < 0:
-			number = number * -1
+		// if number < 0:
+		// 	number = number * -1
 
-	def demo2():
-		aux, number = 1, 2
-		if aux < 0:
-			number = number ^ 2
-		elif aux == 0:
-			number = number / 2
+	// def demo2():
+	// 	aux, number = 1, 2
+	// 	aux = number * number + aux
+	// 	number = aux + aux
+	// 	// if aux < 0:
+	// 	// 	number = number ^ 2
+	// 	// elif aux == 0:
+	// 	// 	number = number / 2
 
-		while aux < 0 :
-			println("El valor es ", aux)
-			aux = aux + 1
+	// 	// while aux < 0 :
+	// 	// 	println("El valor es ", aux)
+	// 	// 	aux = aux + 1
 
 %%JAVA
 
@@ -106,7 +110,6 @@ void main() {
 
 	getSource(): void {
 		let input:string = this.code.getValue();
-
 		// se crea el parser
 		const parser = new Parser(this.compilerService);
 		parser.setInput(input);

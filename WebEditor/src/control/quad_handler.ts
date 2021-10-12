@@ -1,3 +1,4 @@
+import { OperationType } from "src/instruction/c/operation";
 import { Quadruple } from "src/table/quadruple";
 import { SymbolTable } from "src/table/symbolTable";
 import { SemanticHandler } from "./semantic_handler";
@@ -149,5 +150,15 @@ export class QuadHandler {
 
 	public get getSM(): SemanticHandler {
 		return this.sm;
+	}
+
+	// hacer que las variables tengan tipo void (PY)
+	public setVoid(table: SymbolTable) {
+		table.forEach(val => val.type = OperationType.VOID);
+	}
+
+	public getQuadByResult(result: string): Quadruple | undefined {
+		this.quads.find(q => q.result === result);
+		return;
 	}
 }

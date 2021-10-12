@@ -18,5 +18,7 @@ export class Variable {
 
 		this.isArray = false;
 		this.scope = "";
+
+		this.size = 1;
 	}
 }

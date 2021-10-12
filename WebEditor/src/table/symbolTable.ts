@@ -13,7 +13,7 @@ export class SymbolTable extends Array<Variable>{
 
 	add(variable: Variable): void{
 		variable.scope = this.scope;
-		variable.size = 1;
+		// variable.size = 1;
 
 		if(this.length > 0) {
 			const n = this.length - 1;

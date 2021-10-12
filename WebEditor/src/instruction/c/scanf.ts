@@ -49,7 +49,11 @@ export class Scanf extends Instruction {
 			const error = new Error(this.line, this.column, '', TypeE.SEMANTICO, desc);
 			sm.errors.push(error);
 		}
-		val.value = ' ';
+
+		if(!val.value) {
+			val.value = ' ';
+			// sm.errors.pop();
+		}
 	}
 
 	generate(qh: QuadHandler) {

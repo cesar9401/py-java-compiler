@@ -9,6 +9,7 @@ import { PrintPY } from "src/instruction/py/print_py";
 import { WhilePY } from "src/instruction/py/while_py";
 import { ForPY } from "src/instruction/py/for_py";
 import { FunctionPY } from 'src/instruction/py/function_py';
+import { Instruction } from "src/instruction/instruction";
 
 // break and continue
 import { Break } from 'src/instruction/c/break';
@@ -16,6 +17,9 @@ import { Continue } from 'src/instruction/c/continue';
 
 // return
 import { ReturnPY } from 'src/instruction/py/return_py';
+import { SymbolTable } from "src/table/symbolTable";
+import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 
 declare var python: any;
@@ -33,8 +37,27 @@ export class Python {
 
 	parse() {
 		try {
-			const value = python.parse(this.source);
+			const value: Instruction[] = python.parse(this.source);
 			console.log(value);
+
+			const sm = new SemanticHandler();
+			const table = new SymbolTable(sm.peek());
+
+			for(const ins of value) {
+				ins.run(table, sm);
+			}
+
+			if(sm.errors.length > 0) {
+				sm.errors.forEach(e => console.log(e.toString()));
+			} else {
+				// generar Cuadruplos
+				// console.log(sm.getTables)
+				const qh = new QuadHandler(sm);
+				value.forEach(v => v.generate(qh));
+
+				qh.getQuads.forEach(q => console.log(q.toString()));
+			}
+
 		} catch (error) {
 			console.error(error);
 		}
@@ -51,7 +74,6 @@ export class Python {
 		this.yy.WhilePY = WhilePY;
 		this.yy.ForPY = ForPY;
 		this.yy.FunctionPY = FunctionPY;
-
 		this.yy.ReturnPY = ReturnPY;
 		this.yy.Break = Break;
 		this.yy.Continue = Continue;

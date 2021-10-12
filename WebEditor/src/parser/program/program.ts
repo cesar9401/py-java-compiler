@@ -58,7 +58,7 @@ export class Program {
 				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
 				qh.pop();
 
-				// qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
+				qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 
 				// this.compilerService.postCompiler(qh.getQuads)
 				// 	.then(console.log)

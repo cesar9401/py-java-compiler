@@ -21,6 +21,23 @@ export class FunctionPY extends Instruction {
 		this.instructions = instructions;
 	}
 
-	run(table: SymbolTable, sm: SemanticHandler) {}
-	generate(qh: QuadHandler) {}
+	run(table: SymbolTable, sm: SemanticHandler) {
+		sm.push(`def_${this.id}`);
+		const local = new SymbolTable(sm.peek(), table);
+		sm.pushTable(local);
+
+		for(const ins of this.instructions) {
+			ins.run(local, sm);
+		}
+
+		sm.pop(); // eliminar scope de function
+	}
+
+	generate(qh: QuadHandler) {
+		qh.push();
+		qh.setVoid(qh.peek());
+		console.log(qh.peek());
+		this.instructions.forEach(i => i.generate(qh));
+		qh.pop();
+	}
 }
