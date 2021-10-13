@@ -17,7 +17,7 @@ function get3dCode(quads) {
 
 static struct termios old, new;
 
-int stack[30000];
+int stack[3000];
 int stack_n[1000];
 char stack_c[1000];
 float stack_f[1000];
@@ -36,7 +36,8 @@ int main() {
 `;
 
     for (const q of quads) {
-        const type = q.type ? q.type.toLowerCase() + ' ' : "";
+        let type = q.type ? q.type.toLowerCase() + ' ' : "";
+        type = type === 'boolean ' ? 'int ' : type;
         switch (q.op) {
             case "PLUS":
                 result += `\t${type}${q.result} = ${q.arg1} + ${q.arg2};\n`;

@@ -83,6 +83,79 @@ export class OperationPY extends Instruction {
 
 	generate(qh: QuadHandler): Quadruple | undefined {
 		if(this.left && this.right) {
+			switch(this.type) {
+				case OperationType.GREATER:
+				case OperationType.SMALLER:
+				case OperationType.GREATER_EQ:
+				case OperationType.SMALLER_EQ:
+				case OperationType.EQEQ:
+				case OperationType.NEQ:
+					const left: Quadruple | undefined = this.left.generate(qh);
+					const right: Quadruple | undefined = this.right.generate(qh);
+					if(left && right) {
+						const quad = new Quadruple(`IF_${this.type}`, left.result, right.result, "");
+						const goto = new Quadruple('GOTO', "", "", "");
+
+						qh.addTrue(quad);
+						qh.addFalse(goto);
+
+						qh.addQuad(quad);
+						qh.addQuad(goto);
+						return quad;
+					}
+					return;
+				case OperationType.AND:
+					const andL = this.left.generate(qh);
+					this.addQuad(this.left, andL, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
+
+					if(qh.labelTrue) {
+						qh.toTrue(qh.labelTrue);
+						qh.addQuad(new Quadruple("LABEL", "", "", qh.labelTrue));
+						qh.labelTrue = undefined;
+					} else {
+						const lt1 = qh.getLabel();
+						qh.toTrue(lt1);
+						// agregar label true
+						qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+					}
+
+					if(qh.labelFalse) {
+						qh.toFalse(qh.labelFalse);
+					} else {
+						qh.labelFalse = qh.getLabel();
+						qh.toFalse(qh.labelFalse);
+					}
+
+					const andR = this.right.generate(qh);
+					this.addQuad(this.right, andR, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
+
+					return;
+				case OperationType.OR:
+					const orL = this.left.generate(qh);
+					this.addQuad(this.left, orL, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
+
+					if(qh.labelFalse) {
+						qh.toFalse(qh.labelFalse);
+						qh.addQuad(new Quadruple("LABEL", "", "", qh.labelFalse));
+						qh.labelFalse = undefined;
+					} else {
+						const lf1 = qh.getLabel();
+						qh.toFalse(lf1);
+						// agregar label false
+						qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+					}
+
+					if(qh.labelTrue) {
+						qh.toTrue(qh.labelTrue);
+					} else {
+						qh.labelTrue = qh.getLabel();
+						qh.toTrue(qh.labelTrue);
+					}
+
+					const orR = this.right.generate(qh);
+					this.addQuad(this.right, orR, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
+					return;
+			}
 
 			const left: Quadruple | undefined = this.left.generate(qh);
 			const right: Quadruple | undefined = this.right.generate(qh);
@@ -94,7 +167,6 @@ export class OperationPY extends Instruction {
 						left.type = OperationType.FLOAT;
 						right.type = OperationType.FLOAT;
 					}
-					console.log(left, right);
 					const quad : Quadruple = new Quadruple(this.type, left.result, right.result, result, type);
 					qh.addQuad(quad);
 					return quad;
@@ -102,13 +174,60 @@ export class OperationPY extends Instruction {
 			}
 		}
 
-		if(this.left) {}
+		if(this.left) {
+			switch(this.type) {
+				case OperationType.UMINUS:
+					const left: Quadruple | undefined = this.left.generate(qh);
+					const result = qh.getTmp();
+					if(left && left.type) {
+						const quad = new Quadruple(this.type, left?.result, "", result, left.type);
+						qh.addQuad(quad);
+						return quad;
+					}
+					return;
+				case OperationType.NOT:
+					const left1 = this.left.generate(qh);
+					switch(this.left.type) {
+						case OperationType.INT:
+						case OperationType.FLOAT:
+						case OperationType.CHAR:
+						case OperationType.ID:
+						case OperationType.SUM:
+						case OperationType.SUB:
+						case OperationType.MUL:
+						case OperationType.DIV:
+						case OperationType.MOD:
+						case OperationType.POW:
+						case OperationType.UMINUS:
+						case OperationType.BOOL: // boleanos
+						// case OperationType.STRING: // string revisar :'v
+							// write your code here
+							if(left1) {
+								const quad = new Quadruple(`IF_GREATER`, left1.result, "0", "");
+								const goto = new Quadruple('GOTO', "", "", "");
+
+								qh.addTrue(quad);
+								qh.addFalse(goto);
+
+								qh.addQuad(quad);
+								qh.addQuad(goto);
+							}
+							break;
+					}
+					qh.switch();
+					return;
+			}
+		}
 
 		if(this.variable) {
 			switch(this.type) {
 				case  OperationType.INT:
 				case OperationType.FLOAT:
 					return new Quadruple(this.type, "", "", `${this.variable.value}`, this.type)
+				case OperationType.BOOL:
+					return new Quadruple(this.type, "", "", `${this.variable.value === 'True' ? '1' : '0'}`, this.type);
+				case OperationType.STRING:
+					return new Quadruple(this.type, "", "", `${this.variable.value}`, this.type);
 				case OperationType.ID:
 					if(this.variable.id) {
 						const variable = qh.peek().getById(this.variable.id);
@@ -132,10 +251,41 @@ export class OperationPY extends Instruction {
 		return undefined;
 	}
 
+	// agregar cuadruples para hijos derecho e izquierdo AND / OR
+	private addQuad(op: OperationPY, quadruple: Quadruple | undefined, qh: QuadHandler): void {
+		switch(op.type) {
+			case OperationType.INT:
+			case OperationType.FLOAT:
+			case OperationType.CHAR:
+			case OperationType.ID:
+			case OperationType.SUM:
+			case OperationType.SUB:
+			case OperationType.MUL:
+			case OperationType.DIV:
+			case OperationType.MOD:
+			case OperationType.POW:
+			case OperationType.UMINUS:
+			// case OperationType.STRING: // string
+			case OperationType.BOOL: // boleanos
+				if(quadruple) {
+					const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
+					const goto = new Quadruple('GOTO', "", "", "");
+
+					qh.addTrue(quad);
+					qh.addFalse(goto);
+
+					qh.addQuad(quad);
+					qh.addQuad(goto);
+				}
+		}
+	}
+
 	private getFromStack(qh: QuadHandler, ts: string, variable: Variable) : Quadruple {
 		switch(variable.type) {
 			case OperationType.INT:
 				return new Quadruple("ASSIGN", `stack_n[${ts}]`, "", qh.getTmp(), OperationType.INT); // entero
+			case OperationType.BOOL:
+				return new Quadruple("ASSIGN", `stack_n[${ts}]`, "", qh.getTmp(), OperationType.BOOL); // booleano
 			default:
 			// case OperationType.FLOAT:
 				return new Quadruple("ASSIGN", `stack_f[${ts}]`, "", qh.getTmp(), OperationType.FLOAT); // float

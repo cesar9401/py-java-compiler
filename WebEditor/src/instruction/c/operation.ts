@@ -290,26 +290,26 @@ export class Operation extends Instruction{
 	private addQuad(op: Operation, quadruple: Quadruple | undefined, qh: QuadHandler): void {
 		switch(op.type) {
 			case OperationType.INT:
-				case OperationType.FLOAT:
-				case OperationType.CHAR:
-				case OperationType.ID:
-				case OperationType.SUM:
-				case OperationType.SUB:
-				case OperationType.MUL:
-				case OperationType.DIV:
-				case OperationType.MOD:
-				case OperationType.POW:
-				case OperationType.UMINUS:
-					if(quadruple) {
-						const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
-						const goto = new Quadruple('GOTO', "", "", "");
+			case OperationType.FLOAT:
+			case OperationType.CHAR:
+			case OperationType.ID:
+			case OperationType.SUM:
+			case OperationType.SUB:
+			case OperationType.MUL:
+			case OperationType.DIV:
+			case OperationType.MOD:
+			case OperationType.POW:
+			case OperationType.UMINUS:
+				if(quadruple) {
+					const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
+					const goto = new Quadruple('GOTO', "", "", "");
 
-						qh.addTrue(quad);
-						qh.addFalse(goto);
+					qh.addTrue(quad);
+					qh.addFalse(goto);
 
-						qh.addQuad(quad);
-						qh.addQuad(goto);
-					}
+					qh.addQuad(quad);
+					qh.addQuad(goto);
+				}
 				break;
 		}
 	}

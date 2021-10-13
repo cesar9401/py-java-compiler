@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = 'src/data/output.c';
+const path = 'src/data/py.c';
 
 function write(data) {
 	fs.writeFile(path, data, error => {

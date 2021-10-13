@@ -27,9 +27,10 @@ export class EditorComponent implements OnInit {
 		this.value = `
 %%PY
 	def demo1():
-		n1 = 10
-		n2 = 12
-		result = n2 / n1
+		b1, b2 = True, False
+		bf = b1 and b2
+		b1 = 10
+		bf = 12
 		// println("El numero es: ", number)
 		// if number % 2 == 0:
 		// 	number = number * -1

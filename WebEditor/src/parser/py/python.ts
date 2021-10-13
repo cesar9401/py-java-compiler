@@ -10,6 +10,9 @@ import { WhilePY } from "src/instruction/py/while_py";
 import { ForPY } from "src/instruction/py/for_py";
 import { FunctionPY } from 'src/instruction/py/function_py';
 import { Instruction } from "src/instruction/instruction";
+import { SymbolTable } from "src/table/symbolTable";
+import { SemanticHandler } from "src/control/semantic_handler";
+import { QuadHandler } from "src/control/quad_handler";
 
 // break and continue
 import { Break } from 'src/instruction/c/break';
@@ -17,10 +20,6 @@ import { Continue } from 'src/instruction/c/continue';
 
 // return
 import { ReturnPY } from 'src/instruction/py/return_py';
-import { SymbolTable } from "src/table/symbolTable";
-import { SemanticHandler } from "src/control/semantic_handler";
-import { QuadHandler } from "src/control/quad_handler";
-
 
 declare var python: any;
 
@@ -55,7 +54,11 @@ export class Python {
 				const qh = new QuadHandler(sm);
 				value.forEach(v => v.generate(qh));
 
-				qh.getQuads.forEach(q => console.log(q.toString()));
+				//qh.getQuads.forEach(q => console.log(q.toString()));
+
+				this.compilerService.postCompiler(qh.getQuads)
+					.then(console.log)
+					.catch(console.log);
 			}
 
 		} catch (error) {

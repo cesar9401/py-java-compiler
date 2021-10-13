@@ -54,8 +54,135 @@ export class AssignmentPY extends Instruction {
 
 	generate(qh: QuadHandler) {
 		for(let i = 0; i < this.ids.length; i++) {
-			const variable = qh.peek().getById(this.ids[i]);
 			const val: Quadruple | undefined = this.values[i].generate(qh);
+			const operation = this.values[i];
+			switch(operation.type) {
+				case OperationType.GREATER:
+				case OperationType.SMALLER:
+				case OperationType.GREATER_EQ:
+				case OperationType.SMALLER_EQ:
+				case OperationType.EQEQ:
+				case OperationType.NEQ:
+				case OperationType.AND:
+				case OperationType.OR:
+					const lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+					const lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+					const final = qh.getLabel();
+
+					/* rivisar esto :v */
+					qh.labelTrue = undefined;
+					qh.labelFalse = undefined;
+
+					qh.toTrue(lt);
+					qh.toFalse(lf);
+
+					/* obtener puntero */
+					const variable = qh.peek().getById(this.ids[i]);
+					if(variable && variable.pos !== undefined) {
+						if(variable.type === OperationType.BOOL) {
+							qh.addQuad(new Quadruple("LABEL", "", "", lt));
+
+							const t = qh.getTmp();
+							const sn = qh.getTmp();
+							qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[${sn}]`)); // asignar 1
+
+							qh.addQuad(new Quadruple("GOTO", "", "", final));
+							qh.addQuad(new Quadruple("LABEL", "", "", lf));
+
+							const t1 = qh.getTmp();
+							const sn1 = qh.getTmp();
+							qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, "", sn1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[${sn1}]`)); // asignar 0
+
+							qh.addQuad(new Quadruple("LABEL", "", "", final));
+						} else {
+							qh.addQuad(new Quadruple("LABEL", "", "", lt));
+
+							const t = qh.getTmp();
+							qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[ptr_n]`)); // asignar 1
+							qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_n", "", `stack[${t}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_n", "1", "ptr_n"));
+
+							qh.addQuad(new Quadruple("GOTO", "", "", final));
+							qh.addQuad(new Quadruple("LABEL", "", "", lf));
+
+							const t1 = qh.getTmp();
+							qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[ptr_n]`)); // asignar 0
+							qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_n", "", `stack[${t1}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_n", "1", "ptr_n"));
+
+							qh.addQuad(new Quadruple("LABEL", "", "", final));
+							/* cambiar a tipo boleano */
+							variable.type = OperationType.BOOL;
+						}
+					}
+					return;
+				case OperationType.NOT:
+					const lt1 = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+					const lf1 = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+					const final1 = qh.getLabel();
+
+					/* revisar esto */
+					qh.labelTrue = undefined;
+					qh.labelFalse = undefined;
+
+					qh.toTrue(lf1);
+					qh.toFalse(lt1);
+
+					/* obtener puntero */
+					const val = qh.peek().getById(this.ids[i]);
+					if(val && val.pos !== undefined) {
+						if(val.type === OperationType.BOOL) {
+							qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+
+							const t1 = qh.getTmp();
+							const sn1 = qh.getTmp();
+							qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, "", sn1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[${sn1}]`)); // asignar 0
+
+							qh.addQuad(new Quadruple("GOTO", "", "", final1));
+							qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+
+							const t = qh.getTmp();
+							const sn = qh.getTmp();
+							qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${t}]`, "", sn, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[${sn}]`)); // asignar 1
+
+							qh.addQuad(new Quadruple("LABEL", "", "", final1));
+						} else {
+							qh.addQuad(new Quadruple("LABEL", "", "", lt1));
+
+							const t1 = qh.getTmp();
+							qh.addQuad(new Quadruple("ASSIGN", "0", "", `stack_n[ptr_n]`)); // asignar 0
+							qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_n", "", `stack[${t1}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_n", "1", "ptr_n"));
+
+							qh.addQuad(new Quadruple("GOTO", "", "", final1));
+							qh.addQuad(new Quadruple("LABEL", "", "", lf1));
+
+							const t = qh.getTmp();
+							qh.addQuad(new Quadruple("ASSIGN", "1", "", `stack_n[ptr_n]`)); // asignar 1
+							qh.addQuad(new Quadruple("PLUS", "ptr", val.pos.toString(), t, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_n", "", `stack[${t}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_n", "1", "ptr_n"));
+
+							qh.addQuad(new Quadruple("LABEL", "", "", final1));
+							/* cambiar a tipo boleano */
+							val.type = OperationType.BOOL;
+						}
+					}
+					return;
+			}
+
+			const variable = qh.peek().getById(this.ids[i]);
 			if(variable && val) {
 				if(variable.pos !== undefined) {
 					if(variable.type === val.type) {
@@ -68,7 +195,7 @@ export class AssignmentPY extends Instruction {
 						qh.addQuad(new Quadruple("ASSIGN", val.result, "", `${dest[2]}[${s}]`));
 
 					} else {
-						// distinto tipo, cambiar y valor y referencia en stack
+						// distinto tipo, cambiar valor, tipo y referencia en stack
 						if(val.type) {
 							const t = qh.getTmp();
 							const s = this.getNameStack(val.type);
@@ -89,7 +216,8 @@ export class AssignmentPY extends Instruction {
 	private getNameStack(type: OperationType) {
 		switch(type) {
 			case OperationType.INT:
-				return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
+			case OperationType.BOOL:
+			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
 			case OperationType.FLOAT:
 				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
 		}
