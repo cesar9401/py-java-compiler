@@ -54,7 +54,7 @@ export class Python {
 				const qh = new QuadHandler(sm);
 				value.forEach(v => v.generate(qh));
 
-				//qh.getQuads.forEach(q => console.log(q.toString()));
+				// qh.getQuads.forEach(q => console.log(q.toString()));
 
 				this.compilerService.postCompiler(qh.getQuads)
 					.then(console.log)

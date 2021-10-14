@@ -27,16 +27,30 @@ export class EditorComponent implements OnInit {
 		this.value = `
 %%PY
 	def demo1():
-		b1, b2 = True, False
-		bf = b1 and b2
-		b1 = 10
-		bf = 12
-		// println("El numero es: ", number)
-		// if number % 2 == 0:
-		// 	number = number * -1
+		s1 = "Hello "
+		s2 = "World!"
+		s3 = s1 + s2
 
-		// if number < 0:
-		// 	number = number * -1
+		// b1, b2 = True, False
+		// number = 10
+		// contador = 0
+
+		// println("El number es", number)
+		// if number % 2 == 0:
+		// 	number = number ^ 2
+		// 	println("El resultado es", number)
+		// else:
+		// 	number = number * 2 ^ 3
+		// 	println("El resultado es", number)
+
+		// if number == 100 and contador == 0:
+		// 	println("Numero", number, "Contador", contador)
+		// elif contador == 100:
+		// 	println("El contador vale", 100)
+		// else:
+		// 	println("Ultima opcion", number, contador)
+
+		// println("Fin ejecucion :D")
 
 	// def demo2():
 	// 	aux, number = 1, 2

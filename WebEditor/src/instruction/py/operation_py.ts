@@ -1,4 +1,4 @@
-import { OperationType } from "../c/operation";
+import { Operation, OperationType } from "../c/operation";
 import { SymbolTable } from "src/table/symbolTable";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
@@ -163,6 +163,55 @@ export class OperationPY extends Instruction {
 			if(left && right) {
 				const type = this.getType(qh, this.type, left, right);
 				if(type) {
+					/* concatenar cadenas */
+					if(this.type === OperationType.SUM) {
+						if(left.type === OperationType.STRING && right.type === OperationType.STRING) {
+
+							// const l1 = qh.getTmp();
+							// const l2 = qh.getTmp();
+							// const len = qh.getTmp();
+
+
+
+
+							const len = qh.peek().length;
+							const tmp = qh.getTmp();
+							const t1 = qh.getTmp();
+							const t2 = qh.getTmp();
+
+							const t3 = qh.getTmp();
+							const t4 = qh.getTmp();
+							const result = qh.getTmp();
+							/* puntero hacia la pila de __concat__ */
+							qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), tmp, OperationType.INT));
+
+							/* primer string */
+							qh.addQuad(new Quadruple("ASSIGN", left.result, "", "stack_s[ptr_s]"));
+							qh.addQuad(new Quadruple("PLUS", `${tmp}`, "0", t1, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t1}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
+
+							/* segundo string */
+							qh.addQuad(new Quadruple("ASSIGN", right.result, "", "stack_s[ptr_s]"));
+							qh.addQuad(new Quadruple("PLUS", `${tmp}`, "1", t2, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t2}]`));
+							qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
+
+							qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), "ptr"));
+							qh.addQuad(new Quadruple("FUNCTION", "", "", '__concat__'));
+
+							qh.addQuad(new Quadruple("PLUS", "ptr", "2", t3, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${t3}]`, "", t4, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack_s[${t4}]`, '', result, type));
+
+							qh.addQuad(new Quadruple("MINUS", "ptr", len.toString(), "ptr"));
+							// qh.addQuad(new Quadruple("MINUS", "ptr_s", "2", "ptr_s"));
+
+							// envia resultado
+							return new Quadruple(this.type, "", "", `${result}`, type);
+						}
+					}
+
 					if(this.type === OperationType.DIV) {
 						left.type = OperationType.FLOAT;
 						right.type = OperationType.FLOAT;
@@ -200,7 +249,6 @@ export class OperationPY extends Instruction {
 						case OperationType.POW:
 						case OperationType.UMINUS:
 						case OperationType.BOOL: // boleanos
-						// case OperationType.STRING: // string revisar :'v
 							// write your code here
 							if(left1) {
 								const quad = new Quadruple(`IF_GREATER`, left1.result, "0", "");
@@ -213,6 +261,9 @@ export class OperationPY extends Instruction {
 								qh.addQuad(goto);
 							}
 							break;
+
+						/* revisar que longitud sea mayor que cero y luego negar resultado */
+						case OperationType.STRING:
 					}
 					qh.switch();
 					return;
@@ -227,7 +278,7 @@ export class OperationPY extends Instruction {
 				case OperationType.BOOL:
 					return new Quadruple(this.type, "", "", `${this.variable.value === 'True' ? '1' : '0'}`, this.type);
 				case OperationType.STRING:
-					return new Quadruple(this.type, "", "", `${this.variable.value}`, this.type);
+					return new Quadruple(this.type, "", "", `"${this.variable.value}"`, this.type);
 				case OperationType.ID:
 					if(this.variable.id) {
 						const variable = qh.peek().getById(this.variable.id);
@@ -265,7 +316,6 @@ export class OperationPY extends Instruction {
 			case OperationType.MOD:
 			case OperationType.POW:
 			case OperationType.UMINUS:
-			// case OperationType.STRING: // string
 			case OperationType.BOOL: // boleanos
 				if(quadruple) {
 					const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
@@ -277,6 +327,10 @@ export class OperationPY extends Instruction {
 					qh.addQuad(quad);
 					qh.addQuad(goto);
 				}
+				break;
+
+				/* revisar que la longitud sea mayor que cero */
+				case OperationType.STRING: // string
 		}
 	}
 
@@ -286,6 +340,8 @@ export class OperationPY extends Instruction {
 				return new Quadruple("ASSIGN", `stack_n[${ts}]`, "", qh.getTmp(), OperationType.INT); // entero
 			case OperationType.BOOL:
 				return new Quadruple("ASSIGN", `stack_n[${ts}]`, "", qh.getTmp(), OperationType.BOOL); // booleano
+			case OperationType.STRING:
+				return new Quadruple("ASSIGN", `stack_s[${ts}]`, "", qh.getTmp(), OperationType.STRING); // string
 			default:
 			// case OperationType.FLOAT:
 				return new Quadruple("ASSIGN", `stack_f[${ts}]`, "", qh.getTmp(), OperationType.FLOAT); // float

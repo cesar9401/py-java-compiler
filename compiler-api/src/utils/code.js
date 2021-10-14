@@ -1,6 +1,5 @@
 function get3dCode(quads) {
-    let result = `
-/*
+    let result = `/*
 *
 * compilar con:
 * gcc output.c -o output.out -lm
@@ -10,10 +9,11 @@ function get3dCode(quads) {
 *
 */
 
-#include<stdio.h>
-#include<math.h>
+#include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <termios.h>
+#include <string.h>
 
 static struct termios old, new;
 
@@ -21,15 +21,18 @@ int stack[3000];
 int stack_n[1000];
 char stack_c[1000];
 float stack_f[1000];
+char* stack_s[1000];
 
 int ptr = 0;
 int ptr_n = 0;
 int ptr_c = 0;
 int ptr_f = 0;
+int ptr_s = 0;
 
 void initTermios();
 void resetTermios();
 void getch();
+void __concat__();
 
 int main() {
 
@@ -37,7 +40,11 @@ int main() {
 
     for (const q of quads) {
         let type = q.type ? q.type.toLowerCase() + ' ' : "";
-        type = type === 'boolean ' ? 'int ' : type;
+        if(type === 'boolean ') {
+            type = 'int '
+        } else if(type === 'string ') {
+            type = 'char* '
+        }
         switch (q.op) {
             case "PLUS":
                 result += `\t${type}${q.result} = ${q.arg1} + ${q.arg2};\n`;
@@ -127,21 +134,48 @@ void resetTermios() {
 }
 
 void getch() {
-    int t1 = ptr + 0; // reservar lugar para ch
+    int t1 = ptr + 0; // reservar lugar para el caracter leido por getchar()
     stack[t1] = ptr_c;
     ptr_c = ptr_c + 1;
 
     initTermios();
     char t2 = getchar();
 
-    // almacenar t2 en la pila
+    // almacenar t2 en stack
     int t4 = stack[t1];
     stack_c[t4] = t2;
     resetTermios();
 }
+
+/* concatenar dos strings */
+void __concat__() {
+    /* string 1 */
+    int t1 = ptr + 0;
+    int t2 = stack[t1];
+    char* t3 = stack_s[t2];
+
+    /* string 2 */
+    int t4 = ptr + 1;
+    int t5 = stack[t4];
+    char* t6 = stack_s[t5];
+
+    int t7 = strlen(t3);
+    int t8 = strlen(t6);
+    int t9 = t7 + t8;
+    char* t10 = malloc(sizeof(char) * t9);
+
+    strcpy(t10, t3); // copy t3 on t10
+    strcat(t10, t6); // concat t6 at end of t10
+
+    /* return */
+    stack_s[ptr_s] = t10;
+    int t11 = ptr + 2;
+    stack[t11] = ptr_s;
+    ptr_s = ptr_s + 1; // aumentar puntero en stack_s
+}
 `
 
-	return result;
+    return result;
 }
 
 module.exports = get3dCode;

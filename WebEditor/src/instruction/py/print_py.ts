@@ -35,7 +35,7 @@ export class PrintPY extends Instruction {
 			if(quad && quad.type) {
 				const fm = this.getFormat(quad.type);
 				if(quad.type === OperationType.STRING) {
-					qh.addQuad(new Quadruple("PRINTF", fm, `"${quad.result}"`, ""));
+					qh.addQuad(new Quadruple("PRINTF", fm, `${quad.result}`, ""));
 				} else if (quad.type === OperationType.BOOL) {
 					const lt = qh.getLabel();
 					const lf = qh.getLabel();
@@ -51,6 +51,8 @@ export class PrintPY extends Instruction {
 				} else {
 					qh.addQuad(new Quadruple("PRINTF", fm, quad.result, ""));
 				}
+
+				qh.addQuad(new Quadruple("PRINTF", "%c", "32", ""));
 			}
 		}
 

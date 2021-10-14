@@ -220,6 +220,8 @@ export class AssignmentPY extends Instruction {
 			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
 			case OperationType.FLOAT:
 				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
+			case OperationType.STRING:
+				return [`stack_s[ptr_s]`, `ptr_s`, `stack_s`];
 		}
 		return [];
 	}
