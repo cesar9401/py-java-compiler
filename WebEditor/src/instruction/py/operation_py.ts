@@ -165,15 +165,45 @@ export class OperationPY extends Instruction {
 				if(type) {
 					/* concatenar cadenas */
 					if(this.type === OperationType.SUM) {
-						if(left.type === OperationType.STRING && right.type === OperationType.STRING) {
+						// if(left.type === OperationType.STRING && right.type === OperationType.STRING) {
 
-							// const l1 = qh.getTmp();
-							// const l2 = qh.getTmp();
-							// const len = qh.getTmp();
+						// 	const len = qh.peek().length;
+						// 	const tmp = qh.getTmp();
+						// 	const t1 = qh.getTmp();
+						// 	const t2 = qh.getTmp();
 
+						// 	const t3 = qh.getTmp();
+						// 	const t4 = qh.getTmp();
+						// 	const result = qh.getTmp();
+						// 	/* puntero hacia la pila de __concat__ */
+						// 	qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), tmp, OperationType.INT));
 
+						// 	/* primer string */
+						// 	qh.addQuad(new Quadruple("ASSIGN", left.result, "", "stack_s[ptr_s]"));
+						// 	qh.addQuad(new Quadruple("PLUS", `${tmp}`, "0", t1, OperationType.INT));
+						// 	qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t1}]`));
+						// 	qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
 
+						// 	/* segundo string */
+						// 	qh.addQuad(new Quadruple("ASSIGN", right.result, "", "stack_s[ptr_s]"));
+						// 	qh.addQuad(new Quadruple("PLUS", `${tmp}`, "1", t2, OperationType.INT));
+						// 	qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t2}]`));
+						// 	qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
 
+						// 	qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), "ptr"));
+						// 	qh.addQuad(new Quadruple("FUNCTION", "", "", '__concat__'));
+
+						// 	qh.addQuad(new Quadruple("PLUS", "ptr", "2", t3, OperationType.INT));
+						// 	qh.addQuad(new Quadruple("ASSIGN", `stack[${t3}]`, "", t4, OperationType.INT));
+						// 	qh.addQuad(new Quadruple("ASSIGN", `stack_s[${t4}]`, '', result, type));
+
+						// 	/* recuperar puntero despues de ejecucion de __concat__ */
+						// 	qh.addQuad(new Quadruple("MINUS", "ptr", len.toString(), "ptr"));
+
+						// 	// enviar resultado
+						// 	return new Quadruple(this.type, "", "", `${result}`, type);
+						// } else
+						if(left.type === OperationType.STRING || right.type === OperationType.STRING) {
 							const len = qh.peek().length;
 							const tmp = qh.getTmp();
 							const t1 = qh.getTmp();
@@ -186,17 +216,74 @@ export class OperationPY extends Instruction {
 							qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), tmp, OperationType.INT));
 
 							/* primer string */
-							qh.addQuad(new Quadruple("ASSIGN", left.result, "", "stack_s[ptr_s]"));
+							if(left.type === OperationType.INT) {
+								/* convertir entero a string */
+								const t = qh.getTmp();
+								qh.addQuad(new Quadruple("ARRAY", "", "", `${t}[12]`, OperationType.CHAR)); // crear char tmp[12];
+								qh.addQuad(new Quadruple("SPRINTF", `${t}`, `"%d"`, `${left.result}`));
+								qh.addQuad(new Quadruple("ASSIGN", t, "", "stack_s[ptr_s]"));
+							} else if(left.type === OperationType.FLOAT) {
+								const t = qh.getTmp();
+								qh.addQuad(new Quadruple("ARRAY", "", "", `${t}[25]`, OperationType.CHAR)); // crear char tmp[25];
+								qh.addQuad(new Quadruple("SPRINTF", `${t}`, `"%f"`, `${left.result}`));
+								qh.addQuad(new Quadruple("ASSIGN", t, "", "stack_s[ptr_s]"));
+							} else if(left.type === OperationType.BOOL) {
+								const lt = qh.getLabel();
+								const lf = qh.getLabel();
+								const f = qh.getLabel();
+								qh.addQuad(new Quadruple(`IF_GREATER`, left.result, "0", lt));
+								qh.addQuad(new Quadruple('GOTO', "", "", lf));
+								qh.addQuad(new Quadruple("LABEL", "", "", lt));
+								qh.addQuad(new Quadruple("ASSIGN", `"True"`, "", "stack_s[ptr_s]")); /* asignar true */
+								// qh.addQuad(new Quadruple("PRINTF", "%s", `"True"`, ""));
+								qh.addQuad(new Quadruple('GOTO', "", "", f));
+								qh.addQuad(new Quadruple("LABEL", "", "", lf));
+								qh.addQuad(new Quadruple("ASSIGN", `"False"`, "", "stack_s[ptr_s]")); /* asignar false */
+								// qh.addQuad(new Quadruple("PRINTF", "%s", `"False"`, ""));
+								qh.addQuad(new Quadruple("LABEL", "", "", f));
+							} else {
+								qh.addQuad(new Quadruple("ASSIGN", left.result, "", "stack_s[ptr_s]"));
+							}
+
 							qh.addQuad(new Quadruple("PLUS", `${tmp}`, "0", t1, OperationType.INT));
 							qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t1}]`));
 							qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
+							/* primer string */
 
 							/* segundo string */
-							qh.addQuad(new Quadruple("ASSIGN", right.result, "", "stack_s[ptr_s]"));
+							if(right.type === OperationType.INT) {
+								const t = qh.getTmp();
+								qh.addQuad(new Quadruple("ARRAY", "", "", `${t}[12]`, OperationType.CHAR)); // crear char tmp[12];
+								qh.addQuad(new Quadruple("SPRINTF", `${t}`, `"%d"`, `${right.result}`));
+								qh.addQuad(new Quadruple("ASSIGN", t, "", "stack_s[ptr_s]"));
+							} else if(right.type === OperationType.FLOAT) {
+								const t = qh.getTmp();
+								qh.addQuad(new Quadruple("ARRAY", "", "", `${t}[25]`, OperationType.CHAR)); // crear char tmp[25];
+								qh.addQuad(new Quadruple("SPRINTF", `${t}`, `"%f"`, `${right.result}`));
+								qh.addQuad(new Quadruple("ASSIGN", t, "", "stack_s[ptr_s]"));
+							} else if(right.type === OperationType.BOOL) {
+								const lt = qh.getLabel();
+								const lf = qh.getLabel();
+								const f = qh.getLabel();
+								qh.addQuad(new Quadruple(`IF_GREATER`, right.result, "0", lt));
+								qh.addQuad(new Quadruple('GOTO', "", "", lf));
+								qh.addQuad(new Quadruple("LABEL", "", "", lt));
+								qh.addQuad(new Quadruple("ASSIGN", `"True"`, "", "stack_s[ptr_s]")); /* asignar true */
+								// qh.addQuad(new Quadruple("PRINTF", "%s", `"True"`, ""));
+								qh.addQuad(new Quadruple('GOTO', "", "", f));
+								qh.addQuad(new Quadruple("LABEL", "", "", lf));
+								qh.addQuad(new Quadruple("ASSIGN", `"False"`, "", "stack_s[ptr_s]")); /* asignar false */
+								// qh.addQuad(new Quadruple("PRINTF", "%s", `"False"`, ""));
+								qh.addQuad(new Quadruple("LABEL", "", "", f));
+							} else {
+								qh.addQuad(new Quadruple("ASSIGN", right.result, "", "stack_s[ptr_s]"));
+							}
 							qh.addQuad(new Quadruple("PLUS", `${tmp}`, "1", t2, OperationType.INT));
 							qh.addQuad(new Quadruple("ASSIGN", "ptr_s", "", `stack[${t2}]`));
 							qh.addQuad(new Quadruple("PLUS", "ptr_s", "1", "ptr_s"));
+							/* segundo string */
 
+							/* dirigir puntero hacia ejecucion de __concat__ */
 							qh.addQuad(new Quadruple("PLUS", "ptr", len.toString(), "ptr"));
 							qh.addQuad(new Quadruple("FUNCTION", "", "", '__concat__'));
 
@@ -204,10 +291,10 @@ export class OperationPY extends Instruction {
 							qh.addQuad(new Quadruple("ASSIGN", `stack[${t3}]`, "", t4, OperationType.INT));
 							qh.addQuad(new Quadruple("ASSIGN", `stack_s[${t4}]`, '', result, type));
 
+							/* recuperar puntero despues de ejecucion de __concat__ */
 							qh.addQuad(new Quadruple("MINUS", "ptr", len.toString(), "ptr"));
-							// qh.addQuad(new Quadruple("MINUS", "ptr_s", "2", "ptr_s"));
 
-							// envia resultado
+							// enviar resultado
 							return new Quadruple(this.type, "", "", `${result}`, type);
 						}
 					}
@@ -317,7 +404,8 @@ export class OperationPY extends Instruction {
 			case OperationType.POW:
 			case OperationType.UMINUS:
 			case OperationType.BOOL: // boleanos
-				if(quadruple) {
+			case OperationType.STRING: // string
+			if(quadruple) {
 					const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
 					const goto = new Quadruple('GOTO', "", "", "");
 
@@ -328,9 +416,6 @@ export class OperationPY extends Instruction {
 					qh.addQuad(goto);
 				}
 				break;
-
-				/* revisar que la longitud sea mayor que cero */
-				case OperationType.STRING: // string
 		}
 	}
 

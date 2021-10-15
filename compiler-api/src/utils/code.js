@@ -108,6 +108,12 @@ int main() {
             case "CLEAR":
                 result += `\tsystem("clear");\n`;
                 break;
+            case "ARRAY":
+                result += `\t${type}${q.result};\n`;
+                break;
+            case "SPRINTF":
+                result += `\tsprintf(${q.arg1}, ${q.arg2}, ${q.result});\n`;
+                break;
             case "FUNCTION":
                 result += `\t${q.result}();\n`;
                 break;
@@ -119,6 +125,7 @@ int main() {
 \n}\n`;
 
     result += `
+/* function getch on linux */
 /* Initialize new terminal i/o settings */
 void initTermios() {
     tcgetattr(0, &old); //grab old terminal i/o settings
@@ -146,6 +153,7 @@ void getch() {
     stack_c[t4] = t2;
     resetTermios();
 }
+/* function getch on linux */
 
 /* concatenar dos strings */
 void __concat__() {
@@ -173,6 +181,7 @@ void __concat__() {
     stack[t11] = ptr_s;
     ptr_s = ptr_s + 1; // aumentar puntero en stack_s
 }
+/* concatenar dos strings */
 `
 
     return result;

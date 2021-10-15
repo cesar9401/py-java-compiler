@@ -50,15 +50,15 @@ export class Python {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
 				// generar Cuadruplos
-				// console.log(sm.getTables)
+				sm.getTables.forEach(console.log);
 				const qh = new QuadHandler(sm);
 				value.forEach(v => v.generate(qh));
 
-				// qh.getQuads.forEach(q => console.log(q.toString()));
+				qh.getQuads.forEach(q => console.log(q.toString()));
 
-				this.compilerService.postCompiler(qh.getQuads)
-					.then(console.log)
-					.catch(console.log);
+				// this.compilerService.postCompiler(qh.getQuads)
+				// 	.then(console.log)
+				// 	.catch(console.log);
 			}
 
 		} catch (error) {

@@ -21,7 +21,7 @@ export class PrintPY extends Instruction {
 	run(table: SymbolTable, sm: SemanticHandler) {
 		for(const operation of this.operations) {
 			const val: Variable | undefined = operation.run(table, sm);
-			if(!val || !val.value) {
+			if(!val || val.value === undefined) {
 				const desc = `Uno de los parametros que se desea imprimir, no ha sido declarado o no tiene valor definido.`;
 				const error = new Error(operation.line, operation.column, operation.variable?.id ? operation.variable.id : "", TypeE.SEMANTICO, desc);
 				sm.errors.push(error);
@@ -52,7 +52,9 @@ export class PrintPY extends Instruction {
 					qh.addQuad(new Quadruple("PRINTF", fm, quad.result, ""));
 				}
 
-				qh.addQuad(new Quadruple("PRINTF", "%c", "32", ""));
+				if(this.operations[this.operations.length - 1] !== operation) {
+					qh.addQuad(new Quadruple("PRINTF", "%c", "32", ""));
+				}
 			}
 		}
 

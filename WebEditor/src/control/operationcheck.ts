@@ -194,6 +194,13 @@ export class OperationCheck {
 			}
 		}
 
+		if(left.type === OperationType.STRING || right.type === OperationType.STRING) {
+			switch(type) {
+				case OperationType.SUM:
+					return new Variable(OperationType.STRING, undefined, " ");
+			}
+		}
+
 		// boolean vs boolean
 		if(left.type === OperationType.BOOL && right.type === OperationType.BOOL) {
 			switch(type) {

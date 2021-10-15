@@ -93,8 +93,8 @@ export class IfInstructionPY extends Instruction {
 					case OperationType.MOD:
 					case OperationType.POW:
 					case OperationType.UMINUS:
-					case OperationType.BOOL: // expresiones booleanas
-					// case OperationType.STRING: // cadenas
+					case OperationType.BOOL: /* expresiones booleanas */
+					case OperationType.STRING: /* cadenas de caracteres */
 						if(quad) {
 							/* crear condicion */
 							const qd = new Quadruple(`IF_GREATER`, quad.result, "0", "");

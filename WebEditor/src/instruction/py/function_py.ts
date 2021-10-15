@@ -36,7 +36,6 @@ export class FunctionPY extends Instruction {
 	generate(qh: QuadHandler) {
 		qh.push();
 		qh.setVoid(qh.peek());
-		console.log(qh.peek());
 		this.instructions.forEach(i => i.generate(qh));
 		qh.pop();
 	}
