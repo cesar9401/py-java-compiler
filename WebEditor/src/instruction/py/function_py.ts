@@ -2,6 +2,7 @@ import { Instruction } from "src/instruction/instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
+import { CodeBlock } from "src/control/code_block";
 
 export class FunctionPY extends Instruction {
 	id: string;
@@ -38,5 +39,8 @@ export class FunctionPY extends Instruction {
 		qh.setVoid(qh.peek());
 		this.instructions.forEach(i => i.generate(qh));
 		qh.pop();
+
+		qh.addCodeBlock(new CodeBlock(`__py__${this.id}__`, qh.getQuads));
+		qh.cleanQuads();
 	}
 }

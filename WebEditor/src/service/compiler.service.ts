@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Quadruple } from "src/table/quadruple";
+import { CodeBlock } from "src/control/code_block";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,9 +37,12 @@ export class CompilerService {
 	}
 
 	postCompiler(quads: Quadruple[]): Promise<any> {
-		const data = {
-			quads: quads
-		}
+		const data = { quads: quads }
 		return this.http.post(this.api, data).toPromise();
+	}
+
+	sendCodeBlocks(blocks: CodeBlock[]): Promise<any> {
+		const data = { blocks: blocks }
+		return this.http.post(`${this.api}blocks/`, data).toPromise();
 	}
 }

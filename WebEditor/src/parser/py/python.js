@@ -101,7 +101,7 @@ break;
 case 6:
  this.$ = [...$$[$0]]; 
 break;
-case 8: case 12: case 13: case 14: case 15: case 37:
+case 8: case 12: case 13: case 14: case 15:
  this.$ = [$$[$0-1]]; 
 break;
 case 17: case 20:
@@ -111,40 +111,54 @@ case 18: case 21:
  this.$ = []; this.$.push($$[$0]); 
 break;
 case 19:
- this.$ = new yy.AssignmentPY(this._$.first_line, this._$.first_column, $$[$0-2], $$[$0]); 
+ this.$ = new yy.AssignmentPY(this._$.first_line + yy.line, this._$.first_column, $$[$0-2], $$[$0]); 
 break;
 case 22:
- this.$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$$[$0]]); 
+ this.$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$$[$0]]); 
 break;
 case 23:
- this.$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$$[$0-1], $$[$0]]); 
+ this.$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$$[$0-1], $$[$0]]); 
 break;
 case 24:
- this.$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$$[$0-1], ...$$[$0]]); 
+ this.$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$$[$0-1], ...$$[$0]]); 
 break;
 case 25:
- this.$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$$[$0-2], ...$$[$0-1], $$[$0]]); 
+ this.$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$$[$0-2], ...$$[$0-1], $$[$0]]); 
 break;
 case 26:
- this.$ = new yy.IfPY(this._$.first_line, this._$.first_column, "IF", $$[$0], $$[$0-3]); 
+ this.$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "IF", $$[$0], $$[$0-3]); 
 break;
 case 27:
- this.$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELSE", $$[$0], null); 
+ this.$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "ELSE", $$[$0], null); 
 break;
 case 30:
- this.$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELIF", $$[$0], $$[$0-3]); 
+ this.$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "ELIF", $$[$0], $$[$0-3]); 
 break;
 case 31: case 34: case 43: case 52: case 54: case 61: case 64: case 68: case 70: case 72: case 74:
  this.$ = $$[$0]; 
 break;
 case 33:
- this.$ = new yy.WhilePY(this._$.first_line, this._$.first_column, $$[$0-3], $$[$0]); 
+ this.$ = new yy.WhilePY(this._$.first_line + yy.line, this._$.first_column, $$[$0-3], $$[$0]); 
 break;
 case 36:
- this.$ = new yy.ForPY(this._$.first_line, this._$.first_column, $$[$0-5], $$[$0-3], $$[$0]); 
+ this.$ = new yy.ForPY(this._$.first_line + yy.line, this._$.first_column, $$[$0-5], $$[$0-3], $$[$0]); 
+break;
+case 37:
+
+				const tmp6 = new yy.Variable(yy.OperationType.INT, null, "0");
+				const tmp7 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp6);
+
+				const tmp8 = new yy.Variable(yy.OperationType.INT, null, "1");
+				const tmp9 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp8);
+				this.$ = [tmp7, $$[$0-1], tmp9]; // range(0, $$[$0-1], 1) inicio en 0, incremento en 1
+			
 break;
 case 38:
- this.$ = [$$[$0-3], $$[$0-1]]; 
+
+				const tmp10 = new yy.Variable(yy.OperationType.INT, null, "1");
+				const tmp11 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp10);
+				this.$ = [$$[$0-3], $$[$0-1], tmp11]; //range($$[$0-3], $$[$0-1], 1) inicio en $$[$0-3], incremento en 1
+			
 break;
 case 39:
  this.$ = [$$[$0-5], $$[$0-3], $$[$0-1]]; 
@@ -153,85 +167,85 @@ case 41: case 44:
  this.$ = []; 
 break;
 case 42:
- this.$ = new yy.FunctionPY(this._$.first_line, this._$.first_column, $$[$0-6], $$[$0-4], $$[$0]); 
+ this.$ = new yy.FunctionPY(this._$.first_line + yy.line, this._$.first_column, $$[$0-6], $$[$0-4], $$[$0]); 
 break;
 case 45:
- this.$ = new yy.Break(this._$.first_line, this._$.first_column); 
+ this.$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); 
 break;
 case 46:
- this.$ = new yy.Continue(this._$.first_line, this._$.first_column); 
+ this.$ = new yy.Continue(this._$.first_line + yy.line, this._$.first_column); 
 break;
 case 47:
- this.$ = new yy.ReturnPY(this._$.first_line, this._$.first_column, $$[$0]); 
+ this.$ = new yy.ReturnPY(this._$.first_line + yy.line, this._$.first_column, $$[$0]); 
 break;
 case 49:
- this.$ = new yy.PrintPY(this._$.first_line, this._$.first_column, false, $$[$0-1]); 
+ this.$ = new yy.PrintPY(this._$.first_line + yy.line, this._$.first_column, false, $$[$0-1]); 
 break;
 case 50:
- this.$ = new yy.PrintPY(this._$.first_line, this._$.first_column, true, $$[$0-1]); 
+ this.$ = new yy.PrintPY(this._$.first_line + yy.line, this._$.first_column, true, $$[$0-1]); 
 break;
 case 51:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
 break;
 case 53:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.AND, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.AND, $$[$0-2], $$[$0]); 
 break;
 case 55:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.EQEQ, $$[$0-2], $$[$0]); 
 break;
 case 56:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NEQ, $$[$0-2], $$[$0]); 
 break;
 case 57:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER, $$[$0-2], $$[$0]); 
 break;
 case 58:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER_EQ, $$[$0-2], $$[$0]); 
 break;
 case 59:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER, $$[$0-2], $$[$0]); 
 break;
 case 60:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER_EQ, $$[$0-2], $$[$0]); 
 break;
 case 62:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUM, $$[$0-2], $$[$0]); 
 break;
 case 63:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUB, $$[$0-2], $$[$0]); 
 break;
 case 65:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MUL, $$[$0-2], $$[$0]); 
 break;
 case 66:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.DIV, $$[$0-2], $$[$0]); 
 break;
 case 67:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MOD, $$[$0-2], $$[$0]); 
 break;
 case 69:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.POW, $$[$0-2], $$[$0]); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.POW, $$[$0-2], $$[$0]); 
 break;
 case 71:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $$[$0], null); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.UMINUS, $$[$0], null); 
 break;
 case 73:
- this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $$[$0], null); 
+ this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NOT, $$[$0], null); 
 break;
 case 75:
- const tmp1 = new yy.Variable(yy.OperationType.INT, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp1); 
+ const tmp1 = new yy.Variable(yy.OperationType.INT, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp1); 
 break;
 case 76:
- const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp2); 
+ const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.FLOAT, tmp2); 
 break;
 case 77:
- const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3)  
+ const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3)  
 break;
 case 78:
- const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.BOOL, tmp4); 
+ const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $$[$0]); this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.BOOL, tmp4); 
 break;
 case 79:
- const tmp5 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp5); 
+ const tmp5 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp5); 
 break;
 }
 },

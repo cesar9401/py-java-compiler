@@ -21,22 +21,26 @@ import { Scanf } from 'src/instruction/c/scanf';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
 import { CompilerService } from 'src/service/compiler.service';
+import { Code } from 'src/parser/main/code';
+import { CodeBlock } from 'src/control/code_block';
 
 declare var program: any;
 
 export class Program {
-	private source: string;
+	private source: Code;
 	private yy: any;
+	private blocks: CodeBlock[];
 
-	constructor(private compilerService: CompilerService, source: string) {
+	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
 		this.yy = program.yy;
+		this.blocks = blocks;
 		this.setFunctions();
 	}
 
 	parse() {
 		try {
-			const value: Instruction[] = program.parse(this.source);
+			const value: Instruction[] = program.parse(this.source.code);
 			console.log(value);
 
 			/* run */
@@ -53,16 +57,19 @@ export class Program {
 			} else {
 				// sm.getTables.forEach(table => console.log(table)); // tablas en consola
 				/* generate */
-				const qh = new QuadHandler(sm);
+				const qh = new QuadHandler(sm, this.blocks);
 				qh.push();
 				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
 				qh.pop();
 
+				qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
+
+				// console.log("program");
 				// qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 
-				this.compilerService.postCompiler(qh.getQuads)
-					.then(console.log)
-					.catch(console.log);
+				// this.compilerService.postCompiler(qh.getQuads)
+				// 	.then(console.log)
+				// 	.catch(console.log);
 			}
 		} catch (error) {
 			console.error(error);
@@ -70,6 +77,8 @@ export class Program {
 	}
 
 	setFunctions() {
+		this.yy.line = this.source.first_line - 1;
+
 		this.yy.Instruction = Instruction;
 		this.yy.Operation = Operation; // Operacion
 		this.yy.Variable = Variable;

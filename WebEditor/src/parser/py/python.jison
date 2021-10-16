@@ -299,7 +299,7 @@ list_id
 /* declaracion y asignacion */
 assigment
 		: list_id EQUAL list_op
-			{ $$ = new yy.AssignmentPY(this._$.first_line, this._$.first_column, $1, $3); }
+			{ $$ = new yy.AssignmentPY(this._$.first_line + yy.line, this._$.first_column, $1, $3); }
 		;
 
 list_op
@@ -310,20 +310,20 @@ list_op
 
 /* if, elif, else */
 list_if
-		: if_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1]); }
-		| if_ else_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, $2]); }
-		| if_ list_elif { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, ...$2]); }
-		| if_ list_elif else_ { $$ = new yy.IfInstructionPY(this._$.first_line, this._$.first_column, [$1, ...$2, $3]); }
+		: if_ { $$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$1]); }
+		| if_ else_ { $$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$1, $2]); }
+		| if_ list_elif { $$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2]); }
+		| if_ list_elif else_ { $$ = new yy.IfInstructionPY(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2, $3]); }
 		;
 
 if_
 		: IF a COLON eol function_body
-			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "IF", $5, $2); }
+			{ $$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "IF", $5, $2); }
 		;
 
 else_
 		: ELSE COLON eol function_body
-			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELSE", $4, null); }
+			{ $$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "ELSE", $4, null); }
 		;
 
 list_elif
@@ -333,7 +333,7 @@ list_elif
 
 elif_
 		: ELIF a COLON eol function_body
-			{ $$ = new yy.IfPY(this._$.first_line, this._$.first_column, "ELIF", $5, $2); }
+			{ $$ = new yy.IfPY(this._$.first_line + yy.line, this._$.first_column, "ELIF", $5, $2); }
 		;
 /* if, elif, else */
 
@@ -345,7 +345,7 @@ while__
 
 while_
 		: WHILE a COLON eol function_body
-			{ $$ = new yy.WhilePY(this._$.first_line, this._$.first_column, $2, $5); }
+			{ $$ = new yy.WhilePY(this._$.first_line + yy.line, this._$.first_column, $2, $5); }
 		;
 /* while */
 
@@ -357,12 +357,25 @@ for__
 
 for_
 		: FOR ID IN range COLON eol function_body
-			{ $$ = new yy.ForPY(this._$.first_line, this._$.first_column, $2, $4, $7); }
+			{ $$ = new yy.ForPY(this._$.first_line + yy.line, this._$.first_column, $2, $4, $7); }
 		;
 
 range
-		: RANGE LPAREN a RPAREN { $$ = [$3]; }
-		| RANGE LPAREN a COMMA a RPAREN { $$ = [$3, $5]; }
+		: RANGE LPAREN a RPAREN
+			%{
+				const tmp6 = new yy.Variable(yy.OperationType.INT, null, "0");
+				const tmp7 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp6);
+
+				const tmp8 = new yy.Variable(yy.OperationType.INT, null, "1");
+				const tmp9 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp8);
+				$$ = [tmp7, $3, tmp9]; // range(0, $3, 1) inicio en 0, incremento en 1
+			%}
+		| RANGE LPAREN a COMMA a RPAREN
+			%{
+				const tmp10 = new yy.Variable(yy.OperationType.INT, null, "1");
+				const tmp11 = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp10);
+				$$ = [$3, $5, tmp11]; //range($3, $5, 1) inicio en $3, incremento en 1
+			%}
 		| RANGE LPAREN a COMMA a COMMA a RPAREN { $$ = [$3, $5, $7]; }
 		;
 /* for */
@@ -377,7 +390,7 @@ function_body
 /* funcion */
 function
 		: DEF ID LPAREN params RPAREN COLON eol function_body
-			{ $$ = new yy.FunctionPY(this._$.first_line, this._$.first_column, $2, $4, $8); }
+			{ $$ = new yy.FunctionPY(this._$.first_line + yy.line, this._$.first_column, $2, $4, $8); }
 		;
 
 params
@@ -388,15 +401,15 @@ params
 
 /* break, continue, return */
 break_
-		: BREAK { $$ = new yy.Break(this._$.first_line, this._$.first_column); }
+		: BREAK { $$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 continue_
-		: CONTINUE { $$ = new yy.Continue(this._$.first_line, this._$.first_column); }
+		: CONTINUE { $$ = new yy.Continue(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 return_
-		: RETURN a { $$ = new yy.ReturnPY(this._$.first_line, this._$.first_column, $2); }
+		: RETURN a { $$ = new yy.ReturnPY(this._$.first_line + yy.line, this._$.first_column, $2); }
 		;
 /* break, continue, return */
 
@@ -409,68 +422,68 @@ input_
 /* print and println */
 print_
 		: PRINT LPAREN list_op RPAREN
-			{ $$ = new yy.PrintPY(this._$.first_line, this._$.first_column, false, $3); }
+			{ $$ = new yy.PrintPY(this._$.first_line + yy.line, this._$.first_column, false, $3); }
 		| PRINTLN LPAREN list_op RPAREN
-			{ $$ = new yy.PrintPY(this._$.first_line, this._$.first_column, true, $3); }
+			{ $$ = new yy.PrintPY(this._$.first_line + yy.line, this._$.first_column, true, $3); }
 		;
 /* print and println */
 
 /* operaciones logicas y aritmeticas */
 a
-		: a OR b { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.OR, $1, $3); }
+		: a OR b { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.OR, $1, $3); }
 		| b { $$ = $1; }
 		;
 
 b
-		: b AND c { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.AND, $1, $3); }
+		: b AND c { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.AND, $1, $3); }
 		| c { $$ = $1; }
 		;
 
 c
-		: c EQEQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
-		| c NEQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
-		| c GREATER d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
-		| c GREATER_EQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
-		| c SMALLER d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
-		| c SMALLER_EQ d { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
+		: c EQEQ d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
+		| c NEQ d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
+		| c GREATER d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
+		| c GREATER_EQ d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
+		| c SMALLER d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
+		| c SMALLER_EQ d { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
 		| d { $$ = $1; }
 		;
 
 d
-		: d PLUS e { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
-		| d MINUS e { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
+		: d PLUS e { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
+		| d MINUS e { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
 		| e { $$ = $1; }
 		;
 
 e
-		: e TIMES f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
-		| e DIVIDE f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
-		| e MOD f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
+		: e TIMES f { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
+		| e DIVIDE f { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
+		| e MOD f { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
 		| f { $$ = $1; }
 		;
 
 f
-		: g POW f { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.POW, $1, $3); }
+		: g POW f { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.POW, $1, $3); }
 		| g { $$ = $1; }
 		;
 
 g
-		: MINUS h { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
+		: MINUS h { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
 		| h { $$ = $1; }
 		;
 
 h
-		: NOT h { $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $2, null); }
+		: NOT h { $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NOT, $2, null); }
 		| i { $$ = $1; }
 		;
 
 i
-		: INTEGER { const tmp1 = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp1); }
-		| DECIMAL { const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp2); }
-		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3)  }
+		: INTEGER { const tmp1 = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp1); }
+		| DECIMAL { const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.FLOAT, tmp2); }
+		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3)  }
 		// | CHAR
-		| BOOL { const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $1); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.BOOL, tmp4); }
-		| ID { const tmp5 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.OperationPY(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp5); }
+		| BOOL { const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.BOOL, tmp4); }
+		| ID { const tmp5 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp5); }
 		| LPAREN a RPAREN { $$ = $2; }
 		;
 /* operaciones logicas y aritmeticas */

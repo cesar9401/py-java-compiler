@@ -1,6 +1,7 @@
 import { OperationType } from "src/instruction/c/operation";
 import { Quadruple } from "src/table/quadruple";
 import { SymbolTable } from "src/table/symbolTable";
+import { CodeBlock } from "./code_block";
 import { SemanticHandler } from "./semantic_handler";
 
 export class QuadHandler {
@@ -19,9 +20,12 @@ export class QuadHandler {
 	labelFalse: string | undefined;
 
 	private sm: SemanticHandler;
+	private blocks: CodeBlock[];
 
-	constructor(sm: SemanticHandler) {
+	constructor(sm: SemanticHandler, blocks: CodeBlock[]) {
 		this.sm = sm;
+		this.blocks = blocks;
+
 		this.tables = sm.getTables;
 		this.quads = [];
 		this.labels = [];
@@ -160,5 +164,19 @@ export class QuadHandler {
 	public getQuadByResult(result: string): Quadruple | undefined {
 		this.quads.find(q => q.result === result);
 		return;
+	}
+
+	/* agregar bloque de codigo */
+	public addCodeBlock(block: CodeBlock) {
+		const item = this.blocks.find(b => b.name === block.name);
+		if(!item) {
+			this.blocks.push(block);
+		} else {
+			console.log('sustituyendo...', block);
+		}
+	}
+
+	public cleanQuads() {
+		this.quads = [];
 	}
 }

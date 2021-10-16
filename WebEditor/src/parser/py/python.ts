@@ -13,34 +13,34 @@ import { Instruction } from "src/instruction/instruction";
 import { SymbolTable } from "src/table/symbolTable";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
-
-// break and continue
 import { Break } from 'src/instruction/c/break';
 import { Continue } from 'src/instruction/c/continue';
-
-// return
 import { ReturnPY } from 'src/instruction/py/return_py';
+import { Code } from 'src/parser/main/code';
+import { CodeBlock } from 'src/control/code_block';
 
 declare var python: any;
 
 export class Python {
-	private source: string;
+	private source: Code;
 	private yy: any;
+	private blocks: CodeBlock[];
 
-	constructor(private compilerService: CompilerService, source: string) {
+	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
 		this.yy = python.yy;
+		this.blocks = blocks;
 		this.setFunctions();
-		console.log(this.source);
 	}
 
 	parse() {
 		try {
-			const value: Instruction[] = python.parse(this.source);
+			const value: Instruction[] = python.parse(this.source.code);
 			console.log(value);
 
 			const sm = new SemanticHandler();
 			const table = new SymbolTable(sm.peek());
+			// sm.pushTable(table);
 
 			for(const ins of value) {
 				ins.run(table, sm);
@@ -50,11 +50,12 @@ export class Python {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
 				// generar Cuadruplos
-				sm.getTables.forEach(console.log);
-				const qh = new QuadHandler(sm);
+				// console.log(sm.getTables);
+				const qh = new QuadHandler(sm, this.blocks);
 				value.forEach(v => v.generate(qh));
 
-				qh.getQuads.forEach(q => console.log(q.toString()));
+				// console.log("PY");
+				// qh.getQuads.forEach(q => console.log(q.toString()));
 
 				// this.compilerService.postCompiler(qh.getQuads)
 				// 	.then(console.log)
@@ -67,6 +68,8 @@ export class Python {
 	}
 
 	setFunctions() {
+		this.yy.line = this.source.first_line - 1;
+
 		this.yy.Variable = Variable;
 		this.yy.OperationType = OperationType;
 		this.yy.OperationPY = OperationPY;

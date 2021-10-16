@@ -36,18 +36,20 @@ export class EditorComponent implements OnInit {
 
 		println("Fin ejecucion :D")
 
-	// def demo2():
-	// 	aux, number = 1, 2
-	// 	aux = number * number + aux
-	// 	number = aux + aux
-	// 	// if aux < 0:
-	// 	// 	number = number ^ 2
-	// 	// elif aux == 0:
-	// 	// 	number = number / 2
+	def demo2():
+		aux, number = 1, 2
+		aux = number * number + aux
+		number = aux + aux
+		if aux < 0:
+			number = number ^ 2
+			println("El numero es", number)
+		else:
+			number = number / 2
+			println("El numero es", number)
 
-	// 	// while aux < 0 :
-	// 	// 	println("El valor es ", aux)
-	// 	// 	aux = aux + 1
+		while aux > 0 :
+			aux = aux - 1
+			println("Iteracion:", aux)
 
 %%JAVA
 
@@ -57,6 +59,8 @@ export class EditorComponent implements OnInit {
 #include PY.*;
 #include JAVA.*;
 */
+
+const int size = 100;
 
 void main() {
 	int a = 10;

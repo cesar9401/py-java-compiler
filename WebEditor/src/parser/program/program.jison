@@ -270,7 +270,7 @@ dir
 /* main */
 main
 		: VOID MAIN LPAREN RPAREN LBRACE main_body RBRACE
-			{ $$ = new yy.Main(this._$.first_line, this._$.first_column, $6); }
+			{ $$ = new yy.Main(this._$.first_line + yy.line, this._$.first_column, $6); }
 		;
 
 main_body
@@ -301,7 +301,7 @@ main_b
 /* constantes */
 const
 		: CONST type ID EQUAL a SEMI
-			{ $$ = new yy.Statement(this._$.first_line, this._$.first_column, true, $2, $3, $5); }
+			{ $$ = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, true, $2, $3, $5); }
 		;
 /* constantes */
 
@@ -312,10 +312,10 @@ statement
 				$$ = [];
 				for(const element of $2) {
 					if(element.length === 1) {
-						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $1, element[0], null);
+						const tmp = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, false, $1, element[0], null);
 						$$.push(tmp);
 					} else if(element.length === 2) {
-						const tmp = new yy.Statement(this._$.first_line, this._$.first_column, false, $1, element[0], element[1]);
+						const tmp = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, false, $1, element[0], element[1]);
 						$$.push(tmp);
 					}
 				}
@@ -348,7 +348,7 @@ list_assign
 
 assign
 		: ID EQUAL a
-			{ $$ = new yy.Assignment(this._$.first_line, this._$.first_column, $1, $3); }
+			{ $$ = new yy.Assignment(this._$.first_line + yy.line, this._$.first_column, $1, $3); }
 		;
 /* assignment */
 
@@ -379,20 +379,20 @@ param
 
 /* if, else-if and else */
 list_if
-		: if_ { $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1]); }
-		| if_ else_ {  $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, $2]);  }
-		| if_ list_else_if {  $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, ...$2]); }
-		| if_ list_else_if else_ { $$ = new yy.IfInstruction(this._$.first_line, this._$.first_column, [$1, ...$2, $3]); }
+		: if_ { $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1]); }
+		| if_ else_ {  $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1, $2]);  }
+		| if_ list_else_if {  $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2]); }
+		| if_ list_else_if else_ { $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2, $3]); }
 		;
 
 if_
 		: IF LPAREN a RPAREN LBRACE main_body RBRACE
-			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "IF", $6, $3); }
+			{ $$ = new yy.If(this._$.first_line + yy.line, this._$.first_column, "IF", $6, $3); }
 		;
 
 else_
 		: ELSE LBRACE main_body RBRACE
-			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "ELSE", $3, null); }
+			{ $$ = new yy.If(this._$.first_line + yy.line, this._$.first_column, "ELSE", $3, null); }
 		;
 
 list_else_if
@@ -402,19 +402,19 @@ list_else_if
 
 else_if
 		: ELSE IF LPAREN a RPAREN LBRACE main_body RBRACE
-			{ $$ = new yy.If(this._$.first_line, this._$.first_column, "ELSE_IF", $7, $4); }
+			{ $$ = new yy.If(this._$.first_line + yy.line, this._$.first_column, "ELSE_IF", $7, $4); }
 		;
 /* if, else-if and else */
 
 /* while and do-while */
 while_
 		: WHILE LPAREN a RPAREN LBRACE main_body RBRACE
-			{ $$ = new yy.While(this._$.first_line, this._$.first_column, $3, $6); }
+			{ $$ = new yy.While(this._$.first_line + yy.line, this._$.first_column, $3, $6); }
 		;
 
 do_while_
 		: DO LBRACE main_body RBRACE WHILE LPAREN a RPAREN SEMI
-			{ $$ = new yy.DoWhile(this._$.first_line, this._$.first_column, $7, $3); }
+			{ $$ = new yy.DoWhile(this._$.first_line + yy.line, this._$.first_column, $7, $3); }
 		;
 /* while and do-while */
 
@@ -422,15 +422,15 @@ do_while_
 for_
 		: FOR LPAREN INT ID EQUAL a SEMI a SEMI assign RPAREN LBRACE main_body RBRACE
 			%{
-				const tmp_s = new yy.Statement(this._$.first_line, this._$.first_column, false, yy.OperationType.INT, $4, $6);
-				$$ = new yy.For(this._$.first_line, this._$.first_column, $8, $10, $13, tmp_s, null);
+				const tmp_s = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, false, yy.OperationType.INT, $4, $6);
+				$$ = new yy.For(this._$.first_line + yy.line, this._$.first_column, $8, $10, $13, tmp_s, null);
 			%}
 		| FOR LPAREN assign SEMI a SEMI assign RPAREN LBRACE main_body RBRACE
-			{ $$ = new yy.For(this._$.first_line, this._$.first_column, $5, $7, $10, null, $3); }
+			{ $$ = new yy.For(this._$.first_line + yy.line, this._$.first_column, $5, $7, $10, null, $3); }
 		;
 
 // for_assign
-// 		: INT ID EQUAL a { $$ = new yy.Statement(this._$.first_line, this._$.first_column, false, yy.OperationType.INT, $2, $4); }
+// 		: INT ID EQUAL a { $$ = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, false, yy.OperationType.INT, $2, $4); }
 // 		| assign { $$ = $1; }
 // 		;
 /* for */
@@ -438,7 +438,7 @@ for_
 /* switch-case */
 switch_
 		: SWITCH LPAREN a RPAREN LBRACE switch_opt RBRACE
-			{ $$ = new yy.Switch(this._$.first_line, this._$.first_column, $3, $6); }
+			{ $$ = new yy.Switch(this._$.first_line + yy.line, this._$.first_column, $3, $6); }
 		;
 
 switch_opt
@@ -455,24 +455,24 @@ list_case
 
 case_
 		: CASE a COLON main_body
-			{ $$ = new yy.Case(this._$.first_line, this._$.first_column, $4, $2); }
+			{ $$ = new yy.Case(this._$.first_line + yy.line, this._$.first_column, $4, $2); }
 		;
 
 default_
 		: DEFAULT COLON main_body
-			{ $$ = new yy.Case(this._$.first_line, this._$.first_column, $3, null); }
+			{ $$ = new yy.Case(this._$.first_line + yy.line, this._$.first_column, $3, null); }
 		;
 /* switch-case */
 
 /* continue and break */
 continue_
 		: CONTINUE SEMI
-			{ $$ = new yy.Continue(this._$.first_line, this._$.first_column); }
+			{ $$ = new yy.Continue(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 break_
 		: BREAK SEMI
-			{ $$ = new yy.Break(this._$.first_line, this._$.first_column); }
+			{ $$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); }
 		;
 /* continue and break */
 
@@ -490,83 +490,83 @@ params
 
 getch_
 		: GETCH LPAREN RPAREN SEMI
-			{ $$ = new yy.Getch(this._$.first_line, this._$.first_column, $1); }
+			{ $$ = new yy.Getch(this._$.first_line + yy.line, this._$.first_column, $1); }
 		;
 
 clear_
 		: CLEAR LPAREN RPAREN SEMI
-			{ $$ = new yy.Clear(this._$.first_line, this._$.first_column); }
+			{ $$ = new yy.Clear(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 printf_
 		: PRINTF LPAREN STRING RPAREN SEMI
-			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, [...format], null); format = []; }
+			{ $$ = new yy.Printf(this._$.first_line + yy.line, this._$.first_column, $3, [...format], null); format = []; }
 		| PRINTF LPAREN STRING COMMA param RPAREN SEMI
-			{ $$ = new yy.Printf(this._$.first_line, this._$.first_column, $3, [...format], $5); format = []; }
+			{ $$ = new yy.Printf(this._$.first_line + yy.line, this._$.first_column, $3, [...format], $5); format = []; }
 		;
 
 scanf_
 		: SCANF LPAREN STRING COMMA AMP ID RPAREN SEMI
-			{ $$ = new yy.Scanf(this._$.first_line, this._$.first_column, $3, $6, format); format = []; }
+			{ $$ = new yy.Scanf(this._$.first_line + yy.line, this._$.first_column, $3, $6, format); format = []; }
 		;
 /* function call */
 
 /* operaciones logicas y aritmeticas */
 a
-		: a OR b { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.OR, $1, $3); }
+		: a OR b { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.OR, $1, $3); }
 		| b { $$ = $1; }
 		;
 
 b
-		: b AND c { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.AND, $1, $3); }
+		: b AND c { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.AND, $1, $3); }
 		| c { $$ = $1; }
 		;
 
 c
-		: c EQEQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
-		| c NEQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
-		| c GREATER d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
-		| c GREATER_EQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
-		| c SMALLER d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
-		| c SMALLER_EQ d { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
+		: c EQEQ d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.EQEQ, $1, $3); }
+		| c NEQ d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NEQ, $1, $3); }
+		| c GREATER d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER, $1, $3); }
+		| c GREATER_EQ d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.GREATER_EQ, $1, $3); }
+		| c SMALLER d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER, $1, $3); }
+		| c SMALLER_EQ d { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SMALLER_EQ, $1, $3); }
 		| d { $$ = $1; }
 		;
 
 d
-		: d PLUS e { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
-		| d MINUS e { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
+		: d PLUS e { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUM, $1, $3); }
+		| d MINUS e { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.SUB, $1, $3); }
 		| e { $$ = $1; }
 		;
 
 e
-		: e TIMES f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
-		| e DIVIDE f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
-		| e MOD f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
+		: e TIMES f { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MUL, $1, $3); }
+		| e DIVIDE f { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.DIV, $1, $3); }
+		| e MOD f { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.MOD, $1, $3); }
 		| f { $$ = $1; }
 		;
 
 f
-		: g POW f { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.POW, $1, $3); }
+		: g POW f { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.POW, $1, $3); }
 		| g { $$ = $1; }
 		;
 
 g
-		: MINUS h { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
+		: MINUS h { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.UMINUS, $2, null); }
 		| h { $$ = $1; }
 		;
 
 h
-		: NOT h { $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.NOT, $2, null); }
+		: NOT h { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.NOT, $2, null); }
 		| i { $$ = $1; }
 		;
 
 i
-		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.INT, tmp); }
-		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
-		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
-		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line, this._$.first_column, yy.OperationType.STRING, tmp3); }
+		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp); }
+		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
+		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
+		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
-		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line, this._$.first_column, yy.OperationType.ID, tmp4); }
+		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }
 		| function_call
 		;
