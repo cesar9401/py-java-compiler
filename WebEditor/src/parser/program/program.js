@@ -104,6 +104,9 @@ break;
 case 20:
  this.$ = new yy.Main(this._$.first_line + yy.line, this._$.first_column, $$[$0-1]); 
 break;
+case 33:
+ this.$ = [$$[$0-1]]; 
+break;
 case 38:
  this.$ = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, true, $$[$0-4], $$[$0-3], $$[$0-1]); 
 break;
@@ -201,6 +204,12 @@ case 79:
 break;
 case 80:
  this.$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); 
+break;
+case 81:
+ this.$ = new yy.FunctionCall(this._$.first_line + yy.line, this._$.first_column, "PYTHON", "", $$[$0-3], $$[$0-1]); 
+break;
+case 82:
+ this.$ = new yy.FunctionCall(this._$.first_line + yy.line, this._$.first_column, "JAVA", $$[$0-5], $$[$0-3], $$[$0-1]); 
 break;
 case 84:
 this.$ = []; 

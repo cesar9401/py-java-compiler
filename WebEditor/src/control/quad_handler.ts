@@ -168,11 +168,13 @@ export class QuadHandler {
 
 	/* agregar bloque de codigo */
 	public addCodeBlock(block: CodeBlock) {
-		const item = this.blocks.find(b => b.name === block.name);
-		if(!item) {
-			this.blocks.push(block);
+		const element = this.blocks.find(b => b.name === block.name);
+		let index = element ? this.blocks.indexOf(element) : -1;
+		if(index !== -1) {
+			console.log(`Sustituyendo... ${element} at index ${index}`);
+			this.blocks.splice(index, 1, block);
 		} else {
-			console.log('sustituyendo...', block);
+			this.blocks.push(block);
 		}
 	}
 

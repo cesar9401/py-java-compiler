@@ -173,8 +173,7 @@ void getch();
 void __concat__();
 `;
 
-foot = `
-/* function getch on linux */
+foot = `/* function getch on linux */
 /* Initialize new terminal i/o settings */
 void initTermios() {
     tcgetattr(0, &old); //grab old terminal i/o settings

@@ -32,6 +32,10 @@ export class FunctionPY extends Instruction {
 		}
 
 		sm.pop(); // eliminar scope de function
+
+		// agregar funcion
+		const functionId = `__py__${this.id}__`;
+		sm.addFunction(functionId);
 	}
 
 	generate(qh: QuadHandler) {

@@ -66,6 +66,8 @@ void main() {
 	int a = 10;
 	int b = a + 5;
 
+	PY.demo1();
+
 	if(a == 10) {
 		int x = a * 2;
 		printf("El valor es: %d\\n", x);

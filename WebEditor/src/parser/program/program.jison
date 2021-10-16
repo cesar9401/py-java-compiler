@@ -289,7 +289,7 @@ main_b
 		| break_ { $$ = [$1]; }
 		| for_ { $$ = [$1]; }
 		| switch_ { $$ = [$1]; }
-		| function_call SEMI
+		| function_call SEMI { $$ = [$1]; }
 		| clear_ { $$ = [$1]; }
 		| getch_ { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
@@ -479,7 +479,9 @@ break_
 /* function call */
 function_call
 		: PY DOT ID LPAREN params RPAREN
+			{ $$ = new yy.FunctionCall(this._$.first_line + yy.line, this._$.first_column, "PYTHON", "", $3, $5); }
 		| JAVA DOT ID DOT ID LPAREN params RPAREN
+			{ $$ = new yy.FunctionCall(this._$.first_line + yy.line, this._$.first_column, "JAVA", $3, $5, $7); }
 		// | GETCH LPAREN RPAREN
 		;
 

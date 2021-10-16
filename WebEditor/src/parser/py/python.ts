@@ -26,10 +26,16 @@ export class Python {
 	private yy: any;
 	private blocks: CodeBlock[];
 
+	/* para almacenar las funciones python */
+	functions: string[];
+
 	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
 		this.yy = python.yy;
 		this.blocks = blocks;
+
+		this.functions = [];
+
 		this.setFunctions();
 	}
 
@@ -39,12 +45,16 @@ export class Python {
 			console.log(value);
 
 			const sm = new SemanticHandler();
+			sm.getFunctions;
+
 			const table = new SymbolTable(sm.peek());
 			// sm.pushTable(table);
 
 			for(const ins of value) {
 				ins.run(table, sm);
 			}
+
+			this.functions = sm.getFunctions; // devolver funciones python
 
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));

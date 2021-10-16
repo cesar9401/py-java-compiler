@@ -18,6 +18,7 @@ import { Main } from 'src/instruction/c/main_c';
 import { Clear } from 'src/instruction/c/clear';
 import { Getch } from 'src/instruction/c/getch';
 import { Scanf } from 'src/instruction/c/scanf';
+import { FunctionCall } from 'src/instruction/c/function_call';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
 import { CompilerService } from 'src/service/compiler.service';
@@ -31,10 +32,17 @@ export class Program {
 	private yy: any;
 	private blocks: CodeBlock[];
 
+	/* almacenar funciones py */
+	functions: string[];
+
+
 	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
 		this.yy = program.yy;
 		this.blocks = blocks;
+
+		this.functions = [];
+
 		this.setFunctions();
 	}
 
@@ -45,6 +53,8 @@ export class Program {
 
 			/* run */
 			const sm = new SemanticHandler();
+			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
+
 			const table = new SymbolTable(sm.peek());
 			sm.pushTable(table);
 
@@ -99,5 +109,6 @@ export class Program {
 		this.yy.Getch = Getch // instruccion getch
 		this.yy.Scanf = Scanf; // instruccion leer
 		this.yy.Main = Main; // Metodo principal
+		this.yy.FunctionCall = FunctionCall; // llamada de funciones
 	}
 }

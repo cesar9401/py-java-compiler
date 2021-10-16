@@ -8,11 +8,15 @@ export class SemanticHandler {
 	private scope: string[];
 	private tables: SymbolTable[];
 
+	private functions: string[];
+
 	constructor() {
 		this.op = new OperationCheck(this);
 		this.errors = [];
 		this.scope = ["global"];
 		this.tables = [];
+
+		this.functions = [];
 	}
 
 	public get getScope(): string[] {
@@ -41,5 +45,31 @@ export class SemanticHandler {
 
 	public get getTables(): SymbolTable[] {
 		return this.tables;
+	}
+
+	/* Agregar arreglo con nombre de las funciones */
+	public set setFunctions(functions: string[]) {
+		this.functions = functions;
+	}
+
+	/* Devolver arreglo con nombre de las funciones */
+	public get getFunctions(): string[] {
+		return this.functions;
+	}
+
+	/* verificar si la funcion con el id como parametro existe */
+	public getFunction(id: string): boolean {
+		return this.functions.some(f => f === id);
+	}
+
+	/* agregar funcion al arreglo de parametros */
+	public addFunction(id: string) {
+		const index = this.functions.indexOf(id);
+		if(index !== -1) {
+			console.log(`Sustituyendo... ${id} at index ${index}`);
+			this.functions.splice(index, 1, id);
+		} else {
+			this.functions.push(id);
+		}
 	}
 }

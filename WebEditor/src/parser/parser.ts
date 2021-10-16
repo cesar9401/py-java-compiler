@@ -11,9 +11,14 @@ export class Parser {
 	private code: Code[];
 	private blocks: CodeBlock[];
 
+	private functions: string[];
+
 	constructor(private compilerService: CompilerService) {
 		this.code = [];
 		this.blocks = [];
+
+		this.functions = [];
+
 		this.setFunctions();
 	}
 
@@ -28,8 +33,10 @@ export class Parser {
 			// console.log(value);
 			this.code = value;
 
-			this.parseProgram();
 			this.parsePython();
+			this.parseProgram();
+
+			// this.blocks.forEach(block => console.log(block));
 
 			this.compilerService.sendCodeBlocks(this.blocks)
 				.then(console.log)
@@ -40,16 +47,18 @@ export class Parser {
 		}
 	}
 
-	/* parser codigo con sintaxis c */
-	parseProgram() {
-		let program = new Program(this.compilerService, this.code[3], this.blocks);
-		program.parse();
-	}
-
 	/* parsear codigo con sisntaxis python */
 	parsePython() {
 		const python = new Python(this.compilerService, this.code[1], this.blocks);
 		python.parse();
+		this.functions = python.functions;
+	}
+
+	/* parser codigo con sintaxis c */
+	parseProgram() {
+		let program = new Program(this.compilerService, this.code[3], this.blocks);
+		program.functions = this.functions;
+		program.parse();
 	}
 
 	private setFunctions() {
