@@ -1,4 +1,30 @@
-<div class="container-fluid mt-4">
+<div class="container-fluid">
+	<div class="row">
+		<div id="btn-area" class="my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir proyecto">
+			<button class="btn btn-outline-light mx-1">
+				<img src="../../assets/images/folder-open.png" alt="Abrir proyecto" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="modal" data-bs-placement="bottom" title="Nuevo proyecto" data-bs-target="#modal1">
+				<img src="../../assets/images/folder-plus.png" alt="Nuevo Proyecto" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="modal" data-bs-placement="bottom" title="Agregar paquete" data-bs-target="#modal2">
+				<img src="../../assets/images/folder.png" alt="Agregar Paquete" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="modal" data-bs-placement="bottom" title="Agregar archivo" data-bs-target="#modal3">
+				<img src="../../assets/images/file-empty.png" alt="Nuevo archivo" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Guardar cambios..." (click)="saveCurrent()">
+				<img src="../../assets/images/floppy-disk.png" alt="Guardar archivo" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cerrar Proyecto">
+				<img src="../../assets/images/cancel-circle.png" alt="Cerrar Proyecto" width="40px">
+			</button>
+			<button class="btn btn-outline-light mx-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Eliminar">
+				<img src="../../assets/images/blocked.png" alt="Eliminar" width="40px">
+			</button>
+		</div>
+	</div>
+
 	<div class="row">
 		<div class="col-2">
 			<div class="d-grid">
@@ -8,7 +34,7 @@
 				<span class="badge bg-light text-dark fs-6">{{info}}</span>
 			</div>
 			<div class="folders-container">
-
+				<!-- Aqui van los proyectos y diferentes archivos -->
 			</div>
 		</div>
 		<div class="col-10">
@@ -16,3 +42,7 @@
 		</div>
 	</div>
 </div>
+
+<app-modal [title]="'Nuevo Proyecto'" [element]="'Nombre proyecto'" [id]="'modal1'" (name_element)="addProject($event)"></app-modal>
+<app-modal [title]="'Nuevo Paquete'" [element]="'Nombre paquete'" [id]="'modal2'" (name_element)="addPackage($event)"></app-modal>
+<app-modal [title]="'Nuevo Archivo'" [element]="'Nombre archivo'" [id]="'modal3'" (name_element)="addFile($event)"></app-modal>

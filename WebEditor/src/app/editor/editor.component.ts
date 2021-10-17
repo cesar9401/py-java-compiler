@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Parser } from '../../parser/parser';
-
 import { CompilerService } from 'src/service/compiler.service';
+import { Project } from 'src/model/project';
+import { Render } from 'src/control/render';
 
 declare var CodeMirror:any;
 declare var TreeNode: any;
 declare var TreeView: any;
-
-declare var python: any;
 
 @Component({
 	selector: 'app-editor',
@@ -15,71 +14,16 @@ declare var python: any;
 	styleUrls: ['./editor.component.css'],
 })
 export class EditorComponent implements OnInit {
-
 	code: any;
 	root: any;
-	view: any;
+	tree: any;
 	info: string;
-	value: string;
+	projects: Project[];
+	render?: Render;
 
 	constructor(private compilerService: CompilerService) {
 		this.info = `Linea: 1, Columna: 0`;
-		this.value = `
-%%PY
-	def demo1():
-		s1 = "Hello"
-		s2 = " World!"
-		s3 = s1 + s2
-
-		for i in range(10):
-			println(i)
-
-		println("Fin ejecucion :D")
-
-	def demo2():
-		aux, number = 1, 2
-		aux = number * number + aux
-		number = aux + aux
-		if aux < 0:
-			number = number ^ 2
-			println("El numero es", number)
-		else:
-			number = number / 2
-			println("El numero es", number)
-
-		while aux > 0 :
-			aux = aux - 1
-			println("Iteracion:", aux)
-
-%%JAVA
-
-%%PROGRAMA
-
-/*
-#include PY.*;
-#include JAVA.*;
-*/
-
-const int size = 100;
-
-void main() {
-	int a = 10;
-	int b = a + 5;
-
-	PY.demo1();
-
-	if(a == 10) {
-		int x = a * 2;
-		printf("El valor es: %d\\n", x);
-	} else {
-		int x = b * 2;
-		printf("El valor es: %d\\n", x);
-	}
-
-	printf("Fin ejecucion :D\\n");
-
-}\n`;
-
+		this.projects = [];
 	}
 
 	ngOnInit(): void {
@@ -88,8 +32,7 @@ void main() {
 			lineNumbers: true,
 			tabSize: 4,
 			mode: "javascript",
-			theme: "monokai",
-			value: this.value
+			theme: "monokai"
 		});
 
 		// evento del cursor
@@ -99,18 +42,29 @@ void main() {
 		});
 
 		// treeview
-		this.root = new TreeNode("root");
-		let n1 = new TreeNode("tree.cpp");
-		let n2 = new TreeNode("metodos.pyy");
-		this.root.addChild(n1);
-		this.root.addChild(n2);
-		this.view = new TreeView(this.root, document.querySelector('.folders-container'));
+		this.root = new TreeNode("root", {icon: '<span>&#128449;</span>' });
+		this.tree = new TreeView(this.root, document.querySelector('.folders-container'));
 
-		/* compiler service */
-		// this.compilerService.getCompiler()
-		// 	.then(console.log)
-		// 	.catch(console.log);
-		/* compiler service */
+		/* obtenter proyectos */
+		this.compilerService.getCompiler()
+			.then(data => {
+				this.projects = [];
+				for(let i = 0; i < data.projects.length; i++) {
+					this.projects.push(new Project(data.projects[i]))
+				}
+
+				/* renderizar proyectos :V */
+				this.render = new Render(this.root, this.tree, this.code, this.projects);
+				this.render.setProjects = this.projects;
+				this.render.render();
+			})
+			.catch(console.log);
+	}
+
+	newProject(name: string) {
+		let n = new TreeNode(name, {icon: '<span>&#128449;</span>' });
+		this.root.addChild(n);
+		this.tree.reload();
 	}
 
 	getSource(): void {
@@ -118,5 +72,35 @@ void main() {
 		// se crea el parser
 		const parser = new Parser(this.compilerService);
 		parser.setInput(input);
+	}
+
+	addProject(name: string) {
+		/* verificar que no exista proyectos con el mismo nombre */
+		let n = new TreeNode(name, {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project' });
+		this.root.addChild(n);
+		this.tree.reload();
+	}
+
+	addPackage(name: string) {
+		console.log(`new package ${name}`);
+	}
+
+	addFile(name: string) {
+		const n = this.tree.getSelectedNodes();
+		if(n.length === 1) {
+			if(n[0] !== this.root) {
+				const father = n[0];
+				const options = father.getOptions();
+				if(options.type === 'project' || options.type === 'package') {
+					/* verificar que no existe mismo nombre en el archivo */
+					father.addChild(new TreeNode(name, {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file' }));
+					this.tree.reload();
+				}
+			}
+		}
+	}
+
+	saveCurrent() {
+		this.render?.saveCurrent();
 	}
 }
