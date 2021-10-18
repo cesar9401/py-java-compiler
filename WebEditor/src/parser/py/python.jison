@@ -260,7 +260,7 @@ initial
 
 python
 		: PY eol INDENT list_function DEDENT{ $$ = $4; }
-		// | PY eol { $$ = []; }
+		| PY eol { $$ = []; }
 		;
 
 list_function

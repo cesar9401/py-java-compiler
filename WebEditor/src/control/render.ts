@@ -1,39 +1,48 @@
 import { Project } from "src/model/project";
 import { Package } from "src/model/package";
 import { File } from "src/model/file";
+import { CompilerService } from 'src/service/compiler.service';
 
 declare var TreeNode: any;
 declare var TreeView: any;
 
 export class Render {
+	compilerService: CompilerService;
+
 	root: any;
 	tree: any;
 	code: any;
 	projects: Project[];
-	parent: object;
-	pckg: object;
-	leaf: object;
+	// parent: object;
+	// pckg: object;
+	// leaf: object;
 	current?: File;
 
-	constructor(root:any, tree: any, code: any, projects: Project[]) {
-		this.root = root;
-		this.tree = tree;
+	constructor(private compilerServie: CompilerService, code: any, projects: Project[]) {
+		// this.root = root;
+		// this.tree = tree;
+		this.compilerService = compilerServie;
+
 		this.code = code; // editor de codigo
 		this.projects = projects;
-		this.parent = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project' };
-		this.pckg = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'package' };
-		this.leaf = {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file' };
+		// this.parent = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project' };
+		// this.pckg = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'package' };
+		// this.leaf = {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file' };
 	}
 
 	/* renderizar proyectos */
 	render() {
+		// treeview
+		this.root = new TreeNode("root", {icon: '<span>&#128449;</span>' });
+		this.tree = new TreeView(this.root, document.querySelector('.folders-container'));
+
 		this.projects.forEach(pro => {
 			/* agregar proyecto */
-			const n = new TreeNode(pro.name, this.parent);
+			const n = new TreeNode(pro.name, {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project', file: pro });
 
 			/* agregar archivos sueltos */
 			pro.files.forEach(f => {
-				const p = new TreeNode(f.name, this.leaf);
+				const p = new TreeNode(f.name, {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file', file: f });
 
 				/* agruegar evento para mostrar codigo */
 				p.on('click', (event: any, node: any) => {
@@ -47,7 +56,7 @@ export class Render {
 			/* agregar paquetes */
 			pro.content.forEach(pack => {
 				this.renderPackage(n, pack);
-			})
+			});
 
 			this.root.addChild(n);
 			this.tree.reload();
@@ -57,11 +66,11 @@ export class Render {
 	/* renderizar paquetes de un proyecto o de otros paquetes */
 	renderPackage(n: typeof TreeNode, package_: Package) {
 		/* agregar paquete */
-		const p = new TreeNode(package_.name, this.pckg);
+		const p = new TreeNode(package_.name, {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'package', file: package_ });
 
 		/* agregar archivos del paquete */
 		package_.files.forEach(f => {
-			const file = new TreeNode(f.name, this.leaf);
+			const file = new TreeNode(f.name, {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file', file: f });
 
 			/* agruegar evento para mostrar codigo */
 			file.on('click', (event: any, node: any) => {
@@ -84,9 +93,81 @@ export class Render {
 		this.projects = projects;
 	}
 
+	/* guardar cambios en el fichero actual */
 	saveCurrent() {
 		if(this.current) {
 			this.current.code = this.code.getValue();
+
+			this.compilerService.sendChangesOnProjects(this.projects)
+			.then(console.log)
+			.catch(console.log);
 		}
+	}
+
+	addProject(name: string) {
+		/* verificar que no exista proyectos con el mismo nombre */
+		const isPresent = this.projects.some(pro => pro.name === name);
+		if(!isPresent) {
+			const project = new Project(name, [], []);
+			this.projects.push(project);
+			this.render();
+
+			/* enviar cambios hacia base de datos */
+		}
+	}
+
+	addPackage(name: string) {
+		const n = this.tree.getSelectedNodes();
+		if(n.length === 1) {
+			if(n[0] !== this.root) {
+				const options = n[0].getOptions();
+				if(options.type === 'project' || options.type === 'package') {
+					const father: Project | Package = options.file;
+					/* revisar que father no tenga hijos/paquetes con el mismo nombre */
+					const present = father.content.some(p => p.name === name);
+
+					if(!present) {
+						const pckg = new Package(name, [], []);
+						father.content.push(pckg);
+						this.render();
+
+						/* enviar cambios */
+					}
+				}
+			}
+		}
+	}
+
+	addFile(name: string) {
+		const n = this.tree.getSelectedNodes();
+		if(n.length === 1) {
+			if(n[0] !== this.root) {
+				const options = n[0].getOptions();
+				if(options.type === 'project' || options.type === 'package') {
+					const father: Project | Package = options.file;
+					const present = father.files.some(p => p.name === `${name}.mlg`);
+
+					if(!present) {
+						const pckg = this.getPackage(n[0]);
+						const line = pckg ? `paquete ${pckg};\n/* write your code here */\n` : `/* write your code here */\n`;
+						const file = new File(`${name}.mlg`, line);
+						father.files.push(file);
+						this.render();
+					}
+				}
+			}
+		}
+	}
+
+	private getPackage(father: typeof TreeNode): string {
+		let result = ``;
+		let aux = father;
+
+		while(aux.getOptions().type !== 'project') {
+			result = aux.toString() + (result ? `.${result}` : ``);
+			aux = aux.parent;
+		}
+
+		return result;
 	}
 }

@@ -42,8 +42,8 @@ export class EditorComponent implements OnInit {
 		});
 
 		// treeview
-		this.root = new TreeNode("root", {icon: '<span>&#128449;</span>' });
-		this.tree = new TreeView(this.root, document.querySelector('.folders-container'));
+		//this.root = new TreeNode("root", {icon: '<span>&#128449;</span>' });
+		//this.tree = new TreeView(this.root, document.querySelector('.folders-container'));
 
 		/* obtenter proyectos */
 		this.compilerService.getCompiler()
@@ -54,17 +54,11 @@ export class EditorComponent implements OnInit {
 				}
 
 				/* renderizar proyectos :V */
-				this.render = new Render(this.root, this.tree, this.code, this.projects);
+				this.render = new Render(this.compilerService, this.code, this.projects);
 				this.render.setProjects = this.projects;
 				this.render.render();
 			})
 			.catch(console.log);
-	}
-
-	newProject(name: string) {
-		let n = new TreeNode(name, {icon: '<span>&#128449;</span>' });
-		this.root.addChild(n);
-		this.tree.reload();
 	}
 
 	getSource(): void {
@@ -75,29 +69,15 @@ export class EditorComponent implements OnInit {
 	}
 
 	addProject(name: string) {
-		/* verificar que no exista proyectos con el mismo nombre */
-		let n = new TreeNode(name, {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project' });
-		this.root.addChild(n);
-		this.tree.reload();
+		this.render?.addProject(name);
 	}
 
 	addPackage(name: string) {
-		console.log(`new package ${name}`);
+		this.render?.addPackage(name);
 	}
 
 	addFile(name: string) {
-		const n = this.tree.getSelectedNodes();
-		if(n.length === 1) {
-			if(n[0] !== this.root) {
-				const father = n[0];
-				const options = father.getOptions();
-				if(options.type === 'project' || options.type === 'package') {
-					/* verificar que no existe mismo nombre en el archivo */
-					father.addChild(new TreeNode(name, {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file' }));
-					this.tree.reload();
-				}
-			}
-		}
+		this.render?.addFile(name);
 	}
 
 	saveCurrent() {
