@@ -83,4 +83,15 @@ export class EditorComponent implements OnInit {
 	saveCurrent() {
 		this.render?.saveCurrent();
 	}
+
+	delete() {
+		this.render?.delete();
+	}
+
+	getFile() {
+		// this.compilerService.getBinaryFile()
+		// 	.subscribe(response => {
+		// 		console.log(response);
+		// 	})
+	}
 }

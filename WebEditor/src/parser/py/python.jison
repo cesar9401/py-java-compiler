@@ -212,7 +212,7 @@ smaller_eq						"<="
 									}
 								%}
 
-<LINE>{WhiteSpace}				/* ignore */
+<LINE>{Whitespace}				/* ignore */
 
 <LINE><<EOF>>					return "EOF";
 
@@ -480,7 +480,7 @@ h
 i
 		: INTEGER { const tmp1 = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp1); }
 		| DECIMAL { const tmp2 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.FLOAT, tmp2); }
-		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3)  }
+		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | CHAR
 		| BOOL { const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $1); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.BOOL, tmp4); }
 		| ID { const tmp5 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.OperationPY(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp5); }

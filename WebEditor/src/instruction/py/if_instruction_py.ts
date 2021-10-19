@@ -6,7 +6,7 @@ import { SemanticHandler } from "src/control/semantic_handler";
 import { Variable } from "src/instruction/c/variable";
 import { QuadHandler } from "src/control/quad_handler";
 import { OperationPY } from "./operation_py";
-import {Error, TypeE } from 'src/control/error';
+import { Error, TypeE } from 'src/control/error';
 import { OperationType } from "src/instruction/c/operation";
 
 export class IfInstructionPY extends Instruction {

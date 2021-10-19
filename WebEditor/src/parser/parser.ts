@@ -3,6 +3,7 @@ import { Python } from './py/python';
 import {CompilerService} from 'src/service/compiler.service';
 import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
+import { Java } from './java/java';
 
 declare var main: any;
 
@@ -35,12 +36,13 @@ export class Parser {
 
 			this.parsePython();
 			this.parseProgram();
+			this.parseJava();
 
 			// this.blocks.forEach(block => console.log(block));
 
-			this.compilerService.sendCodeBlocks(this.blocks)
-				.then(console.log)
-				.catch(console.log);
+			// this.compilerService.sendCodeBlocks(this.blocks)
+			// 	.then(console.log)
+			// 	.catch(console.log);
 
 		} catch (error) {
 			console.error(error);
@@ -52,6 +54,12 @@ export class Parser {
 		const python = new Python(this.compilerService, this.code[1], this.blocks);
 		python.parse();
 		this.functions = python.functions;
+	}
+
+	/* parsear codigo con sintaxis java */
+	parseJava() {
+		let java = new Java(this.compilerService, this.code[2], this.blocks);
+		java.parse();
 	}
 
 	/* parser codigo con sintaxis c */

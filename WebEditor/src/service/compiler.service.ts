@@ -35,4 +35,9 @@ export class CompilerService {
 		const data = { projects: projects };
 		return this.http.put(this.api, data).toPromise();
 	}
+
+	getBinaryFile() {
+		// /project.out
+		return this.http.get(`${this.api}project.out`);
+	}
 }

@@ -98,24 +98,28 @@ export class Render {
 		if(this.current) {
 			this.current.code = this.code.getValue();
 
-			this.compilerService.sendChangesOnProjects(this.projects)
-			.then(console.log)
-			.catch(console.log);
+			/* enviar cambios */
+			this.sendChanges();
 		}
 	}
 
+	/* agregar proyectos */
 	addProject(name: string) {
 		/* verificar que no exista proyectos con el mismo nombre */
 		const isPresent = this.projects.some(pro => pro.name === name);
 		if(!isPresent) {
 			const project = new Project(name, [], []);
 			this.projects.push(project);
+
+			/* renderizar */
 			this.render();
 
-			/* enviar cambios hacia base de datos */
+			/* enviar cambios */
+			this.sendChanges();
 		}
 	}
 
+	/* agregar paquetes */
 	addPackage(name: string) {
 		const n = this.tree.getSelectedNodes();
 		if(n.length === 1) {
@@ -129,15 +133,19 @@ export class Render {
 					if(!present) {
 						const pckg = new Package(name, [], []);
 						father.content.push(pckg);
+
+						/* renderizar */
 						this.render();
 
 						/* enviar cambios */
+						this.sendChanges();
 					}
 				}
 			}
 		}
 	}
 
+	/* agregar archivos de codigo mlg */
 	addFile(name: string) {
 		const n = this.tree.getSelectedNodes();
 		if(n.length === 1) {
@@ -149,10 +157,16 @@ export class Render {
 
 					if(!present) {
 						const pckg = this.getPackage(n[0]);
-						const line = pckg ? `paquete ${pckg};\n/* write your code here */\n` : `/* write your code here */\n`;
+						let line = pckg ? `paquete ${pckg};\n/* write your code here */` : `/* write your code here */`;
+						line += `\n\n%%PY\n\n\n%%JAVA\n\n\n%%PROGRAMA\n\n`;
 						const file = new File(`${name}.mlg`, line);
 						father.files.push(file);
+
+						/* renderizar */
 						this.render();
+
+						/* enviar cambios */
+						this.sendChanges();
 					}
 				}
 			}
@@ -169,5 +183,41 @@ export class Render {
 		}
 
 		return result;
+	}
+
+	delete() {
+		const n = this.tree.getSelectedNodes();
+		if(n.length === 1){
+			if(n[0] !== this.root) {
+				const element = n[0].getOptions().file;
+				if(element instanceof Project) {
+					const index = this.projects.indexOf(element);
+					const projectDel: Project[] = this.projects.splice(index, 1);
+					console.log(projectDel)
+				} else if(element instanceof Package) {
+					const father: Project | Package = n[0].parent.getOptions().file;
+					const index = father.content.indexOf(element);
+					const pckgDel: Package[] = father.content.splice(index, 1);
+					console.log(pckgDel);
+				} else if(element instanceof File) {
+					const father: Project | Package = n[0].parent.getOptions().file;
+					const index = father.files.indexOf(element);
+					const fileDel: File[] = father.files.splice(index, 1);
+					console.log(fileDel);
+				}
+
+				/* renderizar */
+				this.render();
+				/* enviar cambios */
+				this.sendChanges();
+			}
+		}
+	}
+
+	/* enviar cambios hacia base de datos en servidor */
+	private sendChanges() {
+		this.compilerService.sendChangesOnProjects(this.projects)
+		.then(console.log)
+		.catch(console.log);
 	}
 }
