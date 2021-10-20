@@ -18,6 +18,18 @@ export class ParamJV extends Instruction {
 		this.id = id;
 	}
 
-	run(table: SymbolTable, sm: SemanticHandler) {}
+	run(table: SymbolTable, sm: SemanticHandler) {
+		/* error la variable ya existe */
+		if(table.contains(this.id)) {
+			const desc = `Se esta intentando agregar como parametro a la variable '${this.id}' que ya existe como parametro, intente con otro identificador.`;
+			const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+			return;
+		}
+
+		const val = new Variable(this.type, this.id, ' ');
+		table.add(val);
+	}
+
 	generate(qh: QuadHandler) {}
 }

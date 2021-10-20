@@ -53,7 +53,7 @@ export class For extends Instruction {
 			const val: Variable | undefined = local.getById(id);
 			if(val && val.type !== OperationType.INT) {
 				const desc = `En la declaracion de la instruccion 'for', se esperaba una declaracion de variable de tipo entero, se encontro variable de tipo: ${val.type}`;
-				const error = new Error(this.line, this.column, val.id ? val.id : "", TypeE.SEMANTICO, desc);
+				const error = new Error(this.line, this.column, id, TypeE.SEMANTICO, desc);
 				sm.errors.push(error);
 			}
 		}

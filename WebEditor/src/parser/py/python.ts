@@ -45,33 +45,33 @@ export class Python {
 			const value: Instruction[] = python.parse(this.source.code);
 			console.log(value);
 
-			// const sm = new SemanticHandler();
-			// sm.getFunctions;
+			const sm = new SemanticHandler();
+			sm.getFunctions;
 
-			// const table = new SymbolTable(sm.peek());
-			// // sm.pushTable(table);
+			const table = new SymbolTable(sm.peek());
+			// sm.pushTable(table);
 
-			// for(const ins of value) {
-			// 	ins.run(table, sm);
-			// }
+			for(const ins of value) {
+				ins.run(table, sm);
+			}
 
-			// this.functions = sm.getFunctions; // devolver funciones python
+			this.functions = sm.getFunctions; // devolver funciones python
 
-			// if(sm.errors.length > 0) {
-			// 	sm.errors.forEach(e => console.log(e.toString()));
-			// } else {
-			// 	// generar Cuadruplos
-			// 	// console.log(sm.getTables);
-			// 	const qh = new QuadHandler(sm, this.blocks);
-			// 	value.forEach(v => v.generate(qh));
+			if(sm.errors.length > 0) {
+				sm.errors.forEach(e => console.log(e.toString()));
+			} else {
+				// // generar Cuadruplos
+				// // console.log(sm.getTables);
+				// const qh = new QuadHandler(sm, this.blocks);
+				// value.forEach(v => v.generate(qh));
 
-			// 	// console.log("PY");
-			// 	// qh.getQuads.forEach(q => console.log(q.toString()));
+				// // console.log("PY");
+				// // qh.getQuads.forEach(q => console.log(q.toString()));
 
-			// 	// this.compilerService.postCompiler(qh.getQuads)
-			// 	// 	.then(console.log)
-			// 	// 	.catch(console.log);
-			// }
+				// // this.compilerService.postCompiler(qh.getQuads)
+				// // 	.then(console.log)
+				// // 	.catch(console.log);
+			}
 
 		} catch (error) {
 			console.error(error);

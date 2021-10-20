@@ -8,7 +8,11 @@ export class SemanticHandler {
 	private scope: string[];
 	private tables: SymbolTable[];
 
+	/* para codigo py */
 	private functions: string[];
+
+	/* para codigo java */
+	private classTable?: SymbolTable;
 
 	constructor() {
 		this.op = new OperationCheck(this);
@@ -71,5 +75,15 @@ export class SemanticHandler {
 		} else {
 			this.functions.push(id);
 		}
+	}
+
+	/* obtener tabla de simbolos de la clase actual */
+	public get getClassTable(): SymbolTable | undefined {
+		return this.classTable;
+	}
+
+	/* setear tabla de simbolos para clase actual */
+	public set setClassTable(table: SymbolTable | undefined) {
+		this.classTable = table;
 	}
 }

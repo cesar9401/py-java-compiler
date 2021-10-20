@@ -16,6 +16,15 @@ import { IfInstructionJV } from 'src/instruction/java/if_instruction_jv';
 import { ForJV } from 'src/instruction/java/for_jv';
 import { ParamJV } from 'src/instruction/java/param_jv';
 import { MethodJV } from 'src/instruction/java/method_jv';
+import { WhileJV } from 'src/instruction/java/while_jv';
+import { DoWhileJV } from 'src/instruction/java/do_while_jv';
+import { Break } from 'src/instruction/c/break';
+import { Continue } from 'src/instruction/c/continue';
+import { ReturnJV } from 'src/instruction/java/return_jv';
+import { CaseJV } from 'src/instruction/java/case_jv';
+import { SwitchJV } from 'src/instruction/java/switch_jv';
+import { ClassJV } from 'src/instruction/java/class_jv';
+import { ConstructorJV } from 'src/instruction/java/constructor_jv';
 
 declare var java: any;
 
@@ -34,15 +43,31 @@ export class Java {
 
 	parse() {
 		try {
+			console.log("JAVA");
 			const value: Instruction[] = java.parse(this.source.code);
 			console.log(value);
+
+			const sm = new SemanticHandler();
+			const table= new SymbolTable(sm.peek());
+
+			for(const instruction of value) {
+				instruction.run(table, sm);
+			}
+
+			/* errores */
+			if(sm.errors.length > 0) {
+				sm.errors.forEach(e => console.log(e.toString()));
+			} else {
+				console.log(sm.getTables);
+			}
+
 		} catch (error) {
 			console.error(error);
 		}
 	}
 
 	setFunctions() {
-		this.yy.line = this.source.first_line = 1;
+		this.yy.line = this.source.first_line - 1;
 
 		this.yy.Variable = Variable;
 		this.yy.OperationType = OperationType;
@@ -55,5 +80,14 @@ export class Java {
 		this.yy.ForJV = ForJV;
 		this.yy.ParamJV = ParamJV;
 		this.yy.MethodJV = MethodJV;
+		this.yy.WhileJV = WhileJV;
+		this.yy.DoWhileJV = DoWhileJV;
+		this.yy.Break = Break;
+		this.yy.Continue = Continue;
+		this.yy.ReturnJV = ReturnJV;
+		this.yy.CaseJV = CaseJV;
+		this.yy.SwitchJV = SwitchJV;
+		this.yy.ClassJV = ClassJV;
+		this.yy.ConstructorJV = ConstructorJV;
 	}
 }

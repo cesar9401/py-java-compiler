@@ -9,16 +9,17 @@ export class Variable {
 	pos: number | undefined;
 	isArray: boolean;
 	scope: string;
+	access: string;
 
 	constructor(type: OperationType, id?: string, value?: string) {
 		this.type = type;
 		this.id = id;
 		this.value = value;
+
 		this.cnst = false;
-
 		this.isArray = false;
-		this.scope = "";
-
+		this.access = 'public';
 		this.size = 1;
+		this.scope = "";
 	}
 }

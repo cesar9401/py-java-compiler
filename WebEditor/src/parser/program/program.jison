@@ -294,6 +294,7 @@ main_b
 		| getch_ { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
 		| scanf_ { $$ = [$1]; }
+		// | error SEMI
 		// | const
 		;
 /* main */

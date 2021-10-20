@@ -73,6 +73,7 @@ export class OperationPY extends Instruction {
 								return undefined;
 							}
 						}
+
 						return val;
 					}
 			}

@@ -18,6 +18,16 @@ export class PrintJV extends Instruction {
 		this.operations = operations;
 	}
 
-	run(table: SymbolTable, sm: SemanticHandler) {}
+	run(table: SymbolTable, sm: SemanticHandler) {
+		for(const operation of this.operations) {
+			const val: Variable | undefined = operation.run(table, sm);
+			if(!val || val.value === undefined) {
+				const desc = `Uno de los parametros que se desea imprimir, no ha sido declarado o no tiene valor definido.`;
+				const error = new Error(operation.line, operation.column, operation.variable?.id ? operation.variable.id : "", TypeE.SEMANTICO, desc);
+				sm.errors.push(error);
+			}
+		}
+	}
+
 	generate(qh: QuadHandler) {}
 }

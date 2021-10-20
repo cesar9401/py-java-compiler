@@ -84,27 +84,39 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- return true; 
+ return $$[$0-1]; 
+break;
+case 2: case 14: case 32: case 33: case 34: case 71: case 93: case 95: case 102: case 105: case 109: case 111: case 113: case 115:
+ this.$ = $$[$0]; 
+break;
+case 3: case 63: case 75:
+ $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
+break;
+case 4: case 8: case 15: case 43: case 74:
+ this.$ = []; 
+break;
+case 5:
+ this.$ = new yy.ClassJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-3], '', $$[$0-1]); 
+break;
+case 6:
+ this.$ = new yy.ClassJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-5], $$[$0-3], $$[$0-1]); 
 break;
 case 7: case 42:
  this.$ = [...$$[$0-1], ...$$[$0]]; 
 break;
-case 8: case 15: case 43:
- this.$ = []; 
-break;
 case 9: case 44: case 45:
  this.$ = [...$$[$0]]; 
 break;
-case 11: case 17: case 31: case 46: case 47: case 48: case 64:
+case 10: case 11: case 17: case 31: case 46: case 47: case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 64: case 73: case 76: case 82:
  this.$ = [$$[$0]]; 
+break;
+case 12:
+ this.$ = new yy.ConstructorJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-7], $$[$0-6], $$[$0-4], $$[$0-1]); 
 break;
 case 13:
  this.$ = new yy.MethodJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-8], $$[$0-7], $$[$0-6], $$[$0-4], $$[$0-1]); 
 break;
-case 14: case 32: case 33: case 34: case 93: case 95: case 102: case 105: case 109: case 111: case 113: case 115:
- this.$ = $$[$0]; 
-break;
-case 16: case 28: case 37:
+case 16: case 28: case 37: case 81:
  $$[$0-2].push($$[$0]); this.$ = $$[$0-2]; 
 break;
 case 18:
@@ -130,6 +142,7 @@ case 20:
 				for(const element of $$[$0-1]) {
 					if(element.length === 1) {
 						const tmp = new yy.StatementJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-3], $$[$0-2], element[0], null);
+						tmp.clazz = true;
 						this.$.push(tmp);
 					} else if(element.length === 2) {
 						const tmp = new yy.StatementJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-3], $$[$0-2], element[0], element[1]);
@@ -195,9 +208,6 @@ break;
 case 62:
  this.$ = new yy.IfJV(this._$.first_line + yy.line, this._$.first_column, "else", $$[$0-1], null); 
 break;
-case 63:
- $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
-break;
 case 65:
  this.$ = new yy.IfJV(this._$.first_line + yy.line, this._$.first_column, "if else", $$[$0-1], $$[$0-4]); 
 break;
@@ -210,11 +220,38 @@ break;
 case 67:
  this.$ = new yy.ForJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-6], $$[$0-4], $$[$0-1], null, $$[$0-8]); 
 break;
+case 68:
+ this.$ = new yy.WhileJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-4], $$[$0-1]); 
+break;
+case 69:
+ this.$ = new yy.DoWhileJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-2], $$[$0-6]); 
+break;
+case 70:
+ this.$ = new yy.SwitchJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-4], $$[$0-1]); 
+break;
+case 72:
+ this.$ = [...$$[$0-1], $$[$0]]; 
+break;
+case 77:
+ this.$ = new yy.CaseJV(this._$.first_line + yy.line, this._$.first_column, $$[$0], $$[$0-2]); 
+break;
+case 78:
+ this.$ = new yy.CaseJV(this._$.first_line + yy.line, this._$.first_column, $$[$0], null); 
+break;
 case 79:
  this.$ = new yy.PrintJV(this._$.first_line + yy.line, this._$.first_column, false, $$[$0-2]); 
 break;
 case 80:
  this.$ = new yy.PrintJV(this._$.first_line + yy.line, this._$.first_column, true, $$[$0-2]); 
+break;
+case 83:
+ this.$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); 
+break;
+case 84:
+ this.$ = new yy.Continue(this._$.first_line + yy.line, this._$.first_column); 
+break;
+case 85:
+ this.$ = new yy.ReturnJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-1]); 
 break;
 case 92:
  this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
@@ -281,6 +318,9 @@ case 120:
 break;
 case 121:
  const tmp5 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp5); 
+break;
+case 123:
+ const tmp7 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp7); this.$.ths = true; 
 break;
 }
 },

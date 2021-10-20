@@ -10,9 +10,8 @@ import { Error, TypeE } from 'src/control/error';
 import { OperationType } from "src/instruction/c/operation";
 import { ParamJV } from "./param_jv";
 
-export class MethodJV extends Instruction {
+export class ConstructorJV extends Instruction {
 	access: string;
-	type: OperationType;
 	id: string;
 	params: ParamJV[];
 	instructions: Instruction[];
@@ -21,14 +20,12 @@ export class MethodJV extends Instruction {
 		line: number,
 		column: number,
 		access: string,
-		type: OperationType,
 		id: string,
 		params: ParamJV[],
 		instructions: Instruction[]
 	) {
 		super(line, column);
 		this.access = access;
-		this.type = type;
 		this.id = id;
 		this.params = params;
 		this.instructions = instructions;
@@ -37,7 +34,7 @@ export class MethodJV extends Instruction {
 	run(table: SymbolTable, sm: SemanticHandler) {
 		// table -> tabla de la clase
 
-		/* verificar si el metodo ya existe */
+		/* verificar si el constructor ya existe */
 
 		/* crear tabla local para el constructor */
 		sm.push(this.id);
@@ -47,12 +44,12 @@ export class MethodJV extends Instruction {
 		/* agregar variable this */
 		local.add(new Variable(OperationType.INT, "this", " "));
 
-		/* agregar parametros a la tabla de simbolos */
+		/* agregar parametros a tabla de simbolos */
 		for(const param of this.params) {
 			param.run(local, sm);
 		}
 
-		/* ejecutar instrucciones del metodo */
+		/* ejecutar instrucciones del constructor */
 		for(const instruction of this.instructions) {
 			instruction.run(local, sm);
 		}

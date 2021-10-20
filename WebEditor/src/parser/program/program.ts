@@ -52,36 +52,36 @@ export class Program {
 			const value: Instruction[] = program.parse(this.source.code);
 			console.log(value);
 
-			// /* run */
-			// const sm = new SemanticHandler();
-			// sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
+			/* run */
+			const sm = new SemanticHandler();
+			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
 
-			// const table = new SymbolTable(sm.peek());
-			// sm.pushTable(table);
+			const table = new SymbolTable(sm.peek());
+			sm.pushTable(table);
 
-			// for(const ins of value) {
-			// 	ins.run(table, sm);
-			// }
+			for(const ins of value) {
+				ins.run(table, sm);
+			}
 
-			// if(sm.errors.length > 0) {
-			// 	sm.errors.forEach(e => console.log(e.toString()));
-			// } else {
-			// 	// sm.getTables.forEach(table => console.log(table)); // tablas en consola
-			// 	/* generate */
-			// 	const qh = new QuadHandler(sm, this.blocks);
-			// 	qh.push();
-			// 	value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
-			// 	qh.pop();
+			if(sm.errors.length > 0) {
+				sm.errors.forEach(e => console.log(e.toString()));
+			} else {
+				// // sm.getTables.forEach(table => console.log(table)); // tablas en consola
+				// /* generate */
+				// const qh = new QuadHandler(sm, this.blocks);
+				// qh.push();
+				// value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
+				// qh.pop();
 
-			// 	qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
+				// qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
 
-			// 	// console.log("program");
-			// 	// qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
+				// // console.log("program");
+				// // qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 
-			// 	// this.compilerService.postCompiler(qh.getQuads)
-			// 	// 	.then(console.log)
-			// 	// 	.catch(console.log);
-			// }
+				// // this.compilerService.postCompiler(qh.getQuads)
+				// // 	.then(console.log)
+				// // 	.catch(console.log);
+			}
 		} catch (error) {
 			console.error(error);
 		}

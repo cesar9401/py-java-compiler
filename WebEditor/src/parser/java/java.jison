@@ -213,21 +213,24 @@ not								"!"
 
 initial
 		: java EOF
-			{ return true; }
+			{ return $1; }
 		;
 
 java
 		: JAVA list_of_classes
+			{ $$ = $2; }
 		;
 
 list_of_classes
-		: list_of_classes class
-		|
+		: list_of_classes class { $1.push($2); $$ = $1; }
+		| { $$ = []; }
 		;
 
 class
 		: PUBLIC CLASS ID LBRACE items_class RBRACE
+			{ $$ = new yy.ClassJV(this._$.first_line + yy.line, this._$.first_column, $3, '', $5); }
 		| PUBLIC CLASS ID EXTENDS ID LBRACE items_class RBRACE
+			{ $$ = new yy.ClassJV(this._$.first_line + yy.line, this._$.first_column, $3, $5, $7); }
 		;
 
 items_class
@@ -237,13 +240,14 @@ items_class
 
 class_opt
 		: statement_class { $$ = [...$1]; }
-		| construct
+		| construct { $$ = [$1]; }
 		| function { $$ = [$1]; }
 		;
 
 /* constructores */
 construct
 		: access ID LPAREN list_params RPAREN LBRACE function_body RBRACE
+			{ $$ = new yy.ConstructorJV(this._$.first_line + yy.line, this._$.first_column, $1, $2, $4, $7); }
 		;
 /* constructores */
 
@@ -294,6 +298,7 @@ statement_class
 				for(const element of $3) {
 					if(element.length === 1) {
 						const tmp = new yy.StatementJV(this._$.first_line + yy.line, this._$.first_column, $1, $2, element[0], null);
+						tmp.clazz = true;
 						$$.push(tmp);
 					} else if(element.length === 2) {
 						const tmp = new yy.StatementJV(this._$.first_line + yy.line, this._$.first_column, $1, $2, element[0], element[1]);
@@ -362,12 +367,12 @@ func_body
 		| print_ { $$ = [$1]; }
 		| list_if { $$ = [$1]; }
 		| for_ { $$ = [$1]; }
-		| while_
-		| do_while_
-		| switch_
-		| break_
-		| continue_
-		| return_
+		| while_ { $$ = [$1]; }
+		| do_while_ { $$ = [$1]; }
+		| switch_ { $$ = [$1]; }
+		| break_ { $$ = [$1]; }
+		| continue_ { $$ = [$1]; }
+		| return_ { $$ = [$1]; }
 		| super_
 		| function_call SEMI
 		;
@@ -417,36 +422,41 @@ for_
 /* while and do-while */
 while_
 		: WHILE LPAREN a RPAREN LBRACE function_body RBRACE
+			{ $$ = new yy.WhileJV(this._$.first_line + yy.line, this._$.first_column, $3, $6); }
 		;
 
 do_while_
 		: DO LBRACE function_body RBRACE WHILE LPAREN a RPAREN SEMI
+			{ $$ = new yy.DoWhileJV(this._$.first_line + yy.line, this._$.first_column, $7, $3); }
 		;
 /* while and do-while */
 
 /* switch-case */
 switch_
 		: SWITCH LPAREN a RPAREN LBRACE switch_opt RBRACE
+			{ $$ = new yy.SwitchJV(this._$.first_line + yy.line, this._$.first_column, $3, $6); }
 		;
 
 switch_opt
-		: list_case
-		| list_case default_
-		| default_
-		|
+		: list_case { $$ = $1; }
+		| list_case default_ { $$ = [...$1, $2]; }
+		| default_ { $$ = [$1]; }
+		| { $$ = []; }
 		;
 
 list_case
-		: list_case case_
-		| case_
+		: list_case case_ { $1.push($2); $$ = $1; }
+		| case_ { $$ = [$1]; }
 		;
 
 case_
 		: CASE a COLON function_body
+			{ $$ = new yy.CaseJV(this._$.first_line + yy.line, this._$.first_column, $4, $2); }
 		;
 
 default_
 		: DEFAULT COLON function_body
+			{ $$ = new yy.CaseJV(this._$.first_line + yy.line, this._$.first_column, $3, null); }
 		;
 /* switch-case */
 
@@ -459,22 +469,25 @@ print_
 		;
 
 list_op
-		: list_op COMMA a
-		| a
+		: list_op COMMA a { $1.push($3); $$ = $1; }
+		| a { $$ = [$1]; }
 		;
 /* print and println */
 
 /* break, continue, return */
 break_
 		: BREAK SEMI
+			{ $$ = new yy.Break(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 continue_
 		: CONTINUE SEMI
+			{ $$ = new yy.Continue(this._$.first_line + yy.line, this._$.first_column); }
 		;
 
 return_
 		: RETURN a SEMI
+			{ $$ = new yy.ReturnJV(this._$.first_line + yy.line, this._$.first_column, $2); }
 		;
 /* break, continue, return */
 
@@ -554,7 +567,7 @@ i
 		| BOOL { const tmp4 = new yy.Variable(yy.OperationType.BOOL, null, $1); $$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.BOOL, tmp4); }
 		| ID { const tmp5 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp5); }
 		| LPAREN a RPAREN { $$ = $2; }
-		| THIS DOT ID // this
+		| THIS DOT ID { const tmp7 = new yy.Variable(yy.OperationType.ID, $3, null); $$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp7); $$.ths = true; }
 		| SUPER DOT ID // herencia
 		| function_call //  llamada de funciones
 		;

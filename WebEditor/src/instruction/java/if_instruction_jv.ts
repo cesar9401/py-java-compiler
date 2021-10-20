@@ -17,6 +17,37 @@ export class IfInstructionJV extends Instruction {
 		this.instructions = instructions;
 	}
 
-	run(table: SymbolTable, sm: SemanticHandler) {}
+	run(table: SymbolTable, sm: SemanticHandler) {
+		for(const if_ of this.instructions) {
+			const condition = if_.condition;
+			if(condition) {
+				const val: Variable | undefined = condition.run(table, sm);
+				if(!val || !val.value) {
+					const desc = `En la instruccion '${if_.type.toLowerCase()}', la condicion no se puede procesar debido a que uno de los operandos no tiena valor definido o no ha sido declarado.`;
+					const error = new Error(condition.line, condition.column, (val && val.id ? val.id : ""), TypeE.SEMANTICO, desc);
+					sm.errors.push(error);
+				}
+
+				if(val && val?.type !== OperationType.BOOL) {
+					const desc = `En la instruccion '${if_.type.toLowerCase()}', se esperaba una condicion(variable de tipo boolean), se encontro una variable de tipo '${val?.type}'.`;
+					const error = new Error(condition.line, condition.column, (val && val.id ? val.id : ""), TypeE.SEMANTICO, desc);
+					sm.errors.push(error);
+				}
+			}
+
+			/* tabla de simbolos local */
+			sm.push(if_.type.toLowerCase());
+			const local = new SymbolTable(sm.peek(), table);
+			sm.pushTable(local);
+
+			for(const instruction of if_.instructions) {
+				instruction.run(local, sm);
+			}
+
+			/* eliminar scope */
+			sm.pop();
+		}
+	}
+
 	generate(qh: QuadHandler) {}
 }
