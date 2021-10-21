@@ -34,9 +34,9 @@ export class Parser {
 			// console.log(value);
 			this.code = value;
 
-			this.parsePython();
+			// this.parsePython();
 			this.parseJava();
-			this.parseProgram();
+			// this.parseProgram();
 
 			// this.blocks.forEach(block => console.log(block));
 

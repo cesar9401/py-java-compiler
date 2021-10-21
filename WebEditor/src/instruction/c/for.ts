@@ -60,6 +60,11 @@ export class For extends Instruction {
 
 		// revisar operacion y/o condicion
 		const cond: Variable | undefined = this.condition.run(local, sm);
+		if(!cond || !cond.value) {
+			const desc = `En la instruccion 'for', la condicion no se puede procesar debido a que uno de los operandos no tiena valor definido o no ha sido declarado.`;
+			const error = new Error(this.condition.line, this.condition.column, this.condition.variable?.id ? this.condition.variable?.id : "", TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+		}
 
 		// revisar asignacion o accion de incremento, decremento
 		this.assign.run(local, sm);

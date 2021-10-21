@@ -31,7 +31,7 @@ export class Switch extends Instruction {
 			const value: Operation | undefined = cs.operation;
 			if(value && val) {
 				const comp: Variable | undefined = value.run(table, sm);
-				if(comp) {
+				if(comp && comp.value !== undefined) {
 					if(comp.type !== val.type) {
 						// no son del mismo tipo
 						const desc = `En la definicion de la instruccion 'case', se esperaba una variable de tipo '${val.type}', se encontro una variable de tipo '${comp.type}'.`;
@@ -41,7 +41,7 @@ export class Switch extends Instruction {
 				} else {
 					// error, no es posible evaluar condicion para case
 					const desc = `En la instruccion 'case', no se puede procesar el valor a evaluar debido a que uno de los operadores no tiene un valor definido o no ha sido declarado.`;
-					const error = new Error(this.line, this.column, "", TypeE.SEMANTICO, desc);
+					const error = new Error(cs.line, cs.column, "", TypeE.SEMANTICO, desc);
 					sm.errors.push(error);
 				}
 			}

@@ -56,6 +56,7 @@ export class Program {
 			const sm = new SemanticHandler();
 			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
 
+			sm.push("global");
 			const table = new SymbolTable(sm.peek());
 			sm.pushTable(table);
 
@@ -66,7 +67,7 @@ export class Program {
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				// // sm.getTables.forEach(table => console.log(table)); // tablas en consola
+				console.log(sm.getTables); // tablas en consola
 				// /* generate */
 				// const qh = new QuadHandler(sm, this.blocks);
 				// qh.push();

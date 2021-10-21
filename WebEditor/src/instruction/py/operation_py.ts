@@ -131,6 +131,7 @@ export class OperationPY extends Instruction {
 					this.addQuad(this.right, andR, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
 
 					return;
+
 				case OperationType.OR:
 					const orL = this.left.generate(qh);
 					this.addQuad(this.left, orL, qh); // revisar si es id, num, sum, sub, div, mul, mod, pow
@@ -317,7 +318,7 @@ export class OperationPY extends Instruction {
 					const left: Quadruple | undefined = this.left.generate(qh);
 					const result = qh.getTmp();
 					if(left && left.type) {
-						const quad = new Quadruple(this.type, left?.result, "", result, left.type);
+						const quad = new Quadruple(this.type, left.result, "", result, left.type);
 						qh.addQuad(quad);
 						return quad;
 					}
@@ -360,7 +361,7 @@ export class OperationPY extends Instruction {
 
 		if(this.variable) {
 			switch(this.type) {
-				case  OperationType.INT:
+				case OperationType.INT:
 				case OperationType.FLOAT:
 					return new Quadruple(this.type, "", "", `${this.variable.value}`, this.type)
 				case OperationType.BOOL:
@@ -406,7 +407,7 @@ export class OperationPY extends Instruction {
 			case OperationType.UMINUS:
 			case OperationType.BOOL: // boleanos
 			case OperationType.STRING: // string
-			if(quadruple) {
+				if(quadruple) {
 					const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
 					const goto = new Quadruple('GOTO', "", "", "");
 

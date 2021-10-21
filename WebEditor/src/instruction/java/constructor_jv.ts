@@ -15,6 +15,7 @@ export class ConstructorJV extends Instruction {
 	id: string;
 	params: ParamJV[];
 	instructions: Instruction[];
+	clazz?: string;
 
 	constructor(
 		line: number,
@@ -32,6 +33,7 @@ export class ConstructorJV extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
+		this.clazz = sm.getClazz; // nombre de la clase actual
 		// table -> tabla de la clase
 
 		/* verificar si el constructor ya existe */
@@ -57,5 +59,51 @@ export class ConstructorJV extends Instruction {
 		sm.pop(); // eliminar scope del constructor
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		/* tabla de la clase */
+		const table = qh.getSM.getClassTable;
+		qh.push();
+
+		const tmp = qh.getTmp();
+		qh.addQuad(new Quadruple("PLUS", "ptr", "0", tmp, OperationType.INT));
+		qh.addQuad(new Quadruple("ASSIGN", "h", "", `stack[${tmp}]`));
+
+		/* reservar espacion en stack's para las variables de la clase */
+		console.log(table);
+		if(table) {
+			for(const variable of table) {
+				if(variable.pos !== undefined) {
+					const t1 = qh.getTmp();
+					const dest = this.getNameStack(variable.type);
+					qh.addQuad(new Quadruple("PLUS", "h", variable.pos?.toString(), t1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `${dest[1]}`, '', `heap[${t1}]`));
+					qh.addQuad(new Quadruple("PLUS", `${dest[1]}`, '1', `${dest[1]}`));
+				}
+			}
+		}
+
+		qh.addQuad(new Quadruple("PLUS", "h", `${table?.length}`, "h"));
+
+		/* generar instrucciones hijas */
+		for(const instruction of this.instructions) {
+			instruction.generate(qh);
+		}
+
+		qh.pop();
+	}
+
+	private getNameStack(type: OperationType) {
+		switch(type) {
+			case OperationType.INT:
+			case OperationType.BOOL:
+			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
+			case OperationType.FLOAT:
+				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
+			case OperationType.STRING:
+				return [`stack_s[ptr_s]`, `ptr_s`, `stack_s`];
+			case OperationType.CHAR:
+				return [`stack_c[ptr_c]`, `ptr_c`, `stack_c`];
+		}
+		return [];
+	}
 }

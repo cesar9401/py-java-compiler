@@ -58,7 +58,13 @@ export class Java {
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				console.log(sm.getTables);
+				sm.getTables.forEach(t => console.log(t));
+				// console.log(sm.getTables);
+				/* generar cuadruplos */
+				const qh = new QuadHandler(sm, this.blocks);
+				value.forEach(v => v.generate(qh));
+
+				qh.getQuads.forEach(q => console.log(q.toString()));
 			}
 
 		} catch (error) {

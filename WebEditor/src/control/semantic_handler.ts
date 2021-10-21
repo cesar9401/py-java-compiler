@@ -13,11 +13,12 @@ export class SemanticHandler {
 
 	/* para codigo java */
 	private classTable?: SymbolTable;
+	private clazz?: string;
 
 	constructor() {
 		this.op = new OperationCheck(this);
 		this.errors = [];
-		this.scope = ["global"];
+		this.scope = [];
 		this.tables = [];
 
 		this.functions = [];
@@ -29,7 +30,7 @@ export class SemanticHandler {
 
 	// agregar nuevo scope
 	public push(block: string) {
-		block = `${this.peek()}_${block}`;
+		block = `${this.peek() ? this.peek() : ''}_${block}`;
 		this.scope.push(block);
 	}
 
@@ -85,5 +86,15 @@ export class SemanticHandler {
 	/* setear tabla de simbolos para clase actual */
 	public set setClassTable(table: SymbolTable | undefined) {
 		this.classTable = table;
+	}
+
+	/* obtener nombre de la clase actual */
+	public get getClazz(): string | undefined {
+		return this.clazz;
+	}
+
+	/* setear nombre de la clase actual */
+	public set setClazz(clazz: string | undefined) {
+		this.clazz = clazz;
 	}
 }

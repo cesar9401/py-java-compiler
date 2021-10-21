@@ -61,9 +61,9 @@ export class Operation extends Instruction{
 					const val3 = '\\\''
 					const val4 = '\\\\'
 
-						if(this.variable.value === val1 || this.variable.value === val2 || this.variable.value === val3 || this.variable.value === val4) {
-							return this.variable;
-						}
+					if(this.variable.value === val1 || this.variable.value === val2 || this.variable.value === val3 || this.variable.value === val4) {
+						return this.variable;
+					}
 
 					if(this.variable.value?.length !== 1) {
 						// error, debe de ser de longitud 1

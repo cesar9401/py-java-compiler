@@ -28,8 +28,11 @@ export class ClassJV extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
+		/* clase actual */
+		sm.setClazz = this.id;
+
 		/* crear tabla de simbolos de la clase */
-		sm.push(`java_class_${this.id}`);
+		sm.push(`class_${this.id}`);
 		const local = new SymbolTable(sm.peek(), table);
 		sm.pushTable(local);
 
@@ -52,7 +55,25 @@ export class ClassJV extends Instruction {
 
 		sm.pop(); // eliminar scope de la clase
 		sm.setClassTable = undefined; // quitar tabla de la clase
+		sm.setClazz = undefined; // clase actual
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		// console.log(`class ${this.id}`);
+		qh.push();
+
+		/* tabla de la clase */
+		qh.getSM.setClassTable = qh.peek();
+
+		for(const instruction of this.items) {
+			if(!(instruction instanceof StatementJV)) {
+				instruction.generate(qh);
+			}
+		}
+
+		/* eliminar tabla de la clase */
+		qh.getSM.setClassTable = undefined;
+
+		qh.pop();
+	}
 }

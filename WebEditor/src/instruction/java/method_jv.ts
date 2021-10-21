@@ -16,6 +16,7 @@ export class MethodJV extends Instruction {
 	id: string;
 	params: ParamJV[];
 	instructions: Instruction[];
+	clazz?: string | undefined;
 
 	constructor(
 		line: number,
@@ -35,11 +36,12 @@ export class MethodJV extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
+		this.clazz = sm.getClazz; // nombre de la clase actual
 		// table -> tabla de la clase
 
 		/* verificar si el metodo ya existe */
 
-		/* crear tabla local para el constructor */
+		/* crear tabla local para el metodo */
 		sm.push(this.id);
 		const local = new SymbolTable(sm.peek(), undefined);
 		sm.pushTable(local);
@@ -57,7 +59,7 @@ export class MethodJV extends Instruction {
 			instruction.run(local, sm);
 		}
 
-		sm.pop(); // eliminar scope del constructor
+		sm.pop(); // eliminar scope del metodo
 	}
 
 	generate(qh: QuadHandler) {}
