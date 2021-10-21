@@ -45,5 +45,86 @@ export class WhileJV extends Instruction {
 		sm.pop();
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		qh.push(); /* tabla de simbolos local */
+
+		/* etiqueta inicial */
+		const l1 = qh.getLabel();
+		qh.addQuad(new Quadruple("LABEL", "", "", l1));
+
+		/* generar condicion */
+		const quad: Quadruple | undefined = this.operation.generate(qh);
+
+		const lt = qh.labelTrue ? qh.labelTrue : qh.getLabel();
+		const lf = qh.labelFalse ? qh.labelFalse : qh.getLabel();
+
+		qh.labelTrue = undefined;
+		qh.labelFalse = undefined;
+
+		switch(this.operation.type) {
+			case OperationType.AND:
+			case OperationType.OR:
+			case OperationType.SMALLER:
+			case OperationType.GREATER:
+			case OperationType.SMALLER_EQ:
+			case OperationType.GREATER_EQ:
+			case OperationType.EQEQ:
+			case OperationType.NEQ:
+				qh.toTrue(lt);
+				qh.toFalse(lf);
+
+				// label true
+				qh.addQuad(new Quadruple("LABEL", "", "", lt));
+				break;
+
+			case OperationType.NOT:
+				qh.toTrue(lf);
+				qh.toFalse(lt);
+				qh.addQuad(new Quadruple("LABEL", "", "", lf));
+				break;
+
+			case OperationType.BOOL:
+				if(quad) {
+					const qd = new Quadruple(`IF_GREATER`, quad.result, "0", "");
+					const goto = new Quadruple('GOTO', "", "", "");
+
+					// agregar falsos y verdaderos
+					qh.addTrue(qd);
+					qh.addFalse(goto);
+
+					// agregar cuadruplos
+					qh.addQuad(qd);
+					qh.addQuad(goto);
+
+					// agregar etiquetas para verdadero y falso
+					qh.toTrue(lt);
+					qh.toFalse(lf);
+
+					qh.addQuad(new Quadruple("LABEL", "", "", lt));
+				}
+				break;
+		}
+
+		/* generar cuadruplas de las instrucciones hijas */
+		for(const instruction of this.instructions) {
+			instruction.generate(qh);
+		}
+
+		/* goto etiqueta inicial */
+		qh.addQuad(new Quadruple("GOTO", "", "", l1));
+
+		/* etiqueta falsa */
+		const labelF = this.operation.type === OperationType.NOT ? lt : lf;
+
+		/* label false */
+		qh.addQuad(new Quadruple("LABEL", "", "", labelF));
+
+		// agregar etiquetas para instrucciones break
+		qh.addLabelToBreaks(labelF);
+
+		// agregar etiqueta para instrucciones continue
+		qh.addLabelToContinues(l1);
+
+		qh.pop();
+	}
 }
