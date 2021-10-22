@@ -99,6 +99,7 @@ export class DoWhileJV extends Instruction {
 				qh.addQuad(new Quadruple("LABEL", "", "", lt));
 				break;
 
+			case OperationType.ID:
 			case OperationType.BOOL:
 				if(quad) {
 					// crear condicion

@@ -8,6 +8,9 @@ import { Variable } from "src/instruction/c/variable";
 import { OperationJV } from "./operation_jv";
 import { Error, TypeE } from "src/control/error";
 import { StatementJV } from "./statement_jv";
+import { ConstructorJV } from "./constructor_jv";
+import { MethodJV } from "./method_jv";
+import { Type } from "@angular/core";
 
 export class ClassJV extends Instruction {
 	id: string;
@@ -30,6 +33,16 @@ export class ClassJV extends Instruction {
 	run(table: SymbolTable, sm: SemanticHandler) {
 		/* clase actual */
 		sm.setClazz = this.id;
+		/* verificar que la clase no exista */
+		const tmp = sm.getClass(this.id);
+		if(tmp) {
+			/* error la clase ya existe */
+			const desc = `La clase con identificador '${this.id}' ya ha sido definida, intente con otro identificador.`;
+			const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+		} else {
+			sm.getClasses.push(this);
+		}
 
 		/* crear tabla de simbolos de la clase */
 		sm.push(`class_${this.id}`);
@@ -38,6 +51,9 @@ export class ClassJV extends Instruction {
 
 		/* tabla de la clase actual */
 		sm.setClassTable = local;
+
+		/* arreglo con listado de constructores/metodos */
+		sm.setMethods = [];
 
 		/* verificar asignaciones de variables */
 		for(const instruction of this.items) {
@@ -60,7 +76,7 @@ export class ClassJV extends Instruction {
 
 	generate(qh: QuadHandler) {
 		// console.log(`class ${this.id}`);
-		qh.push();
+		qh.push();/* tabla local */
 
 		/* tabla de la clase */
 		qh.getSM.setClassTable = qh.peek();
@@ -75,5 +91,29 @@ export class ClassJV extends Instruction {
 		qh.getSM.setClassTable = undefined;
 
 		qh.pop();
+	}
+
+	/* obtener constructor segun firma */
+	getConstructor(signature: string): ConstructorJV | undefined {
+		for(const instruction of this.items) {
+			if(instruction instanceof ConstructorJV) {
+				if(instruction.getSignature() === signature) {
+					return instruction;
+				}
+			}
+		}
+		return;
+	}
+
+	/* obtener metodo segun firma */
+	getMethod(signature: string): MethodJV | undefined {
+		for(const instruction of this.items) {
+			if(instruction instanceof MethodJV) {
+				if(instruction.getSignature() === signature) {
+					return instruction;
+				}
+			}
+		}
+		return;
 	}
 }

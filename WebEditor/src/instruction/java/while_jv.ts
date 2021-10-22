@@ -60,7 +60,6 @@ export class WhileJV extends Instruction {
 
 		qh.labelTrue = undefined;
 		qh.labelFalse = undefined;
-
 		switch(this.operation.type) {
 			case OperationType.AND:
 			case OperationType.OR:
@@ -83,6 +82,7 @@ export class WhileJV extends Instruction {
 				qh.addQuad(new Quadruple("LABEL", "", "", lf));
 				break;
 
+			case OperationType.ID:
 			case OperationType.BOOL:
 				if(quad) {
 					const qd = new Quadruple(`IF_GREATER`, quad.result, "0", "");

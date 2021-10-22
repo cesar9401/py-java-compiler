@@ -37,7 +37,7 @@ export class Statement extends Instruction {
 			if((value)) { // en este punto si existe value, significa que tiene un valor definido
 
 				/* se asigna segun el tipo de variable declarada */
-				// if(value.type === this.type) {
+				if(value.type !== OperationType.STRING) {
 					const newVal: Variable = new Variable(this.type, this.id, ' '); // revisar statement
 					newVal.cnst = this.cnst;
 
@@ -52,11 +52,11 @@ export class Statement extends Instruction {
 						const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
 						sm.errors.push(error);
 					}
-				// } else {
-				// 	const desc = `Esta intentado asignar una valor de tipo '${value.type}' a una variable de tipo '${this.type}'`;
-				// 	const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
-				// 	sm.errors.push(error);
-				// }
+				} else {
+					const desc = `Esta intentado asignar una valor de tipo '${value.type}' a una variable de tipo '${this.type}'`;
+					const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+					sm.errors.push(error);
+				}
 
 			} else {
 				// error se intenta asignar un valor no definido

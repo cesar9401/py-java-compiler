@@ -424,15 +424,19 @@ export class OperationJV extends Instruction {
 
 	// agregar cuadruples para hijos derecho e izquierdo AND / OR
 	private addQuad(op: OperationJV, quadruple: Quadruple | undefined, qh: QuadHandler):void {
-		if(op.type === OperationType.BOOL && quadruple) {
-			const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
-			const goto = new Quadruple('GOTO', "", "", "");
+		switch(op.type) {
+			case OperationType.BOOL:
+			case OperationType.ID:
+			if(quadruple) {
+				const quad = new Quadruple(`IF_GREATER`, quadruple.result, "0", "");
+				const goto = new Quadruple('GOTO', "", "", "");
 
-			qh.addTrue(quad);
-			qh.addFalse(goto);
+				qh.addTrue(quad);
+				qh.addFalse(goto);
 
-			qh.addQuad(quad);
-			qh.addQuad(goto);
+				qh.addQuad(quad);
+				qh.addQuad(goto);
+			}
 		}
 	}
 

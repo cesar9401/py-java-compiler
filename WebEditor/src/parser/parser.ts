@@ -1,9 +1,11 @@
 import { Program } from './program/program';
 import { Python } from './py/python';
-import {CompilerService} from 'src/service/compiler.service';
+import { FunctionPY } from 'src/instruction/py/function_py';
+import { CompilerService } from 'src/service/compiler.service';
 import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
 import { Java } from './java/java';
+import { ClassJV } from 'src/instruction/java/class_jv';
 
 declare var main: any;
 
@@ -12,13 +14,15 @@ export class Parser {
 	private code: Code[];
 	private blocks: CodeBlock[];
 
-	private functions: string[];
+	private functions: FunctionPY[];
+	private classes: ClassJV[];
 
 	constructor(private compilerService: CompilerService) {
 		this.code = [];
 		this.blocks = [];
 
 		this.functions = [];
+		this.classes = [];
 
 		this.setFunctions();
 	}
@@ -34,15 +38,15 @@ export class Parser {
 			// console.log(value);
 			this.code = value;
 
-			// this.parsePython();
+			this.parsePython();
 			this.parseJava();
-			// this.parseProgram();
+			this.parseProgram();
 
 			// this.blocks.forEach(block => console.log(block));
 
-			// this.compilerService.sendCodeBlocks(this.blocks)
-			// 	.then(console.log)
-			// 	.catch(console.log);
+			this.compilerService.sendCodeBlocks(this.blocks)
+				.then(console.log)
+				.catch(console.log);
 
 		} catch (error) {
 			console.error(error);
@@ -60,12 +64,14 @@ export class Parser {
 	parseJava() {
 		let java = new Java(this.compilerService, this.code[2], this.blocks);
 		java.parse();
+		this.classes = java.classes;
 	}
 
 	/* parser codigo con sintaxis c */
 	parseProgram() {
 		let program = new Program(this.compilerService, this.code[3], this.blocks);
 		program.functions = this.functions;
+		program.classes = this.classes;
 		program.parse();
 	}
 

@@ -66,6 +66,12 @@ export class For extends Instruction {
 			sm.errors.push(error);
 		}
 
+		if(cond?.type === OperationType.STRING) {
+			const desc = `En la instruccion 'for', la condicion no puede ser de tipo string`;
+			const error = new Error(this.line, this.column, cond?.value ? cond.value : "", TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+		}
+
 		// revisar asignacion o accion de incremento, decremento
 		this.assign.run(local, sm);
 

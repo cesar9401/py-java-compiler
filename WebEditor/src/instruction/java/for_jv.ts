@@ -130,6 +130,7 @@ export class ForJV extends Instruction {
 				qh.addQuad(new Quadruple("LABEL", "", "", lf));
 				break;
 
+			case OperationType.ID:
 			case OperationType.BOOL:
 				if(quad) {
 					const qd = new Quadruple(`IF_GREATER`, quad.result, "0", "");

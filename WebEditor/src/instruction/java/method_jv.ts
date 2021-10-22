@@ -40,6 +40,14 @@ export class MethodJV extends Instruction {
 		// table -> tabla de la clase
 
 		/* verificar si el metodo ya existe */
+		const functionId = this.getSignature();
+		if(sm.containMethod(functionId)) {
+			const desc = `En la clase ${this.clazz}, el metodo con la firma ${functionId}, ya ha sido definida.`;
+			const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+		} else {
+			sm.getMethods.push(functionId);
+		}
 
 		/* crear tabla local para el metodo */
 		sm.push(this.id);
@@ -62,5 +70,35 @@ export class MethodJV extends Instruction {
 		sm.pop(); // eliminar scope del metodo
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		/* tabla de simbolos local */
+		qh.push();
+
+		/* generar cuadruplas de instrucciones hijas */
+		for(const instruction of this.instructions) {
+			instruction.generate(qh);
+		}
+
+		/* eliminar tabla local */
+		qh.pop();
+	}
+
+	public getId(): string {
+		let functionId = `${this.clazz}_${this.type.toLowerCase()}_${this.id}`;
+		for(const param of this.params) {
+			functionId += `_${param.type.toLowerCase()}`;
+		}
+
+		return functionId;
+	}
+
+	public getSignature(): string {
+		let sign = `${this.id}(`;
+		for(let i = 0; i < this.params.length; i++) {
+			sign += this.params[i].type.toLowerCase();
+			sign += i !== this.params.length - 1 ? ',' : '';
+		}
+		sign += `)`;
+		return sign;
+	}
 }

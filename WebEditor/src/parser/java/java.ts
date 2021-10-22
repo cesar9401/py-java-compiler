@@ -33,11 +33,15 @@ export class Java {
 	private yy: any;
 	private blocks: CodeBlock[];
 
+	/* para almacenar las clases java */
+	classes: ClassJV[];
+
 	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
 		this.yy = java.yy;
 		this.blocks = blocks;
 
+		this.classes = [];
 		this.setFunctions();
 	}
 
@@ -48,23 +52,32 @@ export class Java {
 			console.log(value);
 
 			const sm = new SemanticHandler();
+			sm.setClasses = [];
+
 			const table= new SymbolTable(sm.peek());
 
 			for(const instruction of value) {
 				instruction.run(table, sm);
 			}
 
+			this.classes = sm.getClasses; // obtener las clases java
+
 			/* errores */
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				sm.getTables.forEach(t => console.log(t));
+				// sm.getTables.forEach(t => console.log(t));
 				// console.log(sm.getTables);
 				/* generar cuadruplos */
 				const qh = new QuadHandler(sm, this.blocks);
 				value.forEach(v => v.generate(qh));
 
-				qh.getQuads.forEach(q => console.log(q.toString()));
+				// qh.getQuads.forEach(q => console.log(q.toString()));
+
+				// /* enviar al servidor para verificar codigo */
+				// this.compilerService.postCompiler(qh.getQuads)
+				// 	.then(console.log)
+				// 	.catch(console.log);
 			}
 
 		} catch (error) {

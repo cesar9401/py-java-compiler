@@ -52,6 +52,7 @@ export class Operation extends Instruction{
 		// valores
 		if(this.variable) {
 			switch(this.type) {
+				case OperationType.STRING:
 				case OperationType.INT:
 				case OperationType.FLOAT:
 					return this.variable;
@@ -239,6 +240,8 @@ export class Operation extends Instruction{
 		if(this.variable) {
 			if(this.variable.value) {
 				switch(this.type) {
+					case OperationType.STRING:
+						return new Quadruple(this.type, "", "", this.variable.value, this.type);
 					case OperationType.CHAR:
 						return new Quadruple(this.type, "", "", `'${this.variable.value}'`, this.type);
 					case OperationType.INT:
@@ -336,6 +339,8 @@ export enum OperationType {
 	ID = "ID",
 	BOOL = "BOOLEAN",
 	VOID = "VOID",
+
+	CLAZZ = "CLASS", /* para una clase */
 
 	SUM = "PLUS",
 	SUB = "MINUS",

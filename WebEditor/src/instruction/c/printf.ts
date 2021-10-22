@@ -36,7 +36,11 @@ export class Printf extends Instruction {
 					const error = new Error(op.line, op.column, val?.id ? val.id : "printf", TypeE.SEMANTICO, desc);
 					sm.errors.push(error);
 					//return;
-				} else {
+				} else if(val.type === OperationType.STRING) {
+					const desc = `En la instruccion 'print', la variable a imprimir no puede ser de tipo string`;
+					const error = new Error(this.line, this.column, val?.value ? val.value : "", TypeE.SEMANTICO, desc);
+					sm.errors.push(error);
+				}else {
 					const fm = this.fmts[i];
 					if(val.type == OperationType.INT && fm !== "%d" || val.type === OperationType.FLOAT && fm !== "%f" || val.type === OperationType.CHAR && fm !== "%c") {
 						const desc = `Se encontro variable para imprimir de tipo '${val.type}', pero el formato ingresado: '${fm}' no corresponde al tipo variable.`;

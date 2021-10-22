@@ -26,6 +26,12 @@ export class IfInstruction extends Instruction {
 					const error = new Error(condition.line, condition.column, (val && val.id ? val.id : ""), TypeE.SEMANTICO, desc);
 					sm.errors.push(error);
 				}
+
+				if(val?.type === OperationType.STRING) {
+					const desc = `En la instruccion '${if_.type.toLowerCase()}', la condicion no puede ser de tipo string`;
+					const error = new Error(this.line, this.column, val?.value ? val.value : "", TypeE.SEMANTICO, desc);
+					sm.errors.push(error);
+				}
 			}
 
 			// tabla de simbolos local

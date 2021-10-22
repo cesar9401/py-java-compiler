@@ -239,7 +239,7 @@ body_opt
 		: const { $$ = [$1]; }
 		| statement { $$ = [...$1]; }
 		| assigment { $$ = [...$1]; }
-		| class_statement
+		| class_statement { $$ = [$1]; }
 		| main { $$ = [$1]; }
 		;
 /* programa */
@@ -262,8 +262,8 @@ include
 		;
 
 dir
-		: dir DOT ID
-		| ID
+		: dir DOT ID { $1.push($3); $$ = $1; }
+		| ID { $$ = [$1]; }
 		;
 /* includes */
 
@@ -281,7 +281,7 @@ main_body
 main_b
 		: statement { $$ = [...$1]; }
 		| assigment { $$ = [...$1]; }
-		| class_statement
+		| class_statement { $$ = [$1]; }
 		| list_if { $$ = [$1]; }
 		| while_ { $$ = [$1]; }
 		| do_while_ { $$ = [$1]; }
@@ -363,13 +363,17 @@ type
 
 /* class statement */
 class_statement
+		/* sin parametros */
 		: JAVA DOT ID list_id SEMI
+			{ $$ = new yy.CreateClass(this._$.first_line + yy.line, this._$.first_column, $3, $4, []); }
+		/* con parametros */
 		| JAVA DOT ID ID LPAREN param RPAREN SEMI
+			{ $$ = new yy.CreateClass(this._$.first_line + yy.line, this._$.first_column, $3, [$4], $6); }
 		;
 
 list_id
-		: list_id COMMA ID
-		| ID
+		: list_id COMMA ID { $1.push($3); $$ = $1; }
+		| ID { $$ = [$1]; }
 		;
 
 param
@@ -567,7 +571,7 @@ i
 		: INTEGER { const tmp = new yy.Variable(yy.OperationType.INT, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.INT, tmp); }
 		| DECIMAL { const tmp1 = new yy.Variable(yy.OperationType.FLOAT, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.FLOAT, tmp1); }
 		| CHAR { const tmp2 = new yy.Variable(yy.OperationType.CHAR, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.CHAR, tmp2); }
-		// | STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Value(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3); }
+		| STRING { const tmp3 = new yy.Variable(yy.OperationType.STRING, null, $1); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.STRING, tmp3); }
 		// | BOOL
 		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }

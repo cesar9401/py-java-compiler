@@ -61,5 +61,61 @@ export class SwitchJV extends Instruction {
 		}
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		/* evaluar operacion */
+		const op: Quadruple | undefined = this.operation.generate(qh);
+		if(op) {
+			/* etiqueta final */
+			const final = qh.getLabel();
+
+			const result = op.result;
+
+			/* generar label para if/tests */
+			const test = qh.getLabel();
+			qh.addQuad(new Quadruple("GOTO", "", "", test));
+
+			const labels: string[] = [];
+			for(const cs of this.cases) {
+				const lb = qh.getLabel();
+				labels.push(lb);
+				qh.addQuad(new Quadruple("LABEL", "", "", lb));
+
+				/* agregar tabla local para case aqui */
+				qh.push();
+
+				/* generar quads para instrucciones dentro de case */
+				for(const instruction of cs.instructions) {
+					instruction.generate(qh);
+				}
+
+				/* eliminar tabla de simbolos aqui */
+				qh.pop();
+
+				/* label para instruccion break aca */
+				qh.addLabelToBreaks(final);
+			}
+
+			/* goto etiqueta final */
+			qh.addQuad(new Quadruple("GOTO", "", "", final));
+
+			/* etiquetas para tests */
+			qh.addQuad(new Quadruple("LABEL", "", "", test));
+			for(const cs of this.cases) {
+				const goto = labels.length > 0 ? labels.shift() : final;
+				if(cs.operation) {
+					const qo: Quadruple | undefined = cs.operation.generate(qh);
+					if(qo) {
+						const ts = new Quadruple("IF_EQEQ", result, qo.result, goto ? goto : final);
+						qh.addQuad(ts);
+					}
+				} else {
+					const def = new Quadruple("GOTO", "", "", goto ? goto : final);
+					qh.addQuad(def);
+				}
+			}
+
+			/* etiqueta final */
+			qh.addQuad(new Quadruple("LABEL", "", "", final));
+		}
+	}
 }

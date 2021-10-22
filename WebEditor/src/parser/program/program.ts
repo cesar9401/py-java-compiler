@@ -19,11 +19,14 @@ import { Clear } from 'src/instruction/c/clear';
 import { Getch } from 'src/instruction/c/getch';
 import { Scanf } from 'src/instruction/c/scanf';
 import { FunctionCall } from 'src/instruction/c/function_call';
+import { CreateClass } from 'src/instruction/c/create_class';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
 import { CompilerService } from 'src/service/compiler.service';
 import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
+import { ClassJV } from 'src/instruction/java/class_jv';
+import { FunctionPY } from 'src/instruction/py/function_py';
 
 declare var program: any;
 
@@ -33,8 +36,10 @@ export class Program {
 	private blocks: CodeBlock[];
 
 	/* almacenar funciones py */
-	functions: string[];
+	functions: FunctionPY[];
 
+	/* almacenar las clases java */
+	classes: ClassJV[];
 
 	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
@@ -42,6 +47,7 @@ export class Program {
 		this.blocks = blocks;
 
 		this.functions = [];
+		this.classes = [];
 
 		this.setFunctions();
 	}
@@ -55,6 +61,10 @@ export class Program {
 			/* run */
 			const sm = new SemanticHandler();
 			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
+			sm.setClasses = this.classes; // setear las clases java
+
+			console.log(sm.getFunctions);
+			console.log(sm.getClasses);
 
 			sm.push("global");
 			const table = new SymbolTable(sm.peek());
@@ -67,21 +77,22 @@ export class Program {
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				console.log(sm.getTables); // tablas en consola
-				// /* generate */
-				// const qh = new QuadHandler(sm, this.blocks);
-				// qh.push();
-				// value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
-				// qh.pop();
+				// sm.getTables.forEach(table => console.log(table));
 
-				// qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
+				/* generate */
+				const qh = new QuadHandler(sm, this.blocks);
+				qh.push();
+				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
+				qh.pop();
+
+				qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
 
 				// // console.log("program");
 				// // qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
 
-				// // this.compilerService.postCompiler(qh.getQuads)
-				// // 	.then(console.log)
-				// // 	.catch(console.log);
+				// this.compilerService.postCompiler(qh.getQuads)
+				// 	.then(console.log)
+				// 	.catch(console.log);
 			}
 		} catch (error) {
 			console.error(error);
@@ -112,5 +123,6 @@ export class Program {
 		this.yy.Scanf = Scanf; // instruccion leer
 		this.yy.Main = Main; // Metodo principal
 		this.yy.FunctionCall = FunctionCall; // llamada de funciones
+		this.yy.CreateClass = CreateClass; // crear clases
 	}
 }

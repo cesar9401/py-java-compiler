@@ -29,5 +29,50 @@ export class PrintJV extends Instruction {
 		}
 	}
 
-	generate(qh: QuadHandler) {}
+	generate(qh: QuadHandler) {
+		for(const operation of this.operations) {
+			const quad: Quadruple | undefined = operation.generate(qh);
+			if(quad && quad.type) {
+				const fm = this.getFormat(quad.type);
+				if(quad.type === OperationType.BOOL) {
+					const lt = qh.getLabel();
+					const lf = qh.getLabel();
+					const f = qh.getLabel();
+					qh.addQuad(new Quadruple(`IF_GREATER`, quad.result, "0", lt));
+					qh.addQuad(new Quadruple('GOTO', "", "", lf));
+					qh.addQuad(new Quadruple("LABEL", "", "", lt));
+					qh.addQuad(new Quadruple("PRINTF", "%s", `"true"`, ""));
+					qh.addQuad(new Quadruple('GOTO', "", "", f));
+					qh.addQuad(new Quadruple("LABEL", "", "", lf));
+					qh.addQuad(new Quadruple("PRINTF", "%s", `"false"`, ""));
+					qh.addQuad(new Quadruple("LABEL", "", "", f));
+				} else {
+					qh.addQuad(new Quadruple("PRINTF", fm, quad.result, ""));
+				}
+
+				if(this.operations[this.operations.length - 1] !== operation) {
+					qh.addQuad(new Quadruple("PRINTF", "%c", "32", ""));
+				}
+			}
+		}
+
+		if(this.println) {
+			qh.addQuad(new Quadruple("PRINTF", "\\n", "", ""));
+		}
+	}
+
+	private getFormat(type: OperationType): string {
+		switch(type) {
+			case OperationType.INT:
+			case OperationType.BOOL:
+				return "%d";
+			case OperationType.FLOAT:
+				return "%f";
+			case OperationType.STRING:
+				return "%s";
+			case OperationType.CHAR:
+				return "%c";
+		}
+		return "";
+	}
 }

@@ -25,6 +25,12 @@ export class While extends Instruction {
 			sm.errors.push(error);
 		}
 
+		if(val?.type === OperationType.STRING) {
+			const desc = `En la instruccion 'while', la condicion no puede ser de tipo string`;
+			const error = new Error(this.line, this.column, val?.value ? val.value : "", TypeE.SEMANTICO, desc);
+			sm.errors.push(error);
+		}
+
 		sm.push('while'); // agregar scope while
 		const local = new SymbolTable(sm.peek(), table);
 		sm.pushTable(local);

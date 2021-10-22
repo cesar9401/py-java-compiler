@@ -23,11 +23,16 @@ char stack_c[1000];
 float stack_f[1000];
 char* stack_s[1000];
 
+/* heap */
+int heap[3000];
+
 int ptr = 0;
 int ptr_n = 0;
 int ptr_c = 0;
 int ptr_f = 0;
 int ptr_s = 0;
+
+int h = 0;
 
 void initTermios();
 void resetTermios();

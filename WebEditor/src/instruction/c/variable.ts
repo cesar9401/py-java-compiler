@@ -10,6 +10,7 @@ export class Variable {
 	isArray: boolean;
 	scope: string;
 	access: string;
+	clzz: string;
 
 	constructor(type: OperationType, id?: string, value?: string) {
 		this.type = type;
@@ -21,5 +22,6 @@ export class Variable {
 		this.access = 'public';
 		this.size = 1;
 		this.scope = "";
+		this.clzz = "";
 	}
 }

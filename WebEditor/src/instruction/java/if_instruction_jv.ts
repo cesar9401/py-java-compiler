@@ -89,6 +89,7 @@ export class IfInstructionJV extends Instruction {
 						qh.addQuad(new Quadruple("LABEL", "", "", lf));
 						break;
 
+					case OperationType.ID:
 					case OperationType.BOOL:
 						if(quad) {
 							/* crear condicion */

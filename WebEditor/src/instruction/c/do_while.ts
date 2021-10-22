@@ -22,6 +22,11 @@ export class DoWhile extends Instruction {
 		if(!val || !val.value) {
 			const desc = `En la instruccion 'do-while', la condicion no se puede procesar debido a que uno de los operandos no tiena valor definido o no ha sido declarado.`;
 			const error = new Error(this.line, this.column, val && val.id ? val.id : "", TypeE.SEMANTICO, desc);
+		}
+
+		if(val?.type === OperationType.STRING) {
+			const desc = `En la instruccion 'do-while', la condicion no puede ser de tipo string`;
+			const error = new Error(this.line, this.column, val?.value ? val.value : "", TypeE.SEMANTICO, desc);
 			sm.errors.push(error);
 		}
 

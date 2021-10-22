@@ -27,7 +27,7 @@ export class Python {
 	private blocks: CodeBlock[];
 
 	/* para almacenar las funciones python */
-	functions: string[];
+	functions: FunctionPY[];
 
 	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
 		this.source = source;
@@ -41,12 +41,12 @@ export class Python {
 
 	parse() {
 		try {
-			console.log(`PY`);
+			console.log("PY");
 			const value: Instruction[] = python.parse(this.source.code);
 			console.log(value);
 
 			const sm = new SemanticHandler();
-			sm.getFunctions;
+			//sm.getFunctions;
 
 			const table = new SymbolTable(sm.peek());
 			// sm.pushTable(table);
@@ -60,10 +60,10 @@ export class Python {
 			if(sm.errors.length > 0) {
 				sm.errors.forEach(e => console.log(e.toString()));
 			} else {
-				// // generar Cuadruplos
-				// // console.log(sm.getTables);
-				// const qh = new QuadHandler(sm, this.blocks);
-				// value.forEach(v => v.generate(qh));
+				// generar Cuadruplos
+				// console.log(sm.getTables);
+				const qh = new QuadHandler(sm, this.blocks);
+				value.forEach(v => v.generate(qh));
 
 				// // console.log("PY");
 				// // qh.getQuads.forEach(q => console.log(q.toString()));
