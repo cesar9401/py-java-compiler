@@ -575,6 +575,6 @@ i
 		// | BOOL
 		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }
-		| function_call
+		| function_call { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, $1); }
 		;
 /* operaciones logicas y aritmeticas */

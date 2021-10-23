@@ -22,6 +22,9 @@ export class QuadHandler {
 	private sm: SemanticHandler;
 	private blocks: CodeBlock[];
 
+	private quadReturn?: Quadruple;
+	private returns: Quadruple[];
+
 	constructor(sm: SemanticHandler, blocks: CodeBlock[]) {
 		this.sm = sm;
 		this.blocks = blocks;
@@ -35,6 +38,7 @@ export class QuadHandler {
 		this.breaks = [];
 		this.continues = [];
 		this.stack = [];
+		this.returns = [];
 	}
 
 	// obtener todos los quadruples
@@ -180,5 +184,29 @@ export class QuadHandler {
 
 	public cleanQuads() {
 		this.quads = [];
+	}
+
+	/* agregar y obtener quad para return */
+	public set setQuadReturn(quadReturn: Quadruple | undefined) {
+		this.quadReturn = quadReturn;
+	}
+
+	public get getQuadReturn(): Quadruple | undefined {
+		return this.quadReturn;
+	}
+
+	/* etiquetas goto para despues de returns */
+	public addReturns(quad: Quadruple) {
+		this.returns.push(quad);
+		this.quads.push(quad);
+	}
+
+	public addLabelToReturns(label: string) {
+		while(this.returns.length > 0) {
+			const tmp = this.returns.shift();
+			if(tmp) {
+				tmp.result = label;
+			}
+		}
 	}
 }

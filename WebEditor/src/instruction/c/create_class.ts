@@ -12,6 +12,8 @@ export class CreateClass extends Instruction {
 	ids: string[];
 	params: Operation[];
 
+	constructorId?: string;
+
 	constructor(line: number, column: number, clazz: string, ids: string[], params: Operation[]) {
 		super(line, column);
 		this.clazz = clazz;
@@ -32,7 +34,7 @@ export class CreateClass extends Instruction {
 			for(let i = 0; i < this.params.length; i++) {
 				const value = this.params[i].run(table, sm);
 				if(value) {
-					cons += value?.type.toLowerCase();
+					cons += value.type.toLowerCase();
 					cons += i !== this.params.length - 1 ? ',' : '';
 				} else {
 					e = true;
@@ -70,6 +72,9 @@ export class CreateClass extends Instruction {
 								const error = new Error(this.line, this.column, this.clazz, TypeE.SEMANTICO, desc);
 								sm.errors.push(error);
 							} else {
+								/* establecer constructorId */
+								this.constructorId = construct.getId();
+
 								const variable = new Variable(OperationType.CLAZZ, id, " ");
 								variable.clzz = this.clazz;
 								table.add(variable);
@@ -85,39 +90,74 @@ export class CreateClass extends Instruction {
 		}
 	}
 
+// JAVA.Persona p1, p2;
+// JAVA.Persona p1(params);
+
 	generate(qh: QuadHandler) {
 
 		const length = qh.peek().length;
-		let constructorId = `${this.clazz}_${this.clazz}`;
-		for(const param of this.params) {
-			const val = param.generate(qh);
-			constructorId += `_${val?.type?.toLowerCase()}`;
-		}
+		// let constructorId = `${this.clazz}_${this.clazz}`;
+		// for(const param of this.params) {
+		// 	const val = param.generate(qh);
+		// 	constructorId += `_${val?.type?.toLowerCase()}`;
+		// }
 
 		for(const id of this.ids) {
-			/* cambiar puntero hacia la pila del constructor */
-			qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), "ptr"));
+			if(this.constructorId !== undefined) {
+				/* preparar parametros */
+				if(this.params.length > 0) {
+					const tt1 = qh.getTmp();
+					qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), tt1, OperationType.INT));
+					for(let i = 0; i < this.params.length; i++) {
+						const j = i + 1;
+						const tt2 = qh.getTmp();
+						const val = this.params[i].generate(qh);
+						if(val && val.type) {
+							const stack = this.getNameStack(val.type);
+							qh.addQuad(new Quadruple("PLUS", tt1, j.toString(), tt2, OperationType.INT));
+							qh.addQuad(new Quadruple('ASSIGN', val.result, '', `${stack[0]}`));
+							qh.addQuad(new Quadruple('ASSIGN', stack[1], '', `stack[${tt2}]`));
+							qh.addQuad(new Quadruple('PLUS', stack[1], '1', stack[1]));
+						}
+					}
+				}
 
-			/* activacion del constructor */
-			qh.addQuad(new Quadruple("FUNCTION", "", "", constructorId));
+				/* cambiar puntero hacia la pila del constructor */
+				qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), "ptr"));
 
-			/* regresar puntero hacia donde fue llamado el constructor */
-			qh.addQuad(new Quadruple("MINUS", "ptr", length.toString(), "ptr"));
+				/* activacion del constructor */
+				qh.addQuad(new Quadruple("FUNCTION", "", "", this.constructorId));
 
-			/* recuperar la ubicacion de la instancia */
-			const t1 = qh.getTmp();
-			const t2 = qh.getTmp();
-			const t3 = qh.getTmp();
-			const value = qh.peek().getById(id);
-			if(value && value.pos !== undefined) {
-				qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), t1, OperationType.INT));
-				qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, '', t2, OperationType.INT));
-				qh.addQuad(new Quadruple("PLUS", "ptr", value.pos.toString(), t3, OperationType.INT));
-				qh.addQuad(new Quadruple("ASSIGN", t2, '', `stack[${t3}]`));
+				/* regresar puntero hacia donde fue llamado el constructor */
+				qh.addQuad(new Quadruple("MINUS", "ptr", length.toString(), "ptr"));
+
+				/* recuperar la ubicacion de la instancia */
+				const t1 = qh.getTmp();
+				const t2 = qh.getTmp();
+				const t3 = qh.getTmp();
+				const value = qh.peek().getById(id);
+				if(value && value.pos !== undefined) {
+					qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), t1, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, '', t2, OperationType.INT));
+					qh.addQuad(new Quadruple("PLUS", "ptr", value.pos.toString(), t3, OperationType.INT));
+					qh.addQuad(new Quadruple("ASSIGN", t2, '', `stack[${t3}]`));
+				}
 			}
 		}
 	}
-}
 
-// JAVA.Persona p1, p2;
-// JAVA.Persona p1(params);
+	private getNameStack(type: OperationType) {
+		switch(type) {
+			case OperationType.INT:
+			case OperationType.BOOL:
+			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
+			case OperationType.FLOAT:
+				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
+			case OperationType.STRING:
+				return [`stack_s[ptr_s]`, `ptr_s`, `stack_s`];
+			case OperationType.CHAR:
+				return [`stack_c[ptr_c]`, `ptr_c`, `stack_c`];
+		}
+		return [];
+	}
+}

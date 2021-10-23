@@ -9,6 +9,7 @@ import { OperationJV } from "./operation_jv";
 import { Error, TypeE } from 'src/control/error';
 import { OperationType } from "src/instruction/c/operation";
 import { ParamJV } from "./param_jv";
+import { CodeBlock } from "src/control/code_block";
 
 export class MethodJV extends Instruction {
 	access: string;
@@ -17,6 +18,7 @@ export class MethodJV extends Instruction {
 	params: ParamJV[];
 	instructions: Instruction[];
 	clazz?: string | undefined;
+	private length: number;
 
 	constructor(
 		line: number,
@@ -33,11 +35,14 @@ export class MethodJV extends Instruction {
 		this.id = id;
 		this.params = params;
 		this.instructions = instructions;
+
+		this.length = 0;
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-		this.clazz = sm.getClazz; // nombre de la clase actual
 		// table -> tabla de la clase
+		this.clazz = sm.getClazz; // nombre de la clase actual
+		sm.setType = this.type; // actualizar ti po actual
 
 		/* verificar si el metodo ya existe */
 		const functionId = this.getSignature();
@@ -68,11 +73,33 @@ export class MethodJV extends Instruction {
 		}
 
 		sm.pop(); // eliminar scope del metodo
+		sm.setType = undefined; /* eliminar el tipo actual */
+
+		/* revisar instrucciones return */
+		if(this.type !== OperationType.VOID) {
+			sm.checkReturn(this);
+			if(!local.contains('return')) {
+				local.add(new Variable(this.type, 'return', ' '));
+			}
+		}
+		this.length = local.length;
 	}
 
 	generate(qh: QuadHandler) {
 		/* tabla de simbolos local */
 		qh.push();
+
+		/* calcular posicion de return */
+		if(this.type !== OperationType.VOID) {
+			const t1 = qh.getTmp();
+			const variable = qh.peek().getById('return');
+			if(variable && variable.pos !== undefined) {
+				const quad = new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT);
+				qh.addQuad(quad)
+				/* agregar quad para return */
+				qh.setQuadReturn = quad;
+			}
+		}
 
 		/* generar cuadruplas de instrucciones hijas */
 		for(const instruction of this.instructions) {
@@ -81,6 +108,22 @@ export class MethodJV extends Instruction {
 
 		/* eliminar tabla local */
 		qh.pop();
+
+		/* eliminar quad para return */
+		if(this.type !== OperationType.VOID) {
+			/* eliminar quad para return */
+			qh.setQuadReturn = undefined;
+			/* agregar etiqueta final */
+			const final = qh.getLabel();
+			qh.addQuad(new Quadruple("LABEL", "", "", final));
+			qh.addLabelToReturns(final);
+		}
+
+		/* crear nuevo bloque de codigo */
+		// console.log(this.getId());
+		// console.log(qh.getQuads)
+		qh.addCodeBlock(new CodeBlock(this.getId(), qh.getQuads));
+		qh.cleanQuads();
 	}
 
 	public getId(): string {
@@ -100,5 +143,9 @@ export class MethodJV extends Instruction {
 		}
 		sign += `)`;
 		return sign;
+	}
+
+	public get getLength() {
+		return this.length;
 	}
 }

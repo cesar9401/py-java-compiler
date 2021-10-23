@@ -197,10 +197,10 @@ case 58:
  this.$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$$[$0-1], $$[$0]]); 
 break;
 case 59:
- this.$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$$[$0-1], ...$$[$0]]); 
+ this.$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$$[$0-1], ...$$[$0]]); 
 break;
 case 60:
- this.$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$$[$0-2], ...$$[$0-1], $$[$0]]); 
+ this.$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$$[$0-2], ...$$[$0-1], $$[$0]]); 
 break;
 case 61:
  this.$ = new yy.IfJV(this._$.first_line + yy.line, this._$.first_column, "if", $$[$0-1], $$[$0-4]); 

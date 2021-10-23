@@ -222,7 +222,7 @@ void __concat__() {
     int t7 = strlen(t3);
     int t8 = strlen(t6);
     int t9 = t7 + t8;
-    char* t10 = malloc(sizeof(char) * t9);
+    char* t10 = malloc(sizeof(char) * t9 + 1);
 
     strcpy(t10, t3); // copy t3 on t10
     strcat(t10, t6); // concat t6 at end of t10

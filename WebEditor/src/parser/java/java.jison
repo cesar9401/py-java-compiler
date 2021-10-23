@@ -382,8 +382,8 @@ func_body
 list_if
 		: if_ { $$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$1]); }
 		| if_ else_ { $$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$1, $2]); }
-		| if_ list_else_if { $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2]); }
-		| if_ list_else_if else_ { $$ = new yy.IfInstruction(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2, $3]); }
+		| if_ list_else_if { $$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2]); }
+		| if_ list_else_if else_ { $$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$1, ...$2, $3]); }
 		;
 
 if_

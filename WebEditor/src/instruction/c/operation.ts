@@ -5,6 +5,7 @@ import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
 import { Error, TypeE } from "src/control/error";
+import { FunctionCall } from "src/instruction/c/function_call";
 
 export class Operation extends Instruction{
 	type: OperationType;
@@ -12,19 +13,26 @@ export class Operation extends Instruction{
 	right?: Operation;
 	variable?: Variable;
 
+	function_call?: FunctionCall;
+
 	public constructor(line: number, column: number, type: OperationType, variable: Variable);
 	public constructor(line: number, column: number, type: OperationType, left: Operation, right?: Operation);
+	public constructor(line: number, column: number, function_call: FunctionCall);
 
 	public constructor(...args: Array<any>) {
 		if(args.length === 4) {
 			super(args[0], args[1]);
 			this.type = args[2];
 			this.variable = args[3];
-		} else {
+		} else if(args.length === 5) {
 			super(args[0], args[1]);
 			this.type = args[2];
 			this.left = args[3];
 			this.right = args[4];
+		} else {
+			super(args[0], args[1]);
+			this.function_call = args[2];
+			this.type = OperationType.FUNCTION;
 		}
 	}
 
@@ -95,6 +103,22 @@ export class Operation extends Instruction{
 						}
 					}
 			}
+		}
+
+		/* funcion */
+		if(this.function_call) {
+			const value: Variable | undefined = this.function_call.run(table, sm);
+			if(!value) {
+				if(!this.function_call.getMethod) {
+					return;
+				}
+
+				const desc = `La funcion que intenta invocar: '${this.function_call.id}', no devuelve ningun tipo de valor(funcion de tipo void).`;
+				const error = new Error(this.function_call.line, this.function_call.column, this.function_call.id, TypeE.SEMANTICO, desc);;
+				sm.errors.push(error);
+				return;
+			}
+			return value;
 		}
 
 		return undefined;
@@ -241,7 +265,7 @@ export class Operation extends Instruction{
 			if(this.variable.value) {
 				switch(this.type) {
 					case OperationType.STRING:
-						return new Quadruple(this.type, "", "", this.variable.value, this.type);
+						return new Quadruple(this.type, "", "", `"${this.variable.value}"`, this.type);
 					case OperationType.CHAR:
 						return new Quadruple(this.type, "", "", `'${this.variable.value}'`, this.type);
 					case OperationType.INT:
@@ -273,6 +297,10 @@ export class Operation extends Instruction{
 					return dest;
 				}
 			}
+		}
+
+		if(this.function_call) {
+			return this.function_call.generate(qh);
 		}
 
 		return undefined;
@@ -341,6 +369,7 @@ export enum OperationType {
 	VOID = "VOID",
 
 	CLAZZ = "CLASS", /* para una clase */
+	FUNCTION = "FUNCTION", /* para una función */
 
 	SUM = "PLUS",
 	SUB = "MINUS",
