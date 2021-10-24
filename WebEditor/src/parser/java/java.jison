@@ -374,7 +374,7 @@ func_body
 		| continue_ { $$ = [$1]; }
 		| return_ { $$ = [$1]; }
 		| super_
-		| function_call SEMI
+		| function_call SEMI { $$ = [$1]; }
 		;
 /* function body */
 
@@ -497,14 +497,15 @@ super_
 		;
 
 args_
-		: list_op
-		|
+		: list_op { $$ = $1; }
+		| { $$ = []; }
 		;
 /* extends */
 
 /* function call */
 function_call
 		: ID LPAREN args_ RPAREN
+			{ $$ = new yy.FunctionCallJV(this._$.first_line + yy.line, this._$.first_column, $1, $3); }
 		| THIS DOT ID LPAREN args_ RPAREN
 		| SUPER DOT ID LPAREN args_ RPAREN
 		;
@@ -569,6 +570,6 @@ i
 		| LPAREN a RPAREN { $$ = $2; }
 		| THIS DOT ID { const tmp7 = new yy.Variable(yy.OperationType.ID, $3, null); $$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp7); $$.ths = true; }
 		| SUPER DOT ID // herencia
-		| function_call //  llamada de funciones
+		| function_call { $$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, $1); }//  llamada de funciones
 		;
 /* operaciones logicas y aritmeticas */

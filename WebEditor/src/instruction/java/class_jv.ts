@@ -32,7 +32,7 @@ export class ClassJV extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {
 		/* clase actual */
-		sm.setClazz = this.id;
+		sm.setClazz = this;
 		/* verificar que la clase no exista */
 		const tmp = sm.getClass(this.id);
 		if(tmp) {

@@ -59,6 +59,12 @@ export class Scanf extends Instruction {
 	generate(qh: QuadHandler) {
 		const variable = qh.peek().getById(this.id);
 		if(variable && variable.pos !== undefined) {
+			/* mensaje que acompaña el formato */
+			const msg = this.format.replace(this.fmt[0], "");
+			if(msg) {
+				qh.addQuad(new Quadruple("PRINTF", msg, '', ''));
+			}
+
 			const val = qh.getTmp();
 			qh.addQuad(new Quadruple("SCANF", this.fmt[0], '', val, variable.type));
 

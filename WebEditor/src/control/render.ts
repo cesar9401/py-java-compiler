@@ -17,6 +17,7 @@ export class Render {
 	// pckg: object;
 	// leaf: object;
 	current?: File;
+	currentNode?: typeof TreeNode;
 
 	constructor(private compilerServie: CompilerService, code: any, projects: Project[]) {
 		// this.root = root;
@@ -25,9 +26,6 @@ export class Render {
 
 		this.code = code; // editor de codigo
 		this.projects = projects;
-		// this.parent = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'project' };
-		// this.pckg = {icon: '<span>&#128449;</span>', allowsChildren: true, forceParent: true, type: 'package' };
-		// this.leaf = {icon: '<span>&#128441;</span>', allowsChildren: false, forceParent: false, type: 'file' };
 	}
 
 	/* renderizar proyectos */
@@ -47,6 +45,7 @@ export class Render {
 				/* agruegar evento para mostrar codigo */
 				p.on('click', (event: any, node: any) => {
 					this.current = f;
+					this.currentNode = node;
 					this.code.setValue(f.code);
 				});
 
@@ -75,6 +74,7 @@ export class Render {
 			/* agruegar evento para mostrar codigo */
 			file.on('click', (event: any, node: any) => {
 				this.current = f;
+				this.currentNode = node;
 				this.code.setValue(f.code);
 			});
 
@@ -183,6 +183,20 @@ export class Render {
 		}
 
 		return result;
+	}
+
+	public get getProject(): Project | undefined {
+		if(this.currentNode) {
+			let aux = this.currentNode;
+			while(aux.getOptions().type !== 'project') {
+				aux = aux.parent;
+			}
+
+			const project: Project = aux.getOptions().file;
+			return project;
+		}
+
+		return;
 	}
 
 	delete() {

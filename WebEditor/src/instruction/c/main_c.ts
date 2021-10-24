@@ -23,6 +23,9 @@ export class Main extends Instruction {
 		}
 
 		sm.pop(); // eliminar scope main
+
+		/* revisar instrucciones break y continue */
+		sm.checkAstProgram(this.instructions, true, true);
 	}
 
 	generate(qh: QuadHandler) {

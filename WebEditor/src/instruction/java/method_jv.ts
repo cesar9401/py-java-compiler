@@ -41,7 +41,7 @@ export class MethodJV extends Instruction {
 
 	run(table: SymbolTable, sm: SemanticHandler) {
 		// table -> tabla de la clase
-		this.clazz = sm.getClazz; // nombre de la clase actual
+		this.clazz = sm.getClazz?.id; // nombre de la clase actual
 		sm.setType = this.type; // actualizar ti po actual
 
 		/* verificar si el metodo ya existe */
@@ -75,12 +75,17 @@ export class MethodJV extends Instruction {
 		sm.pop(); // eliminar scope del metodo
 		sm.setType = undefined; /* eliminar el tipo actual */
 
-		/* revisar instrucciones return */
 		if(this.type !== OperationType.VOID) {
-			sm.checkReturn(this);
+			/* revisar returns */
+			sm.checkReturnJV(this);
+			/* revisar breaks y continues */
+			sm.checkAstJV(this.instructions, true, true, false);
 			if(!local.contains('return')) {
 				local.add(new Variable(this.type, 'return', ' '));
 			}
+		} else {
+			/* revisar breaks, continues y returns */
+			sm.checkAstJV(this.instructions, true, true, true);
 		}
 		this.length = local.length;
 	}

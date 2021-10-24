@@ -107,8 +107,7 @@ export class FunctionCall extends Instruction {
 						this.java = method;
 						/* retornar variable con tipo del metodo */
 						if(method.type !== OperationType.VOID) {
-							const variable = new Variable(this.java.type, "", " ");
-							return variable;
+							return new Variable(this.java.type, "", " ");
 						}
 					}
 				}
@@ -168,13 +167,13 @@ export class FunctionCall extends Instruction {
 					}
 				}
 
-				/* cambiar puntero hacia la pila del constructor */
+				/* cambiar puntero hacia la pila de la funcion */
 				qh.addQuad(new Quadruple("PLUS", "ptr", length.toString(), "ptr"));
 
-				/* activacion del constructor */
+				/* activacion de la function */
 				qh.addQuad(new Quadruple("FUNCTION", "", "", functionId));
 
-				/* regresar puntero hacia donde fue llamado el constructor */
+				/* regresar puntero hacia donde fue llamada la funcion */
 				qh.addQuad(new Quadruple("MINUS", "ptr", length.toString(), "ptr"));
 
 				/* obtener valor de return */

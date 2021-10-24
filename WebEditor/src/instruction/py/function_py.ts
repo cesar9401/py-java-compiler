@@ -42,6 +42,9 @@ export class FunctionPY extends Instruction {
 		const local = new SymbolTable(sm.peek(), table);
 		sm.pushTable(local);
 
+		/* verificar return */
+		// const return_ = sm.checkIfIsThereReturnPY(this.instructions, true, true);
+
 		for(const ins of this.instructions) {
 			ins.run(local, sm);
 		}

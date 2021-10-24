@@ -86,13 +86,13 @@ switch (yystate) {
 case 1:
  return $$[$0-1]; 
 break;
-case 2: case 14: case 32: case 33: case 34: case 71: case 93: case 95: case 102: case 105: case 109: case 111: case 113: case 115:
+case 2: case 14: case 32: case 33: case 34: case 71: case 87: case 93: case 95: case 102: case 105: case 109: case 111: case 113: case 115:
  this.$ = $$[$0]; 
 break;
 case 3: case 63: case 75:
  $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
 break;
-case 4: case 8: case 15: case 43: case 74:
+case 4: case 8: case 15: case 43: case 74: case 88:
  this.$ = []; 
 break;
 case 5:
@@ -190,6 +190,9 @@ break;
 case 40:
  this.$ = new yy.AssignmentJV(this._$.first_line + yy.line, this._$.first_column, true, $$[$0-2], $$[$0]); 
 break;
+case 56:
+ this.$ = [$$[$0-1]]; 
+break;
 case 57:
  this.$ = new yy.IfInstructionJV(this._$.first_line + yy.line, this._$.first_column, [$$[$0]]); 
 break;
@@ -252,6 +255,9 @@ case 84:
 break;
 case 85:
  this.$ = new yy.ReturnJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-1]); 
+break;
+case 89:
+ this.$ = new yy.FunctionCallJV(this._$.first_line + yy.line, this._$.first_column, $$[$0-3], $$[$0-1]); 
 break;
 case 92:
  this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.OR, $$[$0-2], $$[$0]); 
@@ -321,6 +327,9 @@ case 121:
 break;
 case 123:
  const tmp7 = new yy.Variable(yy.OperationType.ID, $$[$0], null); this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp7); this.$.ths = true; 
+break;
+case 125:
+ this.$ = new yy.OperationJV(this._$.first_line + yy.line, this._$.first_column, $$[$0]); 
 break;
 }
 },

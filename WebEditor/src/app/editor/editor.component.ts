@@ -62,10 +62,18 @@ export class EditorComponent implements OnInit {
 	}
 
 	getSource(): void {
-		let input:string = this.code.getValue();
-		// se crea el parser
-		const parser = new Parser(this.compilerService);
-		parser.setInput(input);
+		/* obtener proyecto */
+		if(this.render) {
+			/* enviar cambios? */
+
+			const project: Project | undefined = this.render.getProject;
+			const current = this.render.current;
+			if(project && current) {
+				const parser = new Parser(this.compilerService, current, project);
+				parser.getSources();
+				// let input:string = this.code.getValue();
+			}
+		}
 	}
 
 	addProject(name: string) {

@@ -227,7 +227,7 @@ initial
 /* programa */
 program
 		: PROGRAM includes body
-			{ $$ = $3; }
+			{ $$ = [...$2, ...$3]; }
 		;
 
 body
@@ -246,19 +246,25 @@ body_opt
 
 /* includes */
 includes
-		: includes include
-		|
+		: includes include { $1.push($2); $$ = $1; }
+		| { $$ = []; }
 		;
 
 include
-		: NUMERAL INCLUDE PY DOT TIMES SEMI
-		| NUMERAL INCLUDE JAVA DOT TIMES SEMI
+		: NUMERAL INCLUDE PY DOT TIMES SEMI /* todas las funciones en el archivo */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, [], true); }
+		| NUMERAL INCLUDE JAVA DOT TIMES SEMI /* todas las clases en el archivo */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, [], true); }
 		// JAVA
-		| NUMERAL INCLUDE JAVA DOT dir SEMI
-		| NUMERAL INCLUDE JAVA DOT dir DOT TIMES SEMI
+		| NUMERAL INCLUDE JAVA DOT dir SEMI /* clases java en file en dir */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, $5, false); }
+		| NUMERAL INCLUDE JAVA DOT dir DOT TIMES SEMI /* todas las clases java de los ficheros en dir */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, $5, true); }
 		// PY
-		| NUMERAL INCLUDE PY DOT dir SEMI
-		| NUMERAL INCLUDE PY DOT dir DOT TIMES SEMI
+		| NUMERAL INCLUDE PY DOT dir SEMI /* funciones py en ficher dir */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, $5, false); }
+		| NUMERAL INCLUDE PY DOT dir DOT TIMES SEMI /* todas las funciones de todos los ficheros en dir */
+			{ $$ = new yy.Include(this._$.first_line + yy.line, this._$.first_column, $3, $5, true); }
 		;
 
 dir
@@ -291,7 +297,7 @@ main_b
 		| switch_ { $$ = [$1]; }
 		| function_call SEMI { $$ = [$1]; }
 		| clear_ { $$ = [$1]; }
-		| getch_ { $$ = [$1]; }
+		| getch_ SEMI { $$ = [$1]; }
 		| printf_ { $$ = [$1]; }
 		| scanf_ { $$ = [$1]; }
 		// | error SEMI
@@ -496,7 +502,7 @@ params
 		;
 
 getch_
-		: GETCH LPAREN RPAREN SEMI
+		: GETCH LPAREN RPAREN
 			{ $$ = new yy.Getch(this._$.first_line + yy.line, this._$.first_column, $1); }
 		;
 
@@ -576,5 +582,6 @@ i
 		| ID { const tmp4 = new yy.Variable(yy.OperationType.ID, $1, null); $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, yy.OperationType.ID, tmp4); }
 		| LPAREN a RPAREN { $$ = $2; }
 		| function_call { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, $1); }
+		| getch_
 		;
 /* operaciones logicas y aritmeticas */

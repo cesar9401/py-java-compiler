@@ -34,7 +34,7 @@ export class ConstructorJV extends Instruction {
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
-		this.clazz = sm.getClazz; // nombre de la clase actual
+		this.clazz = sm.getClazz?.id; // nombre de la clase actual
 		// table -> tabla de la clase
 
 		/* verificar que el constructor tenga el mismo nombre de la clase */
@@ -73,6 +73,9 @@ export class ConstructorJV extends Instruction {
 		}
 
 		sm.pop(); // eliminar scope del constructor
+
+		/* revisar instrucciones break, continue y return */
+		sm.checkAstJV(this.instructions, true, true, true);
 	}
 
 	generate(qh: QuadHandler) {

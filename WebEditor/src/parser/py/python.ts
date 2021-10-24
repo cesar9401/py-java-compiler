@@ -18,24 +18,22 @@ import { Continue } from 'src/instruction/c/continue';
 import { ReturnPY } from 'src/instruction/py/return_py';
 import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
+import { Error, TypeE } from 'src/control/error';
+import { AbsParser } from "../abs_parser";
 
 declare var python: any;
 
-export class Python {
-	private source: Code;
+export class Python extends AbsParser{
 	private yy: any;
-	private blocks: CodeBlock[];
-
 	/* para almacenar las funciones python */
 	functions: FunctionPY[];
+	private sm: SemanticHandler;
 
-	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
-		this.source = source;
+	constructor(source: Code, blocks: CodeBlock[], errors: Error[]) {
+		super(source, blocks, errors);
 		this.yy = python.yy;
-		this.blocks = blocks;
-
+		this.sm = new SemanticHandler();
 		this.functions = [];
-
 		this.setFunctions();
 	}
 
@@ -45,25 +43,24 @@ export class Python {
 			const value: Instruction[] = python.parse(this.source.code);
 			console.log(value);
 
-			const sm = new SemanticHandler();
-			//sm.getFunctions;
-
-			const table = new SymbolTable(sm.peek());
+			//const sm = new SemanticHandler();
+			this.sm.setFunctions = [];
+			const table = new SymbolTable(this.sm.peek());
 			// sm.pushTable(table);
 
 			for(const ins of value) {
-				ins.run(table, sm);
+				ins.run(table, this.sm);
 			}
 
-			this.functions = sm.getFunctions; // devolver funciones python
+			this.functions = this.sm.getFunctions; // devolver funciones python
 
-			if(sm.errors.length > 0) {
-				sm.errors.forEach(e => console.log(e.toString()));
-			} else {
+			// if(sm.errors.length > 0) {
+			// 	sm.errors.forEach(e => console.log(e.toString()));
+			// } else {
 				// generar Cuadruplos
 				// console.log(sm.getTables);
-				const qh = new QuadHandler(sm, this.blocks);
-				value.forEach(v => v.generate(qh));
+				// const qh = new QuadHandler(sm, this.blocks);
+				// value.forEach(v => v.generate(qh));
 
 				// // console.log("PY");
 				// // qh.getQuads.forEach(q => console.log(q.toString()));
@@ -71,7 +68,7 @@ export class Python {
 				// // this.compilerService.postCompiler(qh.getQuads)
 				// // 	.then(console.log)
 				// // 	.catch(console.log);
-			}
+			// }
 
 		} catch (error) {
 			console.error(error);

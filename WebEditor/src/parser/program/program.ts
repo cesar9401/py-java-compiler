@@ -27,6 +27,7 @@ import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
 import { ClassJV } from 'src/instruction/java/class_jv';
 import { FunctionPY } from 'src/instruction/py/function_py';
+import { Include } from 'src/instruction/c/include';
 
 declare var program: any;
 
@@ -63,8 +64,8 @@ export class Program {
 			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
 			sm.setClasses = this.classes; // setear las clases java
 
-			console.log(sm.getFunctions);
-			console.log(sm.getClasses);
+			// console.log(sm.getFunctions);
+			// console.log(sm.getClasses);
 
 			sm.push("global");
 			const table = new SymbolTable(sm.peek());
@@ -99,6 +100,23 @@ export class Program {
 		}
 	}
 
+	getIncludes(): Include[] {
+		try {
+			const includes: Include[] = [];
+			const value: Instruction[] = program.parse(this.source.code);
+			for(const instruction of value) {
+				if(instruction instanceof Include) {
+					includes.push(instruction);
+				}
+			}
+			return includes;
+
+		}catch(error) {
+			console.error(error);
+			return [];
+		}
+	}
+
 	setFunctions() {
 		this.yy.line = this.source.first_line - 1;
 
@@ -124,5 +142,6 @@ export class Program {
 		this.yy.Main = Main; // Metodo principal
 		this.yy.FunctionCall = FunctionCall; // llamada de funciones
 		this.yy.CreateClass = CreateClass; // crear clases
+		this.yy.Include = Include; // incluir otros archivos
 	}
 }

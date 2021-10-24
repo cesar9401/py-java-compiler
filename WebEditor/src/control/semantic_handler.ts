@@ -14,6 +14,15 @@ import { SwitchJV } from "src/instruction/java/switch_jv";
 import { ReturnJV } from "src/instruction/java/return_jv";
 import { Continue } from "src/instruction/c/continue";
 import { Break } from "src/instruction/c/break";
+import { For } from "src/instruction/c/for";
+import { While } from "src/instruction/c/while";
+import { DoWhile } from "src/instruction/c/do_while";
+import { IfInstruction } from "src/instruction/c/if_instruction";
+import { Switch } from "src/instruction/c/switch";
+import { ForPY } from "src/instruction/py/for_py";
+import { WhilePY } from "src/instruction/py/while_py";
+import { IfInstructionPY } from "src/instruction/py/if_instruction_py";
+import { ReturnPY } from "src/instruction/py/return_py";
 
 export class SemanticHandler {
 	op: OperationCheck;
@@ -26,7 +35,7 @@ export class SemanticHandler {
 
 	/* para codigo java */
 	private classTable?: SymbolTable;
-	private clazz?: string;
+	private clazz?: ClassJV;
 	private methods: string[];
 	private type?: OperationType;
 
@@ -97,12 +106,12 @@ export class SemanticHandler {
 	}
 
 	/* obtener nombre de la clase actual */
-	public get getClazz(): string | undefined {
+	public get getClazz(): ClassJV | undefined {
 		return this.clazz;
 	}
 
 	/* setear nombre de la clase actual */
-	public set setClazz(clazz: string | undefined) {
+	public set setClazz(clazz: ClassJV | undefined) {
 		this.clazz = clazz;
 	}
 
@@ -144,23 +153,23 @@ export class SemanticHandler {
 		this.type = type;
 	}
 
-	/* revisar instruccion return en funciones con retorno */
-	public checkReturn(instruction: Instruction) {
+	/* revisar instruccion return en funciones con retorno JV*/
+	public checkReturnJV(instruction: Instruction) {
 		if(instruction instanceof MethodJV) {
 			/* instrucciones hijas */
 			const inst = instruction.instructions;
-			const value = this.checkReturnInAst(inst, true, true);
+			const value = this.checkReturnInAstJV(inst, true, true);
 			/* no tiene return */
 			if(!value) {
 				const desc = `El metodo con firma '${instruction.getSignature()}', de tipo '${instruction.type}' no posee declaracion de retorno(return).`;
-				const error = new Error(instruction.line, instruction.column, instruction.id, TypeE.SEMANTICO, desc);
+				const error = new Error(instruction.line, instruction.column, instruction.id, TypeE.SINTACTICO, desc);
 				this.errors.push(error);
 			}
 		}
 	}
 
-	/* revisar instruccion return en funciones con retorno */
-	public checkReturnInAst(instructions: Instruction[], ignoreContinue: boolean, ignoreBreak: boolean): boolean {
+	/* revisar instruccion return en funciones con retorno JV */
+	public checkReturnInAstJV(instructions: Instruction[], ignoreContinue: boolean, ignoreBreak: boolean): boolean {
 		for(let i = 0; i < instructions.length; i++) {
 			const current = instructions[i];
 			if(current instanceof IfInstructionJV) {
@@ -171,7 +180,7 @@ export class SemanticHandler {
 				/* revisar if_jv */
 				for(let j = 0; j < len; j++) {
 					const tmp = aux.instructions[j].instructions;
-					let val = this.checkReturnInAst(tmp, ignoreContinue, ignoreBreak);
+					let val = this.checkReturnInAstJV(tmp, ignoreContinue, ignoreBreak);
 					value = value && val;
 				}
 
@@ -179,7 +188,7 @@ export class SemanticHandler {
 					/* instrucciones despues de return no se ejecutan */
 					for(let j = i + 1; j < instructions.length; j++) {
 						const desc = `La instruccion en la linea ${instructions[j].line}, no puede ser ejecutada por tener una instruccion return antes.`;
-						const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SEMANTICO, desc);
+						const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SINTACTICO, desc);
 						this.errors.push(error);
 					}
 					return true;
@@ -188,12 +197,12 @@ export class SemanticHandler {
 
 			if(current instanceof DoWhileJV) {
 				const tmp = current.instructions;
-				const value = this.checkReturnInAst(tmp, false, false);
+				const value = this.checkReturnInAstJV(tmp, false, false);
 				if(value) {
 					/* instrucciones despues de return no se ejecutan */
 					for(let j = i + 1; j < instructions.length; j++) {
 						const desc = `La instruccion en la linea ${instructions[j].line}, no puede ser ejecutada por tener una instruccion return antes.`;
-						const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SEMANTICO, desc);
+						const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SINTACTICO, desc);
 						this.errors.push(error);
 					}
 					return true;
@@ -201,24 +210,24 @@ export class SemanticHandler {
 			}
 
 			if(current instanceof ForJV) {
-				this.checkReturnInAst(current.instructions, false, false);
+				this.checkReturnInAstJV(current.instructions, false, false);
 			}
 
 			if(current instanceof WhileJV) {
-				this.checkReturnInAst(current.instructions, false, false);
+				this.checkReturnInAstJV(current.instructions, false, false);
 			}
 
 			if(current instanceof SwitchJV) {
 				const cases = current.cases;
 				for(const c of cases) {
-					this.checkReturnInAst(c.instructions, true, false);
+					this.checkReturnInAstJV(c.instructions, true, false);
 				}
 			}
 
 			if(current instanceof ReturnJV) {
 				for(let j = i + 1; j < instructions.length; j++) {
 					const desc = `La instruccion en la linea ${instructions[j].line}, no puede ser ejecutada por tener una instruccion return antes.`;
-					const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SEMANTICO, desc);
+					const error = new Error(instructions[j].line, instructions[j].column, "", TypeE.SINTACTICO, desc);
 					this.errors.push(error);
 				}
 				return true;
@@ -236,43 +245,168 @@ export class SemanticHandler {
 		return false;
 	}
 
-	/* revisar instrucciones break, continue y return donde no van */
-	public checkAst(instructions: Instruction[], break_: boolean, continue_: boolean, return_: boolean) {
+	/* revisar instrucciones break, continue y return donde no van JV */
+	public checkAstJV(instructions: Instruction[], break_: boolean, continue_: boolean, return_: boolean) {
 		for(const inst of instructions) {
 			if(inst instanceof ForJV) {
-				this.checkAst(inst.instructions, false, false, return_);
+				this.checkAstJV(inst.instructions, false, false, return_);
 			}
 
 			if(inst instanceof WhileJV) {
-				this.checkAst(inst.instructions, false, false, return_);
+				this.checkAstJV(inst.instructions, false, false, return_);
 			}
 
 			if(inst instanceof DoWhileJV) {
-				this.checkAst(inst.instructions, false, false, return_);
+				this.checkAstJV(inst.instructions, false, false, return_);
 			}
 
 			if(inst instanceof IfInstructionJV) {
 				for(const if_ of inst.instructions) {
-					this.checkAst(if_.instructions, break_, continue_, return_);
+					this.checkAstJV(if_.instructions, break_, continue_, return_);
 				}
 			}
 
 			if(inst instanceof SwitchJV) {
 				for(const c of inst.cases) {
-					this.checkAst(c.instructions, false, true, return_);
+					this.checkAstJV(c.instructions, false, true, return_);
 				}
 			}
 
 			if(inst instanceof Break && break_) {
-
+				const desc = `La instruccion 'break' unicamente debe incluirse dentro de ciclos o dentro de una instruccion 'switch'.`;
+				const error = new Error(inst.line, inst.column, 'break', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
 			}
 
 			if(inst instanceof Continue && continue_) {
-
+				const desc = `La instruccion 'continue' unicamente debe incluirse dentro de ciclos.`;
+				const error = new Error(inst.line, inst.column, 'continue', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
 			}
 
 			if(inst instanceof ReturnJV && return_) {
+				const desc = `La instruccion 'return' unicamente debe incluirse dentro de metodos que tengan un tipo de retorno.`;
+				const error = new Error(inst.line, inst.column, 'return', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
+			}
+		}
+	}
 
+	/* revisar instrucciones break, continue y return donde no van en lenguaje con sintaxis c */
+	public checkAstProgram(instruccions: Instruction[], break_: boolean, continue_: boolean) {
+		for(const inst of instruccions) {
+			if(inst instanceof For) {
+				this.checkAstProgram(inst.instructions, false, false);
+			}
+
+			if(inst instanceof While) {
+				this.checkAstProgram(inst.instructions, false, false);
+			}
+
+			if(inst instanceof DoWhile) {
+				this.checkAstProgram(inst.instructions, false, false);
+			}
+
+			if(inst instanceof IfInstruction) {
+				for(const if_ of inst.instructions)
+				this.checkAstProgram(if_.instructions, break_, continue_);
+			}
+
+			if(inst instanceof Switch) {
+				for(const c of inst.cases) {
+					this.checkAstProgram(c.instructions, false, true);
+				}
+			}
+
+			if(inst instanceof Break && break_) {
+				const desc = `La instruccion 'break' unicamente debe incluirse dentro de ciclos o dentro de una instruccion 'switch'.`;
+				const error = new Error(inst.line, inst.column, 'break', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
+			}
+
+			if(inst instanceof Continue && continue_) {
+				const desc = `La instruccion 'continue' unicamente debe incluirse dentro de ciclos.`;
+				const error = new Error(inst.line, inst.column, 'continue', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
+			}
+		}
+	}
+
+	/* revisar si existe return en funcion py */
+	public checkIfIsThereReturnPY(instructions: Instruction[], ignoreContinue: boolean, ignoreBreak: boolean): boolean {
+		for(const inst of instructions) {
+
+			if(inst instanceof ForPY) {
+				const value = this.checkIfIsThereReturnPY(inst.instructions, false, false);
+				if(value) {
+					return value;
+				}
+			}
+
+			if(inst instanceof WhilePY) {
+				const value = this.checkIfIsThereReturnPY(inst.instructions, false, false);
+				if(value) {
+					return value;
+				}
+			}
+
+			if(inst instanceof IfInstructionPY) {
+				for(const if_ of inst.instructions) {
+					const value = this.checkIfIsThereReturnPY(if_.instructions, ignoreContinue, ignoreBreak);
+					if(value) {
+						return value;
+					}
+				}
+			}
+
+			if(inst instanceof Continue && !ignoreContinue) {
+				return false;
+			}
+
+			if(inst instanceof Break && !ignoreBreak) {
+				return false;
+			}
+
+			if(inst instanceof ReturnPY) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/* revisar instrucciones break, continue y return donde no van en lenguaje con sintaxis python */
+	public checkAstPY(instructions: Instruction[], break_: boolean, continue_: boolean, return_: boolean) {
+		for(const inst of instructions) {
+			if(inst instanceof ForPY) {
+				this.checkAstPY(inst.instructions, false, false, return_);
+			}
+
+			if(inst instanceof WhilePY) {
+				this.checkAstPY(inst.instructions, false, false, return_);
+			}
+
+			if(inst instanceof IfInstructionPY) {
+				for(const if_ of inst.instructions) {
+					this.checkAstPY(if_.instructions, break_, continue_, return_);
+				}
+			}
+
+			if(inst instanceof Break && break_) {
+				const desc = `La instruccion 'break' unicamente debe incluirse dentro de ciclos o dentro de una instruccion 'switch'.`;
+				const error = new Error(inst.line, inst.column, 'break', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
+			}
+
+			if(inst instanceof Continue && continue_) {
+				const desc = `La instruccion 'continue' unicamente debe incluirse dentro de ciclos.`;
+				const error = new Error(inst.line, inst.column, 'continue', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
+			}
+
+			if(inst instanceof ReturnPY && return_) {
+				const desc = `La instruccion 'return' unicamente debe incluirse dentro de metodos que tengan un tipo de retorno.`;
+				const error = new Error(inst.line, inst.column, 'return', TypeE.SINTACTICO, desc);
+				this.errors.push(error);
 			}
 		}
 	}

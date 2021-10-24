@@ -25,22 +25,22 @@ import { CaseJV } from 'src/instruction/java/case_jv';
 import { SwitchJV } from 'src/instruction/java/switch_jv';
 import { ClassJV } from 'src/instruction/java/class_jv';
 import { ConstructorJV } from 'src/instruction/java/constructor_jv';
+import { FunctionCallJV } from 'src/instruction/java/function_call_jv';
+import { Error, TypeE } from 'src/control/error';
+import { AbsParser } from "../abs_parser";
 
 declare var java: any;
 
-export class Java {
-	private source: Code;
+export class Java extends AbsParser{
 	private yy: any;
-	private blocks: CodeBlock[];
-
 	/* para almacenar las clases java */
 	classes: ClassJV[];
+	private sm: SemanticHandler;
 
-	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
-		this.source = source;
+	constructor(source: Code, blocks: CodeBlock[], errors: Error[]) {
+		super(source, blocks, errors);
 		this.yy = java.yy;
-		this.blocks = blocks;
-
+		this.sm = new SemanticHandler();
 		this.classes = [];
 		this.setFunctions();
 	}
@@ -51,26 +51,25 @@ export class Java {
 			const value: Instruction[] = java.parse(this.source.code);
 			console.log(value);
 
-			const sm = new SemanticHandler();
-			sm.setClasses = [];
+			this.sm.setClasses = [];
 
-			const table= new SymbolTable(sm.peek());
+			const table= new SymbolTable(this.sm.peek());
 
 			for(const instruction of value) {
-				instruction.run(table, sm);
+				instruction.run(table, this.sm);
 			}
 
-			this.classes = sm.getClasses; // obtener las clases java
+			this.classes = this.sm.getClasses; // obtener las clases java
 
 			/* errores */
-			if(sm.errors.length > 0) {
-				sm.errors.forEach(e => console.log(e.toString()));
-			} else {
+			// if(sm.errors.length > 0) {
+			// 	sm.errors.forEach(e => console.log(e.toString()));
+			// } else {
 				// sm.getTables.forEach(t => console.log(t));
 				// console.log(sm.getTables);
 				/* generar cuadruplos */
-				const qh = new QuadHandler(sm, this.blocks);
-				value.forEach(v => v.generate(qh));
+				// const qh = new QuadHandler(sm, this.blocks);
+				// value.forEach(v => v.generate(qh));
 
 				// qh.getQuads.forEach(q => console.log(q.toString()));
 
@@ -78,7 +77,7 @@ export class Java {
 				// this.compilerService.postCompiler(qh.getQuads)
 				// 	.then(console.log)
 				// 	.catch(console.log);
-			}
+			// }
 
 		} catch (error) {
 			console.error(error);
@@ -108,5 +107,6 @@ export class Java {
 		this.yy.SwitchJV = SwitchJV;
 		this.yy.ClassJV = ClassJV;
 		this.yy.ConstructorJV = ConstructorJV;
+		this.yy.FunctionCallJV = FunctionCallJV;
 	}
 }

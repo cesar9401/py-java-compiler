@@ -6,6 +6,7 @@ import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
 import { Error, TypeE } from "src/control/error";
 import { FunctionCall } from "src/instruction/c/function_call";
+import { Getch } from "./getch";
 
 export class Operation extends Instruction{
 	type: OperationType;
@@ -14,10 +15,12 @@ export class Operation extends Instruction{
 	variable?: Variable;
 
 	function_call?: FunctionCall;
+	getch?: Getch;
 
 	public constructor(line: number, column: number, type: OperationType, variable: Variable);
 	public constructor(line: number, column: number, type: OperationType, left: Operation, right?: Operation);
 	public constructor(line: number, column: number, function_call: FunctionCall);
+	public constructor(getch: Getch);
 
 	public constructor(...args: Array<any>) {
 		if(args.length === 4) {
@@ -29,9 +32,13 @@ export class Operation extends Instruction{
 			this.type = args[2];
 			this.left = args[3];
 			this.right = args[4];
-		} else {
+		} else if(args.length === 3) {
 			super(args[0], args[1]);
 			this.function_call = args[2];
+			this.type = OperationType.FUNCTION;
+		} else {
+			super(args[0].line, args[0].column);
+			this.getch = args[0];
 			this.type = OperationType.FUNCTION;
 		}
 	}
@@ -114,11 +121,16 @@ export class Operation extends Instruction{
 				}
 
 				const desc = `La funcion que intenta invocar: '${this.function_call.id}', no devuelve ningun tipo de valor(funcion de tipo void).`;
-				const error = new Error(this.function_call.line, this.function_call.column, this.function_call.id, TypeE.SEMANTICO, desc);;
+				const error = new Error(this.function_call.line, this.function_call.column, this.function_call.id, TypeE.SEMANTICO, desc);
 				sm.errors.push(error);
 				return;
 			}
 			return value;
+		}
+
+		/* getch */
+		if(this.getch) {
+			return this.getch.run(table, sm);
 		}
 
 		return undefined;
@@ -301,6 +313,10 @@ export class Operation extends Instruction{
 
 		if(this.function_call) {
 			return this.function_call.generate(qh);
+		}
+
+		if(this.getch) {
+			return this.getch.generate(qh);
 		}
 
 		return undefined;
