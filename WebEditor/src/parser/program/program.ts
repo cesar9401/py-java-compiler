@@ -28,6 +28,7 @@ import { CodeBlock } from 'src/control/code_block';
 import { ClassJV } from 'src/instruction/java/class_jv';
 import { FunctionPY } from 'src/instruction/py/function_py';
 import { Include } from 'src/instruction/c/include';
+import { Error, TypeE } from 'src/control/error';
 
 declare var program: any;
 
@@ -35,6 +36,10 @@ export class Program {
 	private source: Code;
 	private yy: any;
 	private blocks: CodeBlock[];
+	private errors: Error[];
+	private sm: SemanticHandler;
+	private qh: QuadHandler;
+	private value: Instruction[];
 
 	/* almacenar funciones py */
 	functions: FunctionPY[];
@@ -42,62 +47,56 @@ export class Program {
 	/* almacenar las clases java */
 	classes: ClassJV[];
 
-	constructor(private compilerService: CompilerService, source: Code, blocks: CodeBlock[]) {
-		this.source = source;
+	constructor(source: Code, blocks: CodeBlock[], errors: Error[]) {
 		this.yy = program.yy;
+		this.source = source;
 		this.blocks = blocks;
-
+		this.errors = errors;
 		this.functions = [];
 		this.classes = [];
+		this.value = [];
 
+		this.sm = new SemanticHandler();
+		this.qh = new QuadHandler(this.sm, this.blocks);
 		this.setFunctions();
 	}
 
 	parse() {
 		try {
-			console.log(`PROGRAM`);
-			const value: Instruction[] = program.parse(this.source.code);
-			console.log(value);
+			// console.log(`PROGRAM`);
+			this.value = program.parse(this.source.code);
+			// console.log(this.value);
 
 			/* run */
-			const sm = new SemanticHandler();
-			sm.setFunctions = this.functions; // setear this.functions a sm, viene desde parser.ts
-			sm.setClasses = this.classes; // setear las clases java
+			this.sm.setFunctions = this.functions; // setear this.functions a this.sm, viene desde parser.ts
+			this.sm.setClasses = this.classes; // setear las clases java
 
-			// console.log(sm.getFunctions);
-			// console.log(sm.getClasses);
+			this.sm.push("global");
+			const table = new SymbolTable(this.sm.peek());
+			this.sm.pushTable(table);
 
-			sm.push("global");
-			const table = new SymbolTable(sm.peek());
-			sm.pushTable(table);
-
-			for(const ins of value) {
-				ins.run(table, sm);
+			for(const ins of this.value) {
+				ins.run(table, this.sm);
 			}
 
-			if(sm.errors.length > 0) {
-				sm.errors.forEach(e => console.log(e.toString()));
-			} else {
-				// sm.getTables.forEach(table => console.log(table));
+			this.sm.errors.forEach(e => {
+				e.file = this.source.name;
+				this.errors.push(e);
+			});
 
-				/* generate */
-				const qh = new QuadHandler(sm, this.blocks);
-				qh.push();
-				value.forEach(ins => ins.generate(qh)); // obtener cuadruplas
-				qh.pop();
-
-				qh.addCodeBlock(new CodeBlock("MAIN", qh.getQuads));
-
-				// // console.log("program");
-				// // qh.getQuads.forEach(q => console.log(q.toString())); // imprimir cuadruplas en consola
-
-				// this.compilerService.postCompiler(qh.getQuads)
-				// 	.then(console.log)
-				// 	.catch(console.log);
-			}
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	generate() {
+		this.qh.push();
+		for(const instruction of this.value) {
+			instruction.generate(this.qh);
+		}
+		this.qh.pop();
+		this.qh.addCodeBlock(new CodeBlock("MAIN", this.qh.getQuads));
+		this.qh.cleanQuads();
 	}
 
 	getIncludes(): Include[] {

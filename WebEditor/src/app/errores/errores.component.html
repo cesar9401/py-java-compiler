@@ -1,0 +1,32 @@
+<div class="container">
+	<div class="row my-4">
+		<div class="colmy-4">
+			<h1 class="text-center text-danger">Reporte de Errores</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">Ubicacion</th>
+						<th scope="col">Linea</th>
+						<th scope="col">Columna</th>
+						<th scope="col">Lexema</th>
+						<th scope="col">Descripcion</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of errors">
+						<th scope="row">{{item.file}}</th>
+						<td>{{item.line}}</td>
+						<td>{{item.column}}</td>
+						<td>{{item.lexeme}}</td>
+						<td>{{item.description}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

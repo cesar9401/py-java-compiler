@@ -4,6 +4,7 @@ const get3dCode = require('../utils/code');
 const MakeCode = require('../utils/project');
 const getProjects = require('../utils/parser/read');
 const RenderDB = require('../utils/db/render_db');
+const execute = require('../utils/exec');
 
 const path = require('path');
 
@@ -23,9 +24,17 @@ router.get('/project.out', (req, res) => {
 	const file = path.join(__dirname, '../data/project.out');
 	res.sendFile(file, (error) => {
 		if(error) return console.error(error);
-		console.log('sending: ', file);
+		console.log('sending:', file);
 	})
 });
+
+router.get('/project.c', (req, res) => {
+	const file = path.join(__dirname, '../data/project.c');
+	res.sendFile(file, error => {
+		if(error) return console.error(error);
+		console.log('sending:', file)
+	})
+})
 
 /* post de pruebas para escribir un archivo con codigo 3d */
 router.post('/', (req, res) => {
@@ -46,8 +55,16 @@ router.post('/blocks', (req, res) => {
 	const value = code.getCode();
 	write(value);
 
+	/* compilar */
+	execute();
+
+	const data_ = {
+		data: new Date(),
+		code: value
+	};
+
 	res.status(200);
-	res.json(data);
+	res.json(data_);
 });
 
 /* put para modificaciones en el listado de proyectos */

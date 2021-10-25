@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Quadruple } from "src/table/quadruple";
 import { CodeBlock } from "src/control/code_block";
 import { Project } from "src/model/project";
@@ -38,6 +38,12 @@ export class CompilerService {
 
 	getBinaryFile() {
 		// /project.out
-		return this.http.get(`${this.api}project.out`);
+		const headers = new HttpHeaders().set('Content-Type', 'application/json');
+		return this.http.get(`${this.api}project.out`, { headers, responseType: 'blob' as 'json' });
+	}
+
+	getCFile() {
+		const headers = new HttpHeaders().set('Content-Type', 'application/json');
+		return this.http.get(`${this.api}project.c`, { headers, responseType: 'blob' as 'json' })
 	}
 }

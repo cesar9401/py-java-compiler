@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 class RenderDB {
-	pathDB = '../../data/data.xml';
+	pathDB = '../../data/data.txt';
 
 	constructor(projects) {
 		this.projects = projects;

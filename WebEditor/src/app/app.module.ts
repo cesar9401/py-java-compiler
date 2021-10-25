@@ -7,17 +7,23 @@ import { EditorComponent } from './editor/editor.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { ModalComponent } from './modal/modal.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ResultadoComponent } from './resultado/resultado.component';
+import { ErroresComponent } from './errores/errores.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		EditorComponent,
-		ModalComponent
+		ModalComponent,
+  ResultadoComponent,
+  ErroresComponent
 	],
 	imports: [
 		BrowserModule,
 		AppRoutingModule,
-		HttpClientModule
+		HttpClientModule,
+		BrowserAnimationsModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

@@ -14,5 +14,6 @@ export abstract class AbsParser {
 	}
 
 	parse():any {}
+	generate(): any {}
 	setFunctions():any {}
 }

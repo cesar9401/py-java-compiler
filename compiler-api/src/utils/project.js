@@ -140,7 +140,9 @@ class MakeCode {
 init = `/*
 *
 * compilar con:
-* gcc output.c -o output.out -lm
+* gcc project.c -o project.out -lm
+* ejecutar con:
+* ./project.out
 * by: cesar31
 * https://github.com/cesar9401
 *
@@ -155,14 +157,14 @@ init = `/*
 
 static struct termios old, new;
 
-int stack[3000];
-int stack_n[1000];
-char stack_c[1000];
-float stack_f[1000];
-char* stack_s[1000];
+int stack[5000];
+int stack_n[10000];
+char stack_c[10000];
+float stack_f[10000];
+char* stack_s[10000];
 
 /* heap */
-int heap[3000];
+int heap[5000];
 
 int ptr = 0;
 int ptr_n = 0;

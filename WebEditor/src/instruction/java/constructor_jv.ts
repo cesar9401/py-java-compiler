@@ -111,8 +111,13 @@ export class ConstructorJV extends Instruction {
 		qh.pop();
 
 		/* crear nuevo bloque de codigo */
-		qh.addCodeBlock(new CodeBlock(this.getId(), qh.getQuads));
-		qh.cleanQuads();
+		// qh.addCodeBlock(new CodeBlock(this.getId(), qh.getQuads));
+		// qh.cleanQuads();
+		const clzz = qh.getTmpClazz;
+		if(clzz) {
+			clzz.tmpBlocks.push(new CodeBlock(this.getId(), qh.getQuads));
+			qh.cleanQuads();
+		}
 	}
 
 	public getId():string {

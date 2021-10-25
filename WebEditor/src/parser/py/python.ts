@@ -28,20 +28,22 @@ export class Python extends AbsParser{
 	/* para almacenar las funciones python */
 	functions: FunctionPY[];
 	private sm: SemanticHandler;
+	private qh: QuadHandler;
 
 	constructor(source: Code, blocks: CodeBlock[], errors: Error[]) {
 		super(source, blocks, errors);
 		this.yy = python.yy;
-		this.sm = new SemanticHandler();
 		this.functions = [];
+		this.sm = new SemanticHandler();
+		this.qh = new QuadHandler(this.sm, this.blocks);
 		this.setFunctions();
 	}
 
 	parse() {
 		try {
-			console.log("PY");
+			// console.log("PY");
 			const value: Instruction[] = python.parse(this.source.code);
-			console.log(value);
+			// console.log(value);
 
 			//const sm = new SemanticHandler();
 			this.sm.setFunctions = [];
@@ -53,25 +55,20 @@ export class Python extends AbsParser{
 			}
 
 			this.functions = this.sm.getFunctions; // devolver funciones python
-
-			// if(sm.errors.length > 0) {
-			// 	sm.errors.forEach(e => console.log(e.toString()));
-			// } else {
-				// generar Cuadruplos
-				// console.log(sm.getTables);
-				// const qh = new QuadHandler(sm, this.blocks);
-				// value.forEach(v => v.generate(qh));
-
-				// // console.log("PY");
-				// // qh.getQuads.forEach(q => console.log(q.toString()));
-
-				// // this.compilerService.postCompiler(qh.getQuads)
-				// // 	.then(console.log)
-				// // 	.catch(console.log);
-			// }
+			/* agregar todos los errores recogidos */
+			this.sm.errors.forEach(e => {
+				e.file = this.source.name;
+				this.errors.push(e);
+			});
 
 		} catch (error) {
 			console.error(error);
+		}
+	}
+
+	generate() {
+		for(const inst of this.functions) {
+			inst.generate(this.qh);
 		}
 	}
 

@@ -1,1 +1,18 @@
-<app-editor></app-editor>
+<div class="tab">
+	<button class="tablinks" (click)="setEditor()">Editor</button>
+	<button class="tablinks" (click)="setErrores()">Errores</button>
+	<button class="tablinks" (click)="setResultado()">Resultado</button>
+</div>
+
+<!-- Tab content -->
+<div id="London" class="tabcontent" [hidden]="!editor">
+	<app-editor (send_errors)="getErrors($event)" (send_response)="getResponse($event)"></app-editor>
+</div>
+
+<div id="Paris" class="tabcontent" [hidden]="!errores">
+	<app-errores [errors]="errors"></app-errores>
+</div>
+
+<div id="Tokyo" class="tabcontent" [hidden]="!resultado">
+	<app-resultado [setData]="data"></app-resultado>
+</div>

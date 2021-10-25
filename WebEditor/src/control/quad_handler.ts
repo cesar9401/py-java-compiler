@@ -1,4 +1,5 @@
 import { OperationType } from "src/instruction/c/operation";
+import { ClassJV } from "src/instruction/java/class_jv";
 import { Quadruple } from "src/table/quadruple";
 import { SymbolTable } from "src/table/symbolTable";
 import { CodeBlock } from "./code_block";
@@ -24,6 +25,8 @@ export class QuadHandler {
 
 	private quadReturn?: Quadruple;
 	private returns: Quadruple[];
+
+	private tmpClazz?: ClassJV;
 
 	constructor(sm: SemanticHandler, blocks: CodeBlock[]) {
 		this.sm = sm;
@@ -175,7 +178,8 @@ export class QuadHandler {
 		const element = this.blocks.find(b => b.name === block.name);
 		let index = element ? this.blocks.indexOf(element) : -1;
 		if(index !== -1) {
-			console.log(`Sustituyendo... ${element} at index ${index}`);
+			console.log('sustituyendo:', element, '->', block)
+			// console.log(`Sustituyendo... ${element} at index ${index}`);
 			this.blocks.splice(index, 1, block);
 		} else {
 			this.blocks.push(block);
@@ -185,6 +189,16 @@ export class QuadHandler {
 	public cleanQuads() {
 		this.quads = [];
 	}
+
+	/* clase temporal, no sere undefined cuando se ejecute el metodo generate de la clase */
+	public set setTmpClazz(tmpClazz: ClassJV | undefined) {
+		this.tmpClazz = tmpClazz;
+	}
+
+	public get getTmpClazz(): ClassJV | undefined {
+		return this.tmpClazz;
+	}
+	/* clase temporal, no sere undefined cuando se ejecute el metodo generate de la clase */
 
 	/* agregar y obtener quad para return */
 	public set setQuadReturn(quadReturn: Quadruple | undefined) {

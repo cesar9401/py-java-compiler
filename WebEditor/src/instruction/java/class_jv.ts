@@ -11,11 +11,13 @@ import { StatementJV } from "./statement_jv";
 import { ConstructorJV } from "./constructor_jv";
 import { MethodJV } from "./method_jv";
 import { Type } from "@angular/core";
+import { CodeBlock } from "src/control/code_block";
 
 export class ClassJV extends Instruction {
 	id: string;
 	extends_: string;
 	items: Instruction[];
+	tmpBlocks: CodeBlock[];
 
 	constructor(
 		line: number,
@@ -28,6 +30,8 @@ export class ClassJV extends Instruction {
 		this.id = id;
 		this.extends_ = extends_;
 		this.items = items;
+
+		this.tmpBlocks = [];
 	}
 
 	run(table: SymbolTable, sm: SemanticHandler) {
@@ -75,6 +79,9 @@ export class ClassJV extends Instruction {
 	}
 
 	generate(qh: QuadHandler) {
+		/* setear clase temporal */
+		qh.setTmpClazz = this;
+
 		// console.log(`class ${this.id}`);
 		qh.push();/* tabla local */
 
@@ -91,6 +98,9 @@ export class ClassJV extends Instruction {
 		qh.getSM.setClassTable = undefined;
 
 		qh.pop();
+
+		/* eliminar clase temporal */
+		qh.setTmpClazz = undefined;
 	}
 
 	/* obtener constructor segun firma */

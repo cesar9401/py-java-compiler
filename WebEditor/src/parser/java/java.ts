@@ -36,51 +36,49 @@ export class Java extends AbsParser{
 	/* para almacenar las clases java */
 	classes: ClassJV[];
 	private sm: SemanticHandler;
+	private qh: QuadHandler;
+	private value: Instruction[];
 
 	constructor(source: Code, blocks: CodeBlock[], errors: Error[]) {
 		super(source, blocks, errors);
 		this.yy = java.yy;
-		this.sm = new SemanticHandler();
 		this.classes = [];
+		this.value = [];
+		this.sm = new SemanticHandler();
+		this.qh = new QuadHandler(this.sm, this.blocks);
 		this.setFunctions();
 	}
 
 	parse() {
 		try {
-			console.log("JAVA");
-			const value: Instruction[] = java.parse(this.source.code);
-			console.log(value);
+			// console.log("JAVA");
+			this.value = java.parse(this.source.code);
+			// console.log(this.value);
 
 			this.sm.setClasses = [];
 
 			const table= new SymbolTable(this.sm.peek());
 
-			for(const instruction of value) {
+			for(const instruction of this.value) {
 				instruction.run(table, this.sm);
 			}
 
 			this.classes = this.sm.getClasses; // obtener las clases java
 
-			/* errores */
-			// if(sm.errors.length > 0) {
-			// 	sm.errors.forEach(e => console.log(e.toString()));
-			// } else {
-				// sm.getTables.forEach(t => console.log(t));
-				// console.log(sm.getTables);
-				/* generar cuadruplos */
-				// const qh = new QuadHandler(sm, this.blocks);
-				// value.forEach(v => v.generate(qh));
-
-				// qh.getQuads.forEach(q => console.log(q.toString()));
-
-				// /* enviar al servidor para verificar codigo */
-				// this.compilerService.postCompiler(qh.getQuads)
-				// 	.then(console.log)
-				// 	.catch(console.log);
-			// }
+			/* agregar todos los errores recogidos */
+			this.sm.errors.forEach(e => {
+				e.file = this.source.name;
+				this.errors.push(e);
+			})
 
 		} catch (error) {
 			console.error(error);
+		}
+	}
+
+	generate() {
+		for(const instruction of this.value) {
+			instruction.generate(this.qh);
 		}
 	}
 

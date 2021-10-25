@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Parser } from '../../parser/parser';
 import { CompilerService } from 'src/service/compiler.service';
 import { Project } from 'src/model/project';
 import { Render } from 'src/control/render';
+import { Error } from 'src/control/error'
 
 declare var CodeMirror:any;
 declare var TreeNode: any;
@@ -14,6 +15,10 @@ declare var TreeView: any;
 	styleUrls: ['./editor.component.css'],
 })
 export class EditorComponent implements OnInit {
+
+	@Output() send_errors = new EventEmitter<Error[]>();
+	@Output() send_response = new EventEmitter<string>();
+
 	code: any;
 	root: any;
 	tree: any;
@@ -61,7 +66,7 @@ export class EditorComponent implements OnInit {
 			.catch(console.log);
 	}
 
-	getSource(): void {
+	async getSource(){
 		/* obtener proyecto */
 		if(this.render) {
 			/* enviar cambios? */
@@ -70,7 +75,15 @@ export class EditorComponent implements OnInit {
 			const current = this.render.current;
 			if(project && current) {
 				const parser = new Parser(this.compilerService, current, project);
-				parser.getSources();
+				const data = parser.getSources();
+				const res = await data;
+				// console.log(res);
+				const errors = parser.getErrors;
+				if(errors.length > 0) {
+					this.sendErrors(errors);
+				} else if(res) {
+					this.sendResponse(res);
+				}
 				// let input:string = this.code.getValue();
 			}
 		}
@@ -101,5 +114,13 @@ export class EditorComponent implements OnInit {
 		// 	.subscribe(response => {
 		// 		console.log(response);
 		// 	})
+	}
+
+	sendErrors(errors: Error[]) {
+		this.send_errors.emit(errors);
+	}
+
+	sendResponse(data: string) {
+		this.send_response.emit(data);
 	}
 }

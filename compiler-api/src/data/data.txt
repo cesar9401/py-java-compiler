@@ -1,0 +1,765 @@
+<root>
+<project>
+<name>`Project1`</name>
+<file>
+<name>`file1.mlg`</name>
+<code>
+`
+%%PY
+	def fun1():
+		i = 100
+		while i >= 0:
+        	println(i)
+			i = i - 1
+			if i == 90:
+				break
+
+%%JAVA
+
+public class Persona {
+	private String nombre;
+  	private int edad;
+  
+ 	public Persona() {
+    	this.nombre = "Cesar";
+     	this.edad = 25;
+		sayHello();
+    }
+  
+ 	public Persona(String nombre, int edad) {
+    	this.nombre = nombre;
+      	this.edad = edad;
+      	println("Mis datos son:", this.nombre, "y tengo:", this.edad);
+    }
+  
+  	public void sayHello() {
+      	String result = "Hello my name is " + this.nombre + ", I'm " + this.edad + " years old.";
+      	println(result);
+    }
+  
+  	public void setEdad(int edad) {
+    	this.edad = edad;
+    }
+  
+  	public void setName(String name) {
+    	this.nombre = name;
+    }
+ }
+
+public class Animal {
+	private String tipo;
+  	private int cantidad;
+  	public Animal() {
+    	this.tipo = "perro";
+      	println("Hello there", this.tipo + "!");
+    }
+  
+  	public Animal(String tipo, int cantidad) {
+    	this.tipo = tipo;
+      	this.cantidad = cantidad;
+    }
+  	
+  	public void saludar() {
+    	String result = "Tipo: " + this.tipo + ", cantidad: " + this.cantidad;
+      	println(result);
+    }
+  
+  	public void guau() {
+    	String result = "Tipo: " + tipo + ", cantidad: " + cantidad;
+    	println(result);
+    }
+}
+
+%%PROGRAMA
+
+#include PY.*;
+#include JAVA.*;
+
+const int size = 100;
+
+void main() {
+  	int a = 10;
+	int b = 17 + 1;
+  	printf("Iniciando ejecucion :D\n");
+  	JAVA.Persona persona;
+	JAVA.Persona p1;
+  	JAVA.p1.setName("Luis Miguel");
+  	JAVA.p1.setEdad(a ^ 2 - 25 + 30);
+    JAVA.persona.setName("Vicente Fernandez");
+  	JAVA.persona.setEdad(a + b * 2 * 2);
+	printf("Invocando a funcion de persona:\n");
+	getch();
+  	//JAVA.persona.sayHello();
+  	//getch();
+	//JAVA.p1.sayHello();
+
+  	JAVA.p1.setName("Juan Luis Guerra");
+  	JAVA.p1.setEdad(a + b * 2 * 2);
+  	//JAVA.p1.sayHello();
+	//getch();
+
+    JAVA.persona.setName("Vicente");
+  	JAVA.persona.setEdad(50);
+  	//JAVA.persona.sayHello();
+  
+  	JAVA.Animal a1("Perro", (b - a) * 2);
+  	JAVA.a1.saludar();
+  	JAVA.a1.guau();
+  
+  	PY.fun1();
+  	printf("Fin ejecucion :D\n");
+}
+`
+</code>
+</file>
+<package>
+<name>`com`</name>
+<package>
+<name>`cesar31`</name>
+<file>
+<name>`file3.mlg`</name>
+<code>
+`paquete com.cesar31;
+
+%%PY
+
+%%JAVA
+
+public class Test {
+	private int value1;
+  	private int value2;
+  
+  	public Test(int value1, int value2) {
+    	this.value1 = value1;
+      	this.value2 = value2;
+      	int suma = getSuma() + getSuma();
+      	println("El valor de la suma es", suma);
+    }
+
+  	public int getSuma() {
+    	return this.value1 + this.value2;
+    }
+  
+  	public int getResta() {
+		int value = 10;
+      	while(value > 0) {
+        	value = value - 1;
+          	if(value == 4) {
+            	break;
+            }
+        }
+      	return this.value1 - this.value2;
+    }
+  
+  	public void getResult() {
+      	println(this.value1, this.value2);
+      	for(int i = 0; i < 10; i = i + 1) {
+          	if(i == 2) {
+            	continue;
+            } else if(i == 5) {
+            	break;
+            }
+        	println("Iteracion:", i);
+        }
+    }
+  
+  	public int factorial(int n) {
+    	if(n < 0) {
+        	return -1;
+        } else if(n <= 1) {
+        	return 1;
+        } else {
+        	return n * factorial(n - 1);
+        }
+    }
+  	
+  	public int ackerman(int m, int n) {
+    	if(m == 0) {
+        	return n + 1;
+        } else if(m > 0 && n == 0) {
+        	return ackerman(m - 1, 1);
+        } else {
+          	int value = ackerman(m, n - 1);
+        	return ackerman(m  - 1, value);
+        }
+    }
+  
+}
+
+%%PROGRAMA
+
+#include JAVA.*;
+
+const int size = 100;
+JAVA.Test test1(125, (200 - 100) / 2);
+
+void main() {
+	printf("Iniciando, presione una tecla :D\n");
+  	int a, b;
+  	scanf("Ingrese un numero %d", &a);
+  	scanf("Ingrese otro numero %d", &b);
+  
+  	printf("Los numeros ingresados son: a = %d, b = %d\n", a, b);
+  
+  	int value = JAVA.test1.factorial(JAVA.test1.factorial(3));
+  	printf("El resultado es: %d\n", value);
+  
+  	//int resultado = JAVA.test1.ackerman(a, b);
+  	//printf("El resultado es: %d\n", resultado);
+  
+	printf("Fin ejecucion :D\n");
+}
+
+`
+</code>
+</file>
+</package>
+<package>
+<name>`tests`</name>
+<file>
+<name>`function.mlg`</name>
+<code>
+`paquete com.tests;
+/* write your code here */
+
+%%PY
+
+%%JAVA
+
+public class Calculadora {
+	private int num1;
+  	private int num2;
+  
+	public Calculadora(int num1, int num2) {
+    	this.num1 = num1;
+      	this.num2 = num2;
+    }
+  	
+  	public void setNum1(int num1) {
+    	this.num1 = num1;
+    }
+  
+  	public void setNum2(int num2) {
+    	this.num2 = num2;
+    }
+  
+  	public int sumar() {
+    	int total = num1 + num2;
+		if(total == 30) {
+          	int val = num1 * num2;
+        	println("Retornando:", val);
+          	return val;
+        } else if(total == 20){
+          	println("Retornando:", this.num1);
+        	return this.num1;
+        }
+      
+      	return total;
+    }
+  
+  	public float getPi() {
+    	return 3.1416;
+    }
+  
+  	public String getName() {
+    	return "Cesar";
+    }
+  	
+  	public int restar() {
+    	return this.num1 - this.num2;
+    }
+  
+  	public boolean isPresent() {
+		return this.num1 == this.num2 && this.num1 > 10;
+    }
+}
+
+%%PROGRAMA
+
+int a = 12, b = 10;
+JAVA.Calculadora c1(10, 10);
+
+void main() {
+	printf("Iniciando ejecucion :D\n");
+  
+  	int value = JAVA.c1.sumar();
+  	printf("El resultado es: %d\n", value);
+  
+  	float pi = JAVA.c1.getPi();
+	printf("El valor de pi es %f\n", pi);
+  
+  	int operacion = a * b - JAVA.c1.sumar();
+  	printf("Operacion: %d\n", operacion);
+
+  	int resta = JAVA.c1.restar();
+  	printf("Resta: %d\n", resta);
+  	
+  	int present = JAVA.c1.isPresent();
+  	printf("Presente1 %d\n", present);
+  
+  	printf("Presente2 %d\n", JAVA.c1.isPresent());
+  
+  	printf("Fin ejecucion :D\n");
+}
+`
+</code>
+</file>
+</package>
+</package>
+</project>
+<project>
+<name>`Project2`</name>
+<file>
+<name>`file5.mlg`</name>
+<code>
+`
+%%PY
+	def demo1():
+		for i in range(10):
+			println(i)
+
+		println("Fin ejecucion :D")
+
+%%JAVA
+
+public class Persona {
+	private String nombre;
+	private int edad;
+  
+	public Persona() {
+      	this.nombre = "Jose";
+    	this.edad = 25;
+      	boolean value = true;
+     	while(value) {
+          	this.edad = this.edad + 1;
+			if(this.edad == 100) {
+            	value = false;
+            }
+       	}
+      
+      	if(!value) {
+	      	println("La edad es:", this.edad);
+        }
+    
+      	value = true;
+      	for(int i = 0; i < this.edad && value; i = i + 1) {
+        	println("Iteracion ->", i);
+        	if(i == 50) {
+            	value = false;
+            }
+        }
+      
+      	switch(nombre) {
+          case "Cesar":
+            println("Cesar :v");
+            break;
+          case "Jose":
+            println("Jose :v");
+            break;
+          default:
+            println("Default :v");
+            break;
+        }
+      
+      	do {
+        	this.edad = edad - 1;
+          	println("Edad:", this.edad, "Value:", value);   
+          	value = true;
+          	if(this.edad == 20) {
+            	value = false;
+            }
+        } while(value);
+      	println(value);
+    }
+}
+
+
+%%PROGRAMA
+
+/*
+#include PY.*;
+#include JAVA.*;
+*/
+
+const int size = 100;
+
+void main() {
+	int a = 10;
+	int b = a + 5;
+
+	PY.demo1();
+
+}
+`
+</code>
+</file>
+<file>
+<name>`testJava.mlg`</name>
+<code>
+`/* write your code here */
+
+%%PY
+	def fun1():
+    	println("Hello from python")
+
+%%JAVA
+
+public class Alumno {
+	private String name;
+  	private int age;
+  	private float grade;
+  	
+  	public Alumno(String name, int age, float grade) {
+    	this.name = name;
+      	this.age = age;
+      	this.grade = grade;
+    }
+  
+  	public int getAge() {
+      	if(this.age < 18) {
+        	return 18;
+        } else {
+          	if(this.age == 20) {
+            	return 21;
+            } else {
+				return 19;        
+            }
+        }
+    }
+}
+
+%%PROGRAMA
+
+void main() {
+	printf("Iniciando ejecucion\n");
+  	JAVA.Alumno a1("Jose", 20, 70.12);
+  	JAVA.Alumno a2("Pedro", 15, 85.75);
+  	int a = 10;
+  	while(a > 0) {
+     	if(a == 2) {
+          	a = a - 1;
+		  	continue;
+        	break;
+    	}
+      	a = a - 1;
+      	printf("%d\n", a);
+    }
+
+  	printf("a1 %d\n", JAVA.a1.getAge());
+  	printf("a2 %d\n", JAVA.a2.getAge());
+  
+}
+`
+</code>
+</file>
+<file>
+<name>`test_py.mlg`</name>
+<code>
+`/* write your code here */
+
+%%PY
+	def fun():
+    	println("Iniciando ejecucion")
+		// return 1
+
+%%JAVA
+
+
+%%PROGRAMA
+
+void main() {
+	printf("Iniciando ejecucion :D\n");
+  	char c = getch();
+  	int q = c;	
+  	printf("Caracter leido: %c\n", c);
+  	printf("Caracter leido: %d\n", q);
+}
+
+`
+</code>
+</file>
+</project>
+<project>
+<name>`Test1`</name>
+<package>
+<name>`com`</name>
+<package>
+<name>`package1`</name>
+<file>
+<name>`file1.mlg`</name>
+<code>
+`paquete com.package1;
+/* write your code here */
+
+%%PY
+
+	def saludar():
+    	println("Hello there! I'm greeting you from package com.package1")
+		println("Goodbye!!")
+
+	def funcion1():
+    	for x in range(0,10,2):
+	    	println("hello from com.package1", x)
+
+
+%%JAVA
+public class Greetings {
+	private String name;
+  	public Greetings(String name) {
+    	this.name = name;
+    }
+  
+  	public void sayHello() {
+    	println("Hello there, my name is", getName());
+    }
+  	
+  	public void sayBye() {
+    	println("Goodbye", getName());
+    }
+  
+  	public String getName() {
+    	return this.name;
+    }
+  
+  	public void setName(String name) {
+    	this.name = name;
+    }
+}
+
+%%PROGRAMA
+
+`
+</code>
+</file>
+<file>
+<name>`test1.mlg`</name>
+<code>
+`paquete com.package1;
+/* write your code here */
+
+%%PY
+	def test1():
+    	a, b = 0, 100
+		while a <= b:
+			println(a + b)
+			a = a + 5
+			b = b - 5
+
+	def test2():
+    	for i in range(0,100,1):
+			if i % 5 == 0:
+            	//continue
+			print(i)
+		println("")
+
+%%JAVA
+
+public class Libro {
+	private String title;
+  	private int count;
+	private float price;
+  
+  	public Libro(String title, int count, float price) {
+    	this.title = title;
+      	this.count = count;
+    	this.price = price;
+    }
+  
+  	public float getTotal() {
+    	return this.count * this.price;
+    }
+  
+  	public float getPrice() {
+    	return this.price;
+    }
+  
+  	public int getCount() {
+    	return this.count;
+    }
+  	
+  	public void viewData() {
+    	println(toString());
+    }
+  
+  	public String toString() {
+    	return "Titulo: " + this.title + ", precio: " + this.price + ", stack: " + this.count;
+    }
+}
+
+%%PROGRAMA
+
+`
+</code>
+</file>
+</package>
+<package>
+<name>`package2`</name>
+<file>
+<name>`file2.mlg`</name>
+<code>
+`paquete com.package2;
+/* write your code here */
+
+%%PY
+
+	def fun1():
+    	println("Hello from PY package com.package2 :v")
+		for i in range(100):
+        	if i % 10 == 0:
+            	println("Iterador:", i)
+
+%%JAVA
+
+public class Calculadora {
+	public Calculadora() {
+    }
+  
+  	public int suma(int a, int b) {
+    	return a + b;
+    }
+  
+  	public int resta(int a, int b) {
+    	return a - b;
+    }
+  
+  	public int producto(int a, int b) {
+    	return a * b;
+    }
+  
+	public int division(int a, int b) {
+    	if(b == 0) {
+          	println("No es posible division entre cero");
+          	return 0;
+        }
+      	return a / b;
+    }
+}
+
+%%PROGRAMA
+
+void main() {
+	printf("Hello from file2.mlg :D\n");
+}
+`
+</code>
+</file>
+<file>
+<name>`file3.mlg`</name>
+<code>
+`paquete com.package2;
+/* write your code here */
+
+%%PY
+
+
+%%JAVA
+
+
+%%PROGRAMA
+
+`
+</code>
+</file>
+</package>
+<package>
+<name>`Main`</name>
+<file>
+<name>`Main.mlg`</name>
+<code>
+`paquete com.Main;
+/* write your code here */
+
+%%PY
+	def funcion1():
+    	println("Hello from funcion1 :D")
+		a, b = 0, 20
+		for i in range(a,b):
+			if i == 10:
+            	continue
+        	println("Iteracion:", i)
+	
+	def funcion2():
+    	i = 10
+		while(i):
+    		println("Hello from funcion2 :D")
+			i = i - 1
+
+%%JAVA
+
+public class Persona {
+	private String name;
+  
+  	public Persona() {
+    	this.name = "Cesar";
+      	sayHello();
+    }
+  
+  	public Persona(String name) {
+    	this.name = name;
+      	sayHello();
+    }
+  
+  	private void sayHello() {
+    	println("Hello there! my name is:", this.name);
+    }
+}
+
+public class Alumno {
+	private String id;
+  	private float average;
+  
+  	public Alumno(String id, float average) {
+    	this.id = id;
+      	this.average = average;
+    }
+  
+  	public float getAverage() {
+    	return this.average;
+    }
+}
+
+%%PROGRAMA
+
+// #include PY.com.package1.file1;
+// #include PY.test1;
+// #include JAVA.com.package1.package2.Animalote;
+// #include JAVA.com.Main.*;
+#include JAVA.Alumno;
+#include JAVA.Persona;
+// #include PY.*;
+// #include JAVA.Persona;
+#include JAVA.com.package2.Calculadora;
+#include JAVA.com.package2.Calculadora1;
+#include JAVA.com.package1.Calculadora;
+#include JAVA.com.package1.*;
+
+const int size = 10;
+JAVA.Calculadora calc1;
+JAVA.Libro l2("El diario de Ana Frank", 100, 250.34);
+
+void main() {
+  	JAVA.Greetings g1("Cesar :v");
+	JAVA.Libro l1("El tambor", 20, 120.25);
+  
+	printf("Iniciando ejecucion :D\n");
+	JAVA.g1.sayHello();
+	JAVA.g1.sayBye();
+  	JAVA.l1.viewData();
+	float total = JAVA.l1.getTotal();
+  	printf("El total es: %f\n", total);
+  	printf("El total es: %f\n", JAVA.l2.getTotal());
+	JAVA.l2.viewData();
+	printf("Suma: %d\n", JAVA.calc1.suma(size, size));
+  	JAVA.l2.viewData();
+  	char c = getch();
+  	printf("%c\n", c);
+  	printf("Fin ejecucion :D\n");
+}
+
+`
+</code>
+</file>
+</package>
+</package>
+</project>
+</root>

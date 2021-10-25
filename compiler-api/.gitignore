@@ -1,8 +1,8 @@
 # c files
-src/data/*.c
+# src/data/*.c
 src/data/*.out
 src/data/*.xml
-src/data/*.txt
+# src/data/*.txt
 
 # Created by https://www.toptal.com/developers/gitignore/api/node
 # Edit at https://www.toptal.com/developers/gitignore?templates=node

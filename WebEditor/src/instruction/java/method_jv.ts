@@ -125,10 +125,13 @@ export class MethodJV extends Instruction {
 		}
 
 		/* crear nuevo bloque de codigo */
-		// console.log(this.getId());
-		// console.log(qh.getQuads)
-		qh.addCodeBlock(new CodeBlock(this.getId(), qh.getQuads));
-		qh.cleanQuads();
+		// qh.addCodeBlock(new CodeBlock(this.getId(), qh.getQuads));
+		// qh.cleanQuads();
+		const clzz = qh.getTmpClazz;
+		if(clzz) {
+			clzz.tmpBlocks.push(new CodeBlock(this.getId(), qh.getQuads));
+			qh.cleanQuads();
+		}
 	}
 
 	public getId(): string {
