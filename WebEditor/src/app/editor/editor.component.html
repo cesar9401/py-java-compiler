@@ -1,6 +1,6 @@
 <div class="container-fluid">
 	<div class="row">
-		<div id="btn-area" class="my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir proyecto" (click)="getFile()" >
+		<div id="btn-area" class="my-2">
 			<!--
 			<button class="btn btn-outline-light mx-1">
 				<img src="../../assets/images/folder-open.png" alt="Abrir proyecto" width="40px">
@@ -32,7 +32,7 @@
 	<div class="row">
 		<div class="col-3">
 			<div class="d-grid">
-				<button (click)="getSource()" class="btn btn-success">Compilar</button>
+				<button (click)="parseC()" class="btn btn-success">Compilar</button>
 			</div>
 			<div class="text-center">
 				<span class="badge bg-light text-dark fs-6">{{info}}</span>

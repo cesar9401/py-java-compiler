@@ -55,7 +55,7 @@ export class ResultadoComponent implements OnInit {
 
 	downloadCode() {
 		this.compilerService.getCFile().subscribe(response => {
-			console.log(response);
+			// console.log(response);
 			this.manageCFile(response);
 		});
 	}

@@ -22,6 +22,7 @@ import { FunctionCall } from 'src/instruction/c/function_call';
 import { CreateClass } from 'src/instruction/c/create_class';
 import { SemanticHandler } from 'src/control/semantic_handler';
 import { QuadHandler } from 'src/control/quad_handler';
+import { ArrayStatement } from 'src/instruction/c/array_statement';
 import { CompilerService } from 'src/service/compiler.service';
 import { Code } from 'src/parser/main/code';
 import { CodeBlock } from 'src/control/code_block';
@@ -59,6 +60,18 @@ export class Program {
 		this.sm = new SemanticHandler();
 		this.qh = new QuadHandler(this.sm, this.blocks);
 		this.setFunctions();
+	}
+
+	parseTest() {
+		this.value = program.parse(this.source.code);
+		console.log(this.value);
+
+		/* funciones py y clases java */
+
+		/* table de simbolos */
+		this.sm.push("global");
+		const table = new SymbolTable(this.sm.peek());
+		this.sm.pushTable(table);
 	}
 
 	parse() {
@@ -140,6 +153,7 @@ export class Program {
 		this.yy.Scanf = Scanf; // instruccion leer
 		this.yy.Main = Main; // Metodo principal
 		this.yy.FunctionCall = FunctionCall; // llamada de funciones
+		this.yy.ArrayStatement = ArrayStatement; // declaracion de arreglo
 		this.yy.CreateClass = CreateClass; // crear clases
 		this.yy.Include = Include; // incluir otros archivos
 	}

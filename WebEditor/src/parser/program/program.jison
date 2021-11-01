@@ -238,6 +238,7 @@ body
 body_opt
 		: const { $$ = [$1]; }
 		| statement { $$ = [...$1]; }
+		| array_statement { $$ = [$1]; }
 		| assigment { $$ = [...$1]; }
 		| class_statement { $$ = [$1]; }
 		| main { $$ = [$1]; }
@@ -288,6 +289,7 @@ main_b
 		: statement { $$ = [...$1]; }
 		| assigment { $$ = [...$1]; }
 		| class_statement { $$ = [$1]; }
+		| array_statement { $$ = [$1]; }
 		| list_if { $$ = [$1]; }
 		| while_ { $$ = [$1]; }
 		| do_while_ { $$ = [$1]; }
@@ -311,6 +313,22 @@ const
 			{ $$ = new yy.Statement(this._$.first_line + yy.line, this._$.first_column, true, $2, $3, $5); }
 		;
 /* constantes */
+
+/* array statement */
+array_statement
+		: type ID dimensions SEMI
+			{ $$ = new yy.ArrayStatement(this._$.first_line + yy.line, this._$.first_column, $1, $2, $3); }
+		;
+
+dimensions
+		: dimensions dimension { $1.push($2); $$ = $1; }
+		| dimension { $$ = [$1]; }
+		;
+
+dimension
+		: LBRACKET a RBRACKET { $$ = $2; }
+		;
+/* array statement */
 
 /* statement */
 statement

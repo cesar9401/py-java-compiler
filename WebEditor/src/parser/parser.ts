@@ -44,6 +44,24 @@ export class Parser {
 		this.response = '';
 	}
 
+	/* funcion para parsear unicamente codigo c */
+	parseC() {
+		try {
+			const value: Code[] = main.parse(this.input.code);
+			value.forEach(code => code.name = this.input.name);
+
+			/* parsear codigo c */
+			const c = new Program(value[3], this.blocks, this.errors);
+			c.functions = this.functions;
+			c.classes = this.classes;
+			c.parseTest();
+
+		} catch(error) {
+			console.error(error);
+		}
+	}
+	/* funcion para parsear unicamente codigo c */
+
 	getSources() {
 		try {
 			const value: Code[] = main.parse(this.input.code);
@@ -208,15 +226,6 @@ export class Parser {
 		c.classes = this.classes;
 		c.parse();
 
-		/* revisar que todas las clases que pidieron importarse, fueron encontradas */
-		// console.log(this.list);
-		// console.log(this.classes);
-		// console.log(this.map);
-		// // for(const entry of this.map.entries()) {
-		// // 	console.log(entry[0], entry[1]);
-		// // }
-		/* revisar que todas las clases que pidieron importarse, fueron encontradas */
-
 		if(this.errors.length > 0) {
 			//this.errors.forEach(e => console.log(e.toString()));
 			/* emitir errores */
@@ -232,17 +241,6 @@ export class Parser {
 				this.blocks = [...this.blocks, ...clzz.tmpBlocks];
 			}
 
-			// console.log(this.blocks);
-
-			/* enviar al servidor */
-			// this.compilerService.sendCodeBlocks(this.blocks)
-			// 	.then(data => {
-			// 		// console.log(data.code);
-			// 		/* emitir data */
-			// 		this.response = data.code;
-			// 		console.log(this.response);
-			// 	})
-			// 	.catch(console.log);
 			try {
 				const data = await this.compilerService.sendCodeBlocks(this.blocks);
 				// console.log(data);
@@ -272,15 +270,6 @@ export class Parser {
 		this.parsers.push(java);
 		return java;
 	}
-
-	/* parser codigo con sintaxis c */
-	// parseProgram(source: Code) {
-	// 	let program = new Program(source, this.blocks, this.errors);
-	// 	program.functions = this.functions;
-	// 	program.classes = this.classes;
-	// 	program.parse();
-	// }
-
 
 	/* agregar una funcion de py */
 	private addFunction(f: FunctionPY) {

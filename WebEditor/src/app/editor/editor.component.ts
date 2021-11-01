@@ -46,10 +46,6 @@ export class EditorComponent implements OnInit {
 			this.info = `Linea: ${result.line + 1}, Columna: ${result.ch}`;
 		});
 
-		// treeview
-		//this.root = new TreeNode("root", {icon: '<span>&#128449;</span>' });
-		//this.tree = new TreeView(this.root, document.querySelector('.folders-container'));
-
 		/* obtenter proyectos */
 		this.compilerService.getCompiler()
 			.then(data => {
@@ -66,11 +62,24 @@ export class EditorComponent implements OnInit {
 			.catch(console.log);
 	}
 
+	/* parsear solo codigo c */
+	parseC() {
+		if(this.render) {
+			const project: Project | undefined = this.render.getProject;
+			const current = this.render.current;
+			if(project && current) {
+				const parser = new Parser(this.compilerService, current, project);
+				parser.parseC();
+			}
+		}
+	}
+	/* parsear solo codigo c */
+
+	/* parsear codigo */
 	async getSource(){
 		/* obtener proyecto */
 		if(this.render) {
 			/* enviar cambios? */
-
 			const project: Project | undefined = this.render.getProject;
 			const current = this.render.current;
 			if(project && current) {
@@ -107,13 +116,6 @@ export class EditorComponent implements OnInit {
 
 	delete() {
 		this.render?.delete();
-	}
-
-	getFile() {
-		// this.compilerService.getBinaryFile()
-		// 	.subscribe(response => {
-		// 		console.log(response);
-		// 	})
 	}
 
 	sendErrors(errors: Error[]) {

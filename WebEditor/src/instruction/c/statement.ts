@@ -60,7 +60,7 @@ export class Statement extends Instruction {
 
 			} else {
 				// error se intenta asignar un valor no definido
-				const desc = `Se esta intentando asignar un valor nulo a la variable '${this.id}' probablemente uno de los operadores no tiene un valor definido o no ha sido declarado.`;
+				const desc = `Se esta intentando asignar un valor nulo a la variable '${this.id}' probablemente uno de los operandos no tiene un valor definido o no ha sido declarado.`;
 				const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
 				sm.errors.push(error);
 			}
