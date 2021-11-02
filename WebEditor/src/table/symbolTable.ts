@@ -13,17 +13,17 @@ export class SymbolTable extends Array<Variable>{
 
 	add(variable: Variable): void{
 		variable.scope = this.scope;
-		// variable.size = 1;
+		variable.pos = this.length;
 
-		if(this.length > 0) {
-			const n = this.length - 1;
-			const prev = this[n];
-			if(prev && prev.pos !== undefined && prev.size !== undefined) {
-				variable.pos = prev.pos + prev.size;
-			}
-		} else {
-			variable.pos = 0;
-		}
+		// if(this.length > 0) {
+		// 	const n = this.length - 1;
+		// 	const prev = this[n];
+		// 	if(prev && prev.pos !== undefined && prev.size !== undefined) {
+		// 		variable.pos = prev.pos + prev.size;
+		// 	}
+		// } else {
+		// 	variable.pos = 0;
+		// }
 
 		this.push(variable);
 	}

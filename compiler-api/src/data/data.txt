@@ -138,9 +138,8 @@ void main()
 const int size = 10;
 
 void main() {
-  	printf("Inicio ejecuciion\n");
-	int arreglo1[10];
-	printf("Fin ejecucion :D\n");
+
+	int arreglo1[10][2][size];
 }
 `
 </code>
