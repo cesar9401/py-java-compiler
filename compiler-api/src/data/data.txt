@@ -135,11 +135,12 @@ void main()
 
 %%PROGRAMA
 
-const int size = 10;
-
 void main() {
-
-	int arreglo1[10][2][size];
+  
+	int arreglo1[10];
+  
+  	arreglo1[9] = (1024 >= 1);
+    
 }
 `
 </code>

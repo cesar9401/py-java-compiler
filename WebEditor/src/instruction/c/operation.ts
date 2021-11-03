@@ -285,14 +285,6 @@ export class Operation extends Instruction{
 						return new Quadruple(this.type, "", "", this.variable.value, this.type);
 				}
 
-				// revisar esto
-				/*
-				const result = qh.getTmp();
-				const quad = new Quadruple(this.type, this.variable.value, "", result, this.type);
-				qh.addQuad(quad);
-				return quad;
-				*/
-
 			} else if(this.variable.id) {
 				const variable = qh.peek().getById(this.variable.id);
 				if(variable && variable.pos !== undefined) {

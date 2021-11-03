@@ -374,6 +374,8 @@ list_assign
 assign
 		: ID EQUAL a
 			{ $$ = new yy.Assignment(this._$.first_line + yy.line, this._$.first_column, $1, $3); }
+		| ID dimensions EQUAL a
+			{ $$ = new yy.ArrayAssignment(this._$.first_line + yy.line, this._$.first_column, new yy.ArrayAccess($1, $2), $4); }
 		;
 /* assignment */
 

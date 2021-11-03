@@ -31,15 +31,13 @@ export class ArrayStatement extends Instruction {
 			const value: Variable | undefined = operation.run(table, sm);
 			if(!value || !value.value) {
 				const desc = `Se esta intentando asignar un valor nulo para definir una de las dimensiones del arreglo '${this.id}', probablemente uno de los operandos no tiene un valor definido o no ha sido declarado.`;
-				const error = new Error(this.line, this.column, this.id, TypeE.SEMANTICO, desc);
+				const error = new Error(operation.line, operation.column, this.id, TypeE.SEMANTICO, desc);
 				sm.errors.push(error);
-			} else {
-				if(value.type !== OperationType.INT) {
-					/* error, se espera variable de tipo entero */
-					const desc = `Se esta intentando definir la dimension del arreglo '${this.id}' con una variable que no es de tipo entero, se encontro variable de tipo '${value.type}'.`;
-					const error = new Error(operation.line, operation.column, operation.variable && operation.variable.id ? operation.variable.id : '', TypeE.SEMANTICO, desc);
-					sm.errors.push(error);
-				}
+			} else if(value.type !== OperationType.INT) {
+				/* error, se espera variable de tipo entero */
+				const desc = `Se esta intentando definir la dimension del arreglo '${this.id}' con una variable que no es de tipo entero, se encontro variable de tipo '${value.type}'.`;
+				const error = new Error(operation.line, operation.column, operation.variable && operation.variable.id ? operation.variable.id : '', TypeE.SEMANTICO, desc);
+				sm.errors.push(error);
 			}
 		}
 
@@ -67,11 +65,12 @@ export class ArrayStatement extends Instruction {
 
 	generate(qh: QuadHandler) {
 		const variable = qh.peek().getById(this.id);
+		const stack = this.getNameStack(this.type);
 		if(variable && variable.pos !== undefined) {
 			/* switch this.type */
 			const t1 = qh.getTmp();
 			qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
-			qh.addQuad(new Quadruple("ASSIGN", "ptr_n", '', `stack[${t1}]`));
+			qh.addQuad(new Quadruple("ASSIGN", `${stack[1]}`, '', `stack[${t1}]`));
 
 			/* guardar valores de las dimensiones en la pila */
 			this.dimensions.forEach((operation, index) => {
@@ -106,7 +105,22 @@ export class ArrayStatement extends Instruction {
 			/* para calcular dimension del arreglo */
 
 			/* aumentar puntero */
-			qh.addQuad(new Quadruple("PLUS", "ptr_n", tmp, "ptr_n"));
+			qh.addQuad(new Quadruple("PLUS", `${stack[1]}`, tmp, `${stack[1]}`));
 		}
+	}
+
+	private getNameStack(type: OperationType) {
+		switch(type) {
+			case OperationType.INT:
+			// case OperationType.BOOL:
+			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
+			case OperationType.FLOAT:
+				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
+			// case OperationType.STRING:
+			// 	return [`stack_s[ptr_s]`, `ptr_s`, `stack_s`];
+			case OperationType.CHAR:
+				return [`stack_c[ptr_c]`, `ptr_c`, `stack_c`];
+		}
+		return [];
 	}
 }
