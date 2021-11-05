@@ -5,8 +5,9 @@ import { Quadruple } from "src/table/quadruple";
 import { SemanticHandler } from "src/control/semantic_handler";
 import { QuadHandler } from "src/control/quad_handler";
 import { Error, TypeE } from "src/control/error";
+import { ArrayAccess } from "src/instruction/c/array_access";
 import { FunctionCall } from "src/instruction/c/function_call";
-import { Getch } from "./getch";
+import { Getch } from "src/instruction/c/getch";
 
 export class Operation extends Instruction{
 	type: OperationType;
@@ -16,6 +17,7 @@ export class Operation extends Instruction{
 
 	function_call?: FunctionCall;
 	getch?: Getch;
+	array?: ArrayAccess;
 
 	public constructor(line: number, column: number, type: OperationType, variable: Variable);
 	public constructor(line: number, column: number, type: OperationType, left: Operation, right?: Operation);
@@ -36,10 +38,13 @@ export class Operation extends Instruction{
 			super(args[0], args[1]);
 			this.function_call = args[2];
 			this.type = OperationType.FUNCTION;
-		} else {
+		} else if(args.length === 1){
 			super(args[0].line, args[0].column);
 			this.getch = args[0];
 			this.type = OperationType.FUNCTION;
+		} else {
+			super(0, 0);
+			this.type = OperationType.ARRAY;
 		}
 	}
 
@@ -99,6 +104,11 @@ export class Operation extends Instruction{
 								const desc = `La variable con identificador '${this.variable.id}', no tiene un valor definido.`;
 								const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
 								sm.errors.push(error);
+							} else if(val.isArray) {
+								/* es un arreglo */
+								const desc = `La variable con identificador '${this.variable.id}', corresponde a un arreglo.`;
+								const error = new Error(this.line, this.column, this.variable.id, TypeE.SEMANTICO, desc);
+								sm.errors.push(error);
 								return undefined;
 							}
 							return val;
@@ -131,6 +141,48 @@ export class Operation extends Instruction{
 		/* getch */
 		if(this.getch) {
 			return this.getch.run(table, sm);
+		}
+
+		/* arreglo */
+		if(this.array) {
+			const val = table.getById(this.array.id);
+			if(!val) {
+				const desc = `La arreglo con identificador '${this.array.id}' no existe.`;
+				const error = new Error(this.line, this.column, this.array.id, TypeE.SEMANTICO, desc);
+				sm.errors.push(error);
+				return;
+			}
+
+			if(!val.isArray) {
+				const desc = `La variable con identificador '${this.array.id}' no corresponde a una variable de tipo arreglo.`;
+				const error = new Error(this.line, this.column, this.array.id, TypeE.SEMANTICO, desc);
+				sm.errors.push(error);
+				return;
+			}
+
+			/* el numero de dimensiones del arreglo no coinciden con las dimensiones declaradas */
+			if(val.size !== this.array.dimensions.length) {
+				const desc = `El arreglo ${this.array.id} es de ${val.size} dimensiones, se esta intentado acceder con el numero de dimensiones incorrecto (${this.array.dimensions.length}).`;
+				const error = new Error(this.line, this.column, this.array.id, TypeE.SEMANTICO, desc);
+				sm.errors.push(error);
+				return;
+			} else {
+				/* revisar que las operaciones que definen la dimension sean de tipo entero */
+				for(const op of this.array.dimensions) {
+					const tmp: Variable | undefined = op.run(table, sm);
+					if(!tmp || !tmp.value) {
+						const desc = `Se esta intentando acceder a una de las dimensiones del arreglo '${this.array.id}', con un valor nulo, probablemente uno de los operandos no tiene un valor definido o no ha sido declarado.`;
+						const error = new Error(op.line, op.column, op.variable && op.variable.id ? op.variable.id : '', TypeE.SEMANTICO, desc);
+						sm.errors.push(error);
+					} else if(tmp.type !== OperationType.INT) {
+						const desc = `Se esta intentando acceder a una de las dimensiones del arreglo '${this.array.id}', con un valor de tipo '${tmp.type}', se esperaba un valor de tipo entero.`;
+						const error = new Error(op.line, op.column, op.variable && op.variable.id ? op.variable.id : '', TypeE.SEMANTICO, desc);
+						sm.errors.push(error);
+					}
+				}
+			}
+
+			return new Variable(val.type, undefined, " ");
 		}
 
 		return undefined;
@@ -311,7 +363,101 @@ export class Operation extends Instruction{
 			return this.getch.generate(qh);
 		}
 
+		if(this.array) {
+			const variable = qh.peek().getById(this.array.id);
+			if(variable && variable.pos !== undefined) {
+				const stack = this.getNameStack(variable.type);
+				let tt = this.getPos(qh);
+
+				const t1 = qh.getTmp();
+				const t2 = qh.getTmp(); /* puntero en ptr_n o segun sea el tipo donde inicia el arreglo */
+				const t3 = qh.getTmp();
+				const t4 = qh.getTmp();
+				qh.addQuad(new Quadruple("PLUS", "ptr", variable.pos.toString(), t1, OperationType.INT));
+				qh.addQuad(new Quadruple("ASSIGN", `stack[${t1}]`, '', t2, OperationType.INT));
+				qh.addQuad(new Quadruple("PLUS", t2, tt, t3, OperationType.INT));
+				const arrayQuad = new Quadruple("ASSIGN", `${stack[2]}[${t3}]`, '', t4, variable.type);
+				qh.addQuad(arrayQuad);
+				return arrayQuad;
+			}
+		}
+
 		return undefined;
+	}
+
+	/* obtener posicion segun arreglo */
+	private getPos(qh: QuadHandler) {
+		let tt = '';
+		if(this.array) {
+			if(this.array.dimensions.length > 1) {
+				/* hacer los calculos para obtener la ubicacion en ptr_n o segun sea el caso donde se asignara el valor de this.operation */
+				for(let i = 0; i < this.array.dimensions.length - 1; i++) {
+					if(i === 0) {
+						const dim = qh.peek().getById(`${this.array.id}[${i + 1}]`);
+						const tmp = qh.getTmp();
+						const tmp1 = qh.getTmp();
+						if(dim && dim.pos !== undefined) {
+							/* obtener longitud de dimension 1 -> J */
+							qh.addQuad(new Quadruple("PLUS", "ptr", dim.pos.toString(), tmp, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${tmp}]`, '', tmp1, OperationType.INT));
+
+							/* obtener i */
+							const quad0: Quadruple | undefined = this.array.dimensions[i].generate(qh);
+
+							/* multiplicar i * J */
+							const tt2 = qh.getTmp();
+							const tt3 = qh.getTmp();
+							qh.addQuad(new Quadruple("TIMES", quad0 ? quad0.result : '', tmp1, tt2, OperationType.INT));
+
+							/* obtener j */
+							const quad: Quadruple | undefined = this.array.dimensions[i + 1].generate(qh);
+							qh.addQuad(new Quadruple("PLUS", tt2, quad ? quad.result : '', tt3, OperationType.INT));
+							tt = tt3
+						}
+					} else {
+						const dim = qh.peek().getById(`${this.array.id}[${i + 1}]`);
+						const tmp = qh.getTmp();
+						const tmp1 = qh.getTmp();
+						const tmp2 = qh.getTmp();
+						if(dim && dim.pos !== undefined) {
+							qh.addQuad(new Quadruple("PLUS", "ptr", dim.pos.toString(), tmp, OperationType.INT));
+							qh.addQuad(new Quadruple("ASSIGN", `stack[${tmp}]`, '', tmp1, OperationType.INT));
+
+							qh.addQuad(new Quadruple("TIMES", tt, tmp1, tmp2, OperationType.INT));
+
+							/* obtener siguiente indice */
+							const quad: Quadruple | undefined = this.array.dimensions[i + 1].generate(qh);
+							const tmp3 = qh.getTmp();
+							qh.addQuad(new Quadruple("PLUS", tmp2, quad ? quad.result : '', tmp3, OperationType.INT));
+							tt = tmp3;
+						}
+					}
+				}
+			} else {
+				const quad: Quadruple | undefined = this.array.dimensions[0].generate(qh);
+				if(quad) {
+					tt = quad.result;
+				}
+			}
+		}
+
+		return tt;
+	}
+
+	/* obtener puntero, stack segun tipo de variable */
+	private getNameStack(type: OperationType) {
+		switch(type) {
+			case OperationType.INT:
+			// case OperationType.BOOL:
+			return [`stack_n[ptr_n]`, `ptr_n`, `stack_n`];
+			case OperationType.FLOAT:
+				return [`stack_f[ptr_f]`, `ptr_f`, `stack_f`];
+			// case OperationType.STRING:
+			// 	return [`stack_s[ptr_s]`, `ptr_s`, `stack_s`];
+			case OperationType.CHAR:
+				return [`stack_c[ptr_c]`, `ptr_c`, `stack_c`];
+		}
+		return [];
 	}
 
 	private getFromStack(qh: QuadHandler, ts: string, variable: Variable): Quadruple {
@@ -376,6 +522,7 @@ export enum OperationType {
 	BOOL = "BOOLEAN",
 	VOID = "VOID",
 
+	ARRAY = "ARRAY",
 	CLAZZ = "CLASS", /* para una clase */
 	FUNCTION = "FUNCTION", /* para una función */
 

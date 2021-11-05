@@ -40,7 +40,7 @@ main							"main"
 int								"int"
 char							"char"
 float							"float"
-array							"arreglo"
+// array							"arreglo"
 const							"const"
 if								"if"
 else							"else"
@@ -105,7 +105,7 @@ not								"!"
 <INITIAL>{int}					return "INT";
 <INITIAL>{char}					return "CHAR";
 <INITIAL>{float}				return "FLOAT";
-<INITIAL>{array}				return "ARRAY";
+// <INITIAL>{array}				return "ARRAY";
 <INITIAL>{const}				return "CONST";
 <INITIAL>{if}					return "IF";
 <INITIAL>{else}					return "ELSE";
@@ -603,5 +603,14 @@ i
 		| LPAREN a RPAREN { $$ = $2; }
 		| function_call { $$ = new yy.Operation(this._$.first_line + yy.line, this._$.first_column, $1); }
 		| getch_
+		/* array_access */
+		| ID dimensions
+			%{
+				const op = new yy.Operation();
+				op.line = this._$.first_line + yy.line;
+				op.column = this._$.first_column;
+				op.array = new yy.ArrayAccess($1, $2);
+				$$ = op;
+			%}
 		;
 /* operaciones logicas y aritmeticas */

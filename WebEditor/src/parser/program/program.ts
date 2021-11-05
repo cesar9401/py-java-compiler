@@ -82,18 +82,17 @@ export class Program {
 		if(this.sm.errors.length) {
 			this.sm.errors.forEach(e => console.log(e.toString()));
 		} else {
-			this.sm.getTables.forEach(t => console.log(t));
+			// this.sm.getTables.forEach(t => console.log(t));
 
-			this.qh.push();
-			for(const instruction of this.value) {
-				instruction.generate(this.qh);
-			}
-			this.qh.pop();
+			// this.qh.push();
+			// for(const instruction of this.value) {
+			// 	instruction.generate(this.qh);
+			// }
+			// this.qh.pop();
 
-			/* agregar bloque aqui */
-			this.qh.getQuads.forEach(q => console.log(q.toString()));
+			// /* agregar bloque aqui */
+			// this.qh.getQuads.forEach(q => console.log(q.toString()));
 		}
-
 	}
 
 	parse() {
