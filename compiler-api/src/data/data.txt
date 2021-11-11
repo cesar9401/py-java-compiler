@@ -174,4 +174,159 @@ void main() {
 </code>
 </file>
 </project>
+<project>
+<name>`referencia`</name>
+<package>
+<name>`java`</name>
+<file>
+<name>`includeJava1.mlg`</name>
+<code>
+`paquete java;
+
+%%PY
+	
+%%JAVA
+
+public class Mensajero1 {
+  
+	public Mensajero1() {
+    }
+  
+	public void mensaje(int tipo) {
+		switch(tipo) {
+			case 1:
+				println("Arreglo antes de ordenarse");
+				break;
+			case 2:
+				println("Arreglo despues de ordenarse");
+				break;
+			default:
+				println("Default!");
+		}
+	}
+	
+	public void mostrar(int indice, int valor) {
+		  println("arreglo[", indice, "] = ", valor);
+	}
+
+}
+
+%%PROGRAMA`
+</code>
+</file>
+</package>
+<package>
+<name>`python`</name>
+</package>
+<package>
+<name>`Main`</name>
+<file>
+<name>`Main.mlg`</name>
+<code>
+`paquete main;
+%%PY
+	
+%%JAVA
+
+%%PROGRAMA
+
+
+/* ---------------------------------------------
+	Sección de Librerias
+   --------------------------------------------- */
+   //#include PY.python.*;
+   #include JAVA.java.*;
+   
+/* ---------------------------------------------
+    Declaracion de Constantes
+   --------------------------------------------- */
+   
+   const int tamano = 10;
+
+/* ---------------------------------------------
+    Declaracion de Variables Globales
+   --------------------------------------------- */
+   
+   int arreglo[tamano];		 
+   int i=0;
+   int j=0;
+   int tmp;
+   int a;
+   int b;
+   
+   JAVA.Mensajero1 m1;
+   
+   void main ()
+   {
+        // Inicializar arreglo
+		arreglo[0]=7;
+		arreglo[1]=14;
+		arreglo[2]=18;
+		arreglo[3]=19;
+		arreglo[4]=21;
+		arreglo[5]=2;
+		arreglo[6]=9;
+		arreglo[7]=24;
+		arreglo[8]=29;
+		arreglo[9]=47;
+		
+	   
+	   JAVA.m1.mensaje(1);
+	 
+	 for(i = 0; i < tamano; i = i + 1)
+	   {
+			JAVA.m1.mostrar(i, arreglo[i]);
+	   }
+		
+		// Ordenar el arreglo
+		// Inicio while 1
+     	i = 0;
+     	j = 0;
+          
+		while(i < 10)
+		{
+			// Inicio while 2
+			while(j < 9)
+			{
+				// Inicio if
+              	
+				if(arreglo[j] < arreglo[j+1])
+				{
+					//PY.Intercambiar(arreglo[j],arreglo[j+1]);
+					tmp = arreglo[j+1];
+					arreglo[j+1] = arreglo[j];
+					arreglo[j] = tmp;
+					// printf("%d\n", i, j);
+				} // fin if
+				
+				// contador 2
+				//PY.Incremento(j);
+				j = j + 1;
+			
+			} // fin while
+			
+			// contador 1
+			j = 0;
+			//PY.Incremento(i);
+			i = i + 1;
+			
+		} // fin while
+	   
+	   // Mostrar el arreglo ordenado
+
+	   JAVA.m1.mensaje(2);
+	   
+	   for(i = 0; i < tamano; i = i + 1)
+	   {
+			JAVA.m1.mostrar(i,arreglo[i]);
+	   }
+	   
+	   getch();
+   }
+	
+`
+</code>
+</file>
+</package>
+</project>
 </root>
